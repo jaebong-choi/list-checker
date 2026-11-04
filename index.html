@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK1.5</title>
+<title>오타 및 계산 수정기 MK1.6</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -78,7 +78,8 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
 .results{display:flex;flex-direction:column;gap:14px}
 .empty{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:56px 24px;text-align:center;color:var(--muted)}
 .empty h3{color:var(--ink);font-size:17px;margin:0 0 8px;font-weight:600}
-.empty ul{text-align:left;display:inline-block;margin:14px 0 0;padding-left:18px;font-size:14px;line-height:1.8}
+.empty ul{text-align:left;display:block;width:fit-content;max-width:100%;margin:16px auto 0;padding-left:18px;font-size:14px;line-height:1.8}
+.empty .note{margin-top:14px}
 .meta{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;font-size:13px;color:var(--muted)}
 .meta b{color:var(--ink);font-weight:600}
 .rec{background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden}
@@ -174,7 +175,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <header class="hero">
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK1.5</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK1.6</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT 파일을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -232,6 +233,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       <label class="kw"><input type="checkbox" id="kiwiOn"> 띄어쓰기 검사 (Kiwi)</label>
       <p class="note">켤 때마다 검사 도구(약 100MB)를 불러와요. 처음엔 1~2분, 그다음엔 브라우저에 저장돼 있어 빨라요. 제안은 <b>빼기</b>로 나오고, 직접 고른 것만 고쳐져요.</p>
       <div class="status" id="kiwiStatus"></div>
+      <label class="kw"><input type="checkbox" id="engOn" checked> 영어 철자 검사</label>
+      <p class="note">영어 사전(약 0.5MB)으로 철자를 봐요. 대문자 약어(KMCU), 이름 칸, 파일 안에서 3번 이상 쓰인 단어(학교·회사 이름 등)는 넘어가요. 제안은 <b>빼기</b>로 나오고, 직접 고른 것만 고쳐져요.</p>
+      <div class="status" id="engStatus"></div>
     </section>
 
     <section class="step">
@@ -255,13 +259,14 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   <div class="results" id="results">
     <div class="empty">
       <h3>왼쪽에 엑셀·워드·PPT 파일을 넣어 주세요</h3>
-      서식이 달라도 같은 파일 안에서 서로 비교해서 찾아요.
+      <p style="margin:0">서식이 달라도 같은 파일 안에서 서로 비교해서 찾아요.</p>
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
         <li>같은 칸 비교: 다른 줄엔 다 있는데 빠진 항목, 빈 값, 중복 항목</li>
         <li>숫자·계산: 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
         <li>오탈자·형식: 오타 사전, 한 글자만 다른 말, 괄호 짝, 앞뒤 공백</li>
         <li>띄어쓰기: Kiwi 검사를 켜면 띄어쓰기 제안</li>
+        <li>영어 철자: 영어 사전에 없는 단어에 고칠 말 제안 (예: Universtiy → University)</li>
         <li>문서 보기: 오른쪽에 파일이 그대로 보이고, 틀린 곳이 색칠돼요</li>
         <li>내보내기: 고른 것만 자동으로 고치고, 나머지는 색칠·메모로 표시해요</li>
       </ul>
@@ -284,6 +289,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 
 <script src="lib/exceljs.min.js"></script>
 <script src="lib/jszip.min.js"></script>
+<script src="lib/typo.js"></script>
 <script>
 /* 명단 검수 엔진 — 서식에 기대지 않고 같은 파일 안에서 서로 비교해 찾는다 */
 (function (root) {
@@ -673,6 +679,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         // 띄어쓰기 (Kiwi) — 사전 오타가 든 곳은 사전이 먼저
         if (opts.spacer) for (const sg of opts.spacer(t)) if (!typoList.some(([w]) => sg.from.includes(w)))
           add(S, cell.r, cell.c, LV.TYPO, '띄어쓰기', `띄어쓰기: '${sg.from}' → '${sg.to}'`, { fix: [sg.from, sg.to], optIn: true });
+        // 영어 철자 (사전) — 이름 칸은 건너뜀
+        if (opts.speller && !(S.nameCol === cell.c && recSet.has(cell.r))) for (const sg of opts.speller(t))
+          add(S, cell.r, cell.c, LV.TYPO, '영어 철자', `영어 철자: '${sg.from}' → '${sg.to}'?`, { fix: [sg.from, sg.to], optIn: true });
         // 같은 단어 연속
         const rep = t.match(/(?:^|\s)([\p{L}]{2,})\s+\1(?=\s|$)/u);
         if (rep) add(S, cell.r, cell.c, LV.TYPO, '오탈자', `같은 단어가 두 번 이어집니다: '${rep[1]} ${rep[1]}'`);
@@ -842,7 +851,8 @@ async function load(file){
       });
     }
     fileBuf = buf; fileName = file.name; kind = k; data = d;
-    choice.clear(); closed.clear(); undoSnap = null; pvSheet = null; $('undoBtn').disabled = true; $('saveStatus').textContent = '';
+    choice.clear(); closed.clear(); undoSnap = null; pvSheet = null;
+    if ($('engOn').checked && !eng) await loadEng(); $('undoBtn').disabled = true; $('saveStatus').textContent = '';
     run();
   } catch (e) {
     console.error(e);
@@ -857,7 +867,9 @@ function canFix(i){
 }
 
 function run(){
-  const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null });
+  const useEng = eng && $('engOn').checked;
+  if (useEng) { engBudget = ENG_MAX; engFreq = new Map(); data.forEach(sh => sh.cells.forEach(c => { for (const m of stripUrl(c.text).matchAll(EN_WORD)) engFreq.set(m[0], (engFreq.get(m[0]) || 0) + 1); })); }
+  const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null, speller: useEng ? speller : null });
   if (kind !== 'xlsx') r.issues.forEach(i => { if (!i.rec) i.recLabel = `${i.sheet} ${locOf(i)}`; });
   const ign = ignoreSet();
   r.ignored = r.issues.filter(i => ign.has(ignoreKey(i))).length;
@@ -939,7 +951,7 @@ function render(){
     html += `<details class="rec"${closed.has(label) ? '' : ' open'} data-label="${esc(label)}"><summary class="rec-h"><h3>${esc(label)}</h3><span>${on}/${arr.length}개 포함</span></summary>`;
     for (const i of arr) {
       const src = sourceOf(i), ch = choice.get(i.id), ik = ignoreKey(i);
-      const acts = '<button class="link" data-act="show">문서에서 보기</button>' + ((i.guess || i.cat === '띄어쓰기') ? '<button class="link" data-act="dict">사전에 추가</button>' : '') +
+      const acts = '<button class="link" data-act="show">문서에서 보기</button>' + ((i.guess || i.cat === '띄어쓰기' || i.cat === '영어 철자') ? '<button class="link" data-act="dict">사전에 추가</button>' : '') +
         (ik && !(i.cat === '오탈자' && i.fix && !i.guess) ? '<button class="link" data-act="ignore">다음부터 무시</button>' : '');
       html += `<div class="iss${ch === 'off' ? ' off' : ''}" data-id="${esc(i.id)}" data-cell="${esc(cellKey(i))}">
         <span class="lv ${i.level}">${LVNAME[i.level]}</span>
@@ -1416,6 +1428,62 @@ async function exportPptx(list){
     console.error(e); setStatus('saveStatus', 'PPT 파일을 만들지 못했어요. 다시 시도해 주세요.', 'warn');
   }
 }
+
+// ---------- 영어 철자 (Typo.js + 미국 영어 사전, 브라우저 안에서만) ----------
+let eng = null, engLoading = null, engFreq = new Map(), engBudget = 0;
+const engCache = new Map(), ENG_MAX = 300; // ponytail: 고칠 말 찾기는 느려서 한 번 검사에 처음 보는 단어 300개까지만
+const stripUrl = t => t.replace(/\S+@\S+|https?:\/\/\S+|www\.\S+/gi, ' ');
+// 첫 글자만 대문자이거나 모두 소문자인 3글자 이상 단어. 대문자 약어·숫자 섞인 말·하이픈 단어는 뺌
+const EN_WORD = /(?<![\p{L}\p{N}'’\-@.\/])[A-Za-z][a-z]{2,}(?:['’][a-z]+)?(?![\p{L}\p{N}'’\-@\/])/gu;
+function loadEng(){
+  if (eng) return Promise.resolve(eng);
+  if (engLoading) return engLoading;
+  setStatus('engStatus', '영어 사전 불러오는 중…');
+  engLoading = Promise.all(['lib/en_US/en_US.aff', 'lib/en_US/en_US.dic'].map(u => fetch(u).then(r => { if (!r.ok) throw new Error(u); return r.text(); })))
+    .then(([aff, dic]) => { eng = new Typo('en_US', aff, dic); setStatus('engStatus', '영어 철자 검사를 켰어요.', 'ok'); return eng; })
+    .catch(e => { console.error(e); engLoading = null; $('engOn').checked = false; setStatus('engStatus', '영어 사전을 불러오지 못했어요. 새로고침해 주세요.', 'warn'); });
+  return engLoading;
+}
+// 업무에서 자주 쓰지만 사전에 없는 말
+const ENG_OK = new Set('apostille apostilled visa visas homestay orientation internship interns kakaotalk email emails online offline'.split(' '));
+// Typo.js의 suggest()는 단어당 0.6초쯤 걸려서, 한 글자 바꾼 후보만 직접 만들어 사전에 있는지 봄
+const AZ = 'abcdefghijklmnopqrstuvwxyz';
+function bestFix(w){
+  const lw = w.toLowerCase(), ok = x => x.length > 1 && x !== lw && eng.check(x);
+  let swap = null, other = null;
+  // 뒤바뀜: 첫 글자 자리는 마지막에(Teh → the가 eth보다 먼저)
+  for (const i of [...Array(Math.max(0, lw.length - 1)).keys()].slice(1).concat(0)) {
+    const x = lw.slice(0, i) + lw[i + 1] + lw[i] + lw.slice(i + 2); if (ok(x)) { swap = x; break; }
+  }
+  if (!swap) find: {
+    for (let i = 0; i < lw.length; i++) { const x = lw.slice(0, i) + lw.slice(i + 1); if (ok(x)) { other = x; break find; } }
+    for (let i = 0; i < lw.length; i++) for (const ch of AZ) { const x = lw.slice(0, i) + ch + lw.slice(i + 1); if (ok(x)) { other = x; break find; } }
+    for (let i = 0; i <= lw.length; i++) for (const ch of AZ) { const x = lw.slice(0, i) + ch + lw.slice(i); if (ok(x)) { other = x; break find; } }
+  }
+  let to = swap || other; if (!to) return null;
+  if (/^[A-Z]/.test(w)) to = to[0].toUpperCase() + to.slice(1);
+  return { to, swap: !!swap };
+}
+function speller(text){
+  const out = [], seen = new Set();
+  for (const m of stripUrl(text).matchAll(EN_WORD)) {
+    const w = m[0].replace(/’/g, "'");
+    if (seen.has(w)) continue; seen.add(w);
+    if (ENG_OK.has(w.toLowerCase()) || eng.check(w) || eng.check(w.toLowerCase())) continue;
+    if (!engCache.has(w)) { if (engBudget-- <= 0) continue; engCache.set(w, bestFix(w)); }
+    const f = engCache.get(w); if (!f || f.to === w) continue;
+    // 글자 뒤바뀜은 늘 알림. 그 밖의 제안은 짧은 말(4글자 이하)·파일에 3번 이상 나온 말(학교·회사 이름 등)이면 넘어감
+    if (!f.swap && (w.length <= 4 || (engFreq.get(m[0]) || 0) >= 3)) continue;
+    out.push({ from: m[0], to: f.to });
+  }
+  return out;
+}
+$('engOn').checked = store.get('eng') !== '0';
+$('engOn').onchange = async () => {
+  store.set('eng', $('engOn').checked ? '1' : '0');
+  if ($('engOn').checked) await loadEng(); else setStatus('engStatus', '');
+  if (data) run();
+};
 
 // ---------- 띄어쓰기 (Kiwi, 브라우저 안에서만 실행) ----------
 // ponytail: 화면 스레드에서 실행(처음 1~2초 멈춤). 느리면 Web Worker로 옮기기
