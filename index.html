@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>신청자 명단 검수기 MK1.2</title>
+<title>신청자 명단 검수기 MK1.3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -85,11 +85,23 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
 .rec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
 .rec-h h3{margin:0;font-size:15px;font-weight:600}
 .rec-h span{font-size:12px;color:var(--muted);white-space:nowrap}
-.iss{display:grid;grid-template-columns:auto 86px minmax(0,1fr);gap:4px 12px;align-items:start;padding:10px 16px;border-top:1px solid var(--line)}
+.tools{position:sticky;top:0;z-index:2;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--desk);padding:0 0 12px}
+.tools input{flex:1 1 220px;width:auto}
+.tools select{width:auto;flex:none}
+select.t,.pick{border:1px solid var(--line);border-radius:4px;padding:6px 8px;background:var(--panel);font:inherit;color:inherit;font-size:13px}
+details.rec>summary.rec-h{cursor:pointer;list-style:none}
+details.rec>summary.rec-h::-webkit-details-marker{display:none}
+details.rec>summary h3::before{content:'▾ ';color:var(--muted)}
+details.rec:not([open])>summary h3::before{content:'▸ '}
+details.rec:not([open])>summary.rec-h{border-bottom:0}
+.iss{display:grid;grid-template-columns:86px minmax(0,1fr) auto;gap:4px 12px;align-items:start;padding:10px 16px;border-top:1px solid var(--line)}
 .iss:first-of-type{border-top:0}
-.iss input{margin-top:4px;width:16px;height:16px;accent-color:var(--accent)}
+.pick.fix{border-color:var(--ok);color:var(--ok);font-weight:600}
+.acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.link{border:0;background:none;padding:0;color:var(--accent);font-size:12px;cursor:pointer;text-decoration:underline}
+.cant{display:block;font-size:12px;color:var(--warn);margin-top:2px}
 .iss.off .msg,.iss.off .lv{opacity:.45}
-.iss.off .msg{text-decoration:line-through;text-decoration-color:var(--muted)}
+.iss.off .txt{text-decoration:line-through;text-decoration-color:var(--muted)}
 .lv{font-size:12px;font-weight:600;border-radius:3px;padding:2px 6px;text-align:center;margin-top:2px}
 .lv.fix{color:var(--fix);background:var(--fix-soft)}
 .lv.check{color:var(--warn);background:var(--warn-soft)}
@@ -99,12 +111,13 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
 .auto{font-size:11px;font-weight:600;color:var(--ok);border:1px solid var(--ok);border-radius:3px;padding:0 5px;margin-left:6px}
 .msg{font-size:14px;overflow-wrap:anywhere}
 .loc{display:block;font-size:12px;color:var(--muted);margin-bottom:1px}
-.src{grid-column:3;font-size:12px}
+.src{grid-column:2 / 4;font-size:12px}
 .src pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 10px;margin:6px 0 0;font:inherit;font-size:12.5px;line-height:1.6;max-height:240px;overflow:auto}
 .src mark{background:var(--mark);color:inherit;border-radius:2px}
 .copied{color:var(--ok)}
 .foot{max-width:1240px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:var(--muted)}
-@media (max-width:600px){.iss{grid-template-columns:auto minmax(0,1fr)}.iss .lv{grid-column:2;justify-self:start}.iss .msg,.src{grid-column:2}}
+.iss .lv{grid-column:1;grid-row:1}.iss .msg{grid-column:2;grid-row:1}.iss .pick{grid-column:3;grid-row:1}.iss .src{grid-row:2}
+@media (max-width:600px){.iss{grid-template-columns:minmax(0,1fr) auto}.iss .lv{justify-self:start}.iss .pick{grid-column:2}.iss .msg{grid-column:1 / 3;grid-row:2}.iss .src{grid-column:1 / 3;grid-row:3}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -113,11 +126,11 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
   <div class="hero-in">
     <div>
       <p class="eyebrow">for 계명문화대학교 국제처</p>
-      <h1>신청자 명단 검수기 <span class="ver">MK1.2</span></h1>
+      <h1>신청자 명단 검수기 <span class="ver">MK1.3</span></h1>
       <p class="lead">유학원이 보낸 엑셀·워드 명단을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자 오류, 오탈자를 찾아 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
     <ol class="flow" aria-label="사용 순서">
-      <li><b>1</b>엑셀 넣기</li>
+      <li><b>1</b>파일 넣기</li>
       <li><b>2</b>결과 고르기</li>
       <li><b>3</b>자동 수정·내보내기</li>
     </ol>
@@ -127,31 +140,33 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
 <div class="wrap">
   <aside>
     <section class="step">
-      <h2><b>1</b>엑셀 넣기</h2>
+      <h2><b>1</b>파일 넣기</h2>
       <div class="drop" id="drop" tabindex="0" role="button" aria-label="엑셀·워드 파일 선택">
         <strong>엑셀·워드 파일을 여기에 끌어 놓기</strong>
         또는 눌러서 선택 (.xlsx, .docx)
       </div>
       <input type="file" id="file" accept=".xlsx,.xlsm,.docx" hidden>
-      <div class="status" id="loadStatus"></div>
-      <button class="btn wide" id="rerunBtn" style="margin-top:10px" disabled>같은 파일 다시 검사</button>
+      <div class="status" id="loadStatus" aria-live="polite"></div>
+      <p class="note">사전·무시 목록·띄어쓰기 설정을 바꾸면 자동으로 다시 검사하고, 이미 고른 선택은 그대로 둬요.</p>
     </section>
 
     <section class="step">
       <h2><b>2</b>결과 고르기</h2>
       <div class="tally" id="tally">
-        <button class="tal" data-lv="fix" aria-pressed="true"><span>수정 필요</span><strong id="nFix">0</strong></button>
-        <button class="tal" data-lv="check" aria-pressed="true"><span>확인 요망</span><strong id="nCheck">0</strong></button>
-        <button class="tal" data-lv="typo" aria-pressed="true"><span>오탈자·형식</span><strong id="nTypo">0</strong></button>
+        <button class="tal" data-lv="fix" aria-pressed="true" title="틀린 게 거의 확실한 것 (철자 불일치, 합계 오류, 없는 날짜 등)"><span>수정 필요</span><strong id="nFix">0</strong></button>
+        <button class="tal" data-lv="check" aria-pressed="true" title="틀렸을 수 있어 사람이 봐야 하는 것 (빈칸, 빠진 항목, 환율 차이 등)"><span>확인 요망</span><strong id="nCheck">0</strong></button>
+        <button class="tal" data-lv="typo" aria-pressed="true" title="철자·띄어쓰기·공백·괄호"><span>오탈자·형식</span><strong id="nTypo">0</strong></button>
       </div>
-      <p class="note">숫자 칸을 누르면 목록에서 숨기거나 다시 보여요. 각 항목의 체크를 끄면 자동 수정과 엑셀 표시에서 빠집니다. <b>자동 수정</b> 표시가 붙은 항목은 내보낼 때 바로 고쳐져요.</p>
+      <p class="note"><b>수정 필요</b> 틀린 게 거의 확실 · <b>확인 요망</b> 틀렸을 수 있어 사람이 확인 · <b>오탈자·형식</b> 철자·띄어쓰기·공백·괄호. 숫자 칸을 누르면 목록에서 숨기거나 다시 보여요.</p>
+      <p class="note">각 항목 오른쪽에서 내보낼 때 처리 방법을 골라요: <b>자동 수정</b>(고치고 초록색) · <b>표시만</b>(안 고치고 색칠·메모) · <b>빼기</b>.</p>
       <div class="row">
-        <button class="btn" id="allOn" disabled>모두 체크</button>
-        <button class="btn" id="allOff" disabled>모두 해제</button>
+        <button class="btn" id="allOn" disabled>보이는 항목 모두 포함</button>
+        <button class="btn" id="allOff" disabled>보이는 항목 모두 빼기</button>
+        <button class="btn" id="undoBtn" disabled>되돌리기</button>
       </div>
       <details style="margin-top:12px">
         <summary>오타 사전 고치기</summary>
-        <p class="note">한 줄에 하나씩 <b>틀린말 → 맞는말</b> 형식으로 적어 주세요. 이 브라우저에 저장돼서 다음에도 쓰여요.</p>
+        <p class="note">한 줄에 하나씩 <b>틀린말 → 맞는말</b>로 적어 주세요. 화살표 대신 <b>-&gt;</b> 나 <b>=</b> 로 써도 돼요(예: <code>몃일 = 며칠</code>). 결과 카드의 「사전에 추가」로도 넣을 수 있어요. 이 브라우저에 저장돼요.</p>
         <textarea id="dict" spellcheck="false" style="margin-top:6px"></textarea>
         <div class="row">
           <button class="btn" id="dictSave">저장하고 다시 검사</button>
@@ -159,21 +174,35 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
         </div>
         <div class="status" id="dictStatus"></div>
       </details>
+      <details style="margin-top:8px">
+        <summary>무시 목록 (<span id="nIgnore">0</span>개)</summary>
+        <p class="note">결과 카드의 「다음부터 무시」로 넣은 항목이에요. 같은 내용은 다른 파일에서도 안 나와요. 줄을 지우고 저장하면 다시 나와요.</p>
+        <textarea id="ignore" spellcheck="false" style="margin-top:6px"></textarea>
+        <div class="row"><button class="btn" id="ignoreSave">저장하고 다시 검사</button></div>
+      </details>
       <label class="kw"><input type="checkbox" id="kiwiOn"> 띄어쓰기 검사 (Kiwi)</label>
-      <p class="note">처음 켤 때 검사 도구(약 100MB)를 한 번 받아요. 제안은 <b>체크가 꺼진 채로</b> 나오고, 체크한 것만 고쳐져요. 글이 모두 이 PC 안에서만 검사돼요.</p>
+      <p class="note">켤 때마다 검사 도구(약 100MB)를 불러와요. 처음엔 1~2분, 그다음엔 브라우저에 저장돼 있어 빨라요. 제안은 <b>빼기</b>로 나오고, 직접 고른 것만 고쳐져요.</p>
       <div class="status" id="kiwiStatus"></div>
     </section>
 
     <section class="step">
       <h2><b>3</b>자동 수정·내보내기</h2>
-      <p class="note" style="margin-top:0">자동 수정 가능 <b id="nAuto">0</b>개 · 나머지는 칸 색칠과 메모로 표시</p>
-      <button class="btn primary wide" id="xlsxBtn" style="margin-top:10px" disabled>자동 수정해서 내보내기</button>
-      <p class="note">오타 사전·오타 의심·앞뒤 공백은 고친 값으로 바꾸고(초록), 나머지는 색칠·메모만 해요. 맨 뒤에 「검수 결과」 시트가 붙고, 원본 파일은 바뀌지 않습니다.</p>
-      <div class="status" id="saveStatus"></div>
+      <p class="note" style="margin-top:0">자동 수정 <b id="nAuto">0</b>개 · 표시만 <b id="nMark">0</b>개 · 빼기 <b id="nOff">0</b>개</p>
+      <label class="kw" style="margin-top:8px;font-weight:500"><input type="checkbox" id="markOnly"> 고치지 말고 표시만 해서 내보내기</label>
+      <p class="note" style="margin-top:2px">유학원에 돌려보내 직접 고치게 할 때 켜세요.</p>
+      <button class="btn primary wide" id="xlsxBtn" style="margin-top:10px" disabled>내보내기</button>
+      <p class="note">맨 뒤에 「검수 결과」 시트(워드는 문서 끝 목록)와 색 안내가 붙어요. 원본 파일은 바뀌지 않습니다.</p>
+      <div class="status" id="saveStatus" aria-live="polite"></div>
     </section>
   </aside>
 
-  <main class="results" id="results" aria-live="polite">
+  <main>
+  <div class="tools" id="tools" hidden>
+    <input type="search" class="t" id="q" placeholder="학생 이름·번호·내용 검색 (예: 환율, NGUYEN, 3번)" aria-label="결과 검색">
+    <select id="catSel" class="t" aria-label="항목 종류"></select>
+    <span class="note" id="visCount" style="margin:0"></span>
+  </div>
+  <div class="results" id="results">
     <div class="empty">
       <h3>왼쪽에 엑셀·워드 명단을 넣어 주세요</h3>
       서식이 유학원마다 달라도 같은 파일 안에서 서로 비교해서 찾아요.
@@ -185,12 +214,13 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
         <li>띄어쓰기: Kiwi 검사를 켜면 긴 글의 띄어쓰기 제안</li>
       </ul>
     </div>
+  </div>
   </main>
 </div>
 <p class="foot">문맥으로만 알 수 있는 오류(예: 목록엔 형 서류가 있는데 가족정보엔 형이 없음)는 못 잡을 수 있어요. 마지막 확인은 사람이 해 주세요.</p>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="lib/exceljs.min.js"></script>
+<script src="lib/jszip.min.js"></script>
 <script>
 /* 명단 검수 엔진 — 서식에 기대지 않고 같은 파일 안에서 서로 비교해 찾는다 */
 (function (root) {
@@ -316,7 +346,7 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
   function analyze(workbook, opts = {}) {
     const today = opts.today || new Date();
     const typoList = (opts.typos || DEFAULT_TYPOS).filter(t => t[0] && t[1] && t[0] !== t[1]);
-    const issues = []; let seq = 0;
+    const issues = [];
     const sheets = workbook.map(buildSheet);
     const recInfo = new Map();
     for (const S of sheets) for (const r of S.records) {
@@ -332,7 +362,8 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
       const dupe = issues.find(x => x.sheet === S.name && x.r === r && x.c === c && x.msg === msg);
       if (dupe) return;
       issues.push({
-        id: 'i' + (++seq), sheet: S.name, r, c, addr: colLetter(c) + r, level, cat, msg, title,
+        // id = 시트·칸·내용 → 다시 검사해도 같은 항목은 같은 id라 고른 상태가 유지됨
+        id: `${S.name}|${r}|${c}|${msg}`, sheet: S.name, r, c, addr: colLetter(c) + r, level, cat, msg, title,
         rec: ri ? key : null, recLabel: ri ? ri.label : `${S.name} ${colLetter(c)}${r}`, ...extra
       });
     }
@@ -597,7 +628,7 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
             const k = w.slice(i, i + 3); if (tri.get(k) !== 1) continue;
             const cand = triArr.find(o => { let d = 0, pos = -1; for (let j = 0; j < 3; j++) if (o[j] !== k[j]) { d++; pos = j; } return d === 1 && jamoDiff(o[pos], k[pos]) === 1; });
             const fixed = cand ? w.slice(0, i) + cand + w.slice(i + 3) : '';
-            if (cand && (words.get(fixed) || 0) >= 2 && ![...dictWrong].some(dw => w.includes(dw))) {
+            if (cand && (words.get(fixed) || 0) >= 2 && ![...dictWrong].some(dw => w.includes(dw) || fixed.includes(dw))) {
               add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w}' → '${fixed}'? (파일 안에서 '${cand}'가 여러 번 쓰임)`, { fix: [w, fixed], guess: true });
               reported = true;
             }
@@ -641,16 +672,41 @@ const store = {
   set(k,v){ try{ localStorage.setItem('listcheck:'+k,v); }catch(e){} }
 };
 const LVNAME = { fix:'수정 필요', check:'확인 요망', typo:'오탈자·형식' };
-let fileBuf = null, fileName = '', kind = 'xlsx', data = null, result = null, off = new Set(), hidden = new Set();
+let fileBuf = null, fileName = '', kind = 'xlsx', data = null, result = null, hidden = new Set();
+const choice = new Map();   // 항목 id → 'fix'(자동 수정) | 'mark'(표시만) | 'off'(빼기). 다시 검사해도 유지
+const closed = new Set();   // 접어 둔 학생 카드
+let undoSnap = null;
 
-// ---------- 설정 ----------
+// ---------- 오타 사전 ----------
+const DICT_SEP = /\s*(?:→|->|=>|=)\s*/;
 function dictText(list){ return list.map(p => p[0] + ' → ' + p[1]).join('\n'); }
-function readDict(){
-  return $('dict').value.split('\n').map(l => l.split(/\s*(?:→|->|=>|=)\s*/)).filter(p => p.length === 2 && p[0].trim() && p[1].trim()).map(p => [p[0].trim(), p[1].trim()]);
+function parseDict(){
+  const ok = [], bad = [];
+  $('dict').value.split('\n').forEach((l, k) => {
+    if (!l.trim()) return;
+    const p = l.split(DICT_SEP);
+    if (p.length === 2 && p[0].trim() && p[1].trim()) ok.push([p[0].trim(), p[1].trim()]); else bad.push(k + 1);
+  });
+  return { ok, bad };
+}
+const readDict = () => parseDict().ok;
+function saveDict(msg){
+  store.set('dict', $('dict').value);
+  const { ok, bad } = parseDict();
+  setStatus('dictStatus', (msg || `${ok.length}개 저장했어요.`) + (bad.length ? ` ${bad.join(', ')}번째 줄은 형식이 달라서 뺐어요(틀린말 → 맞는말).` : ''), bad.length ? 'warn' : 'ok');
+  if (data) run();
 }
 $('dict').value = store.get('dict') || dictText(ListCheck.DEFAULT_TYPOS);
-$('dictSave').onclick = () => { store.set('dict', $('dict').value); $('dictStatus').textContent = `${readDict().length}개 저장했어요.`; $('dictStatus').className = 'status ok'; if (data) run(); };
-$('dictReset').onclick = () => { $('dict').value = dictText(ListCheck.DEFAULT_TYPOS); store.set('dict', $('dict').value); $('dictStatus').textContent = '기본 사전으로 되돌렸어요.'; $('dictStatus').className = 'status ok'; if (data) run(); };
+$('dictSave').onclick = () => saveDict();
+$('dictReset').onclick = () => { $('dict').value = dictText(ListCheck.DEFAULT_TYPOS); saveDict('기본 사전으로 되돌렸어요.'); };
+
+// ---------- 무시 목록: 메시지 속 '…' 부분이 같으면 다른 파일에서도 숨김 ----------
+const ignoreKey = i => { const q = (i.msg.match(/'[^']+'/g) || []).map(x => x.slice(1, -1)); return q.length ? `${i.cat}: ${q.join(' / ')}` : null; };
+const ignoreSet = () => new Set($('ignore').value.split('\n').map(s => s.trim()).filter(Boolean));
+$('ignore').value = store.get('ignore') || '';
+$('nIgnore').textContent = ignoreSet().size;
+function saveIgnore(){ store.set('ignore', $('ignore').value); $('nIgnore').textContent = ignoreSet().size; if (data) run(); }
+$('ignoreSave').onclick = saveIgnore;
 
 // ---------- 파일 ----------
 const drop = $('drop');
@@ -660,7 +716,6 @@ drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
 drop.ondragleave = () => drop.classList.remove('over');
 drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); };
 $('file').onchange = e => { if (e.target.files[0]) load(e.target.files[0]); e.target.value = ''; };
-$('rerunBtn').onclick = () => run();
 
 function setStatus(id, msg, cls){ const el = $(id); el.textContent = msg; el.className = 'status' + (cls ? ' ' + cls : ''); }
 
@@ -677,6 +732,8 @@ function cellText(cell){
   }
   return String(v);
 }
+// 자동 수정이 실제로 되는지 미리 알려고 글자 조각을 기억함(숫자·수식·날짜 칸은 null)
+const runsOf = v => typeof v === 'string' ? [v] : v && v.richText ? v.richText.map(r => r.text) : null;
 
 async function load(file){
   const isDocx = /\.docx$/i.test(file.name);
@@ -688,56 +745,87 @@ async function load(file){
       : '.xlsx 엑셀이나 .docx 워드 파일만 넣을 수 있어요.', 'warn');
     return;
   }
-  if (isDocx && typeof JSZip === 'undefined') { setStatus('loadStatus', '워드 읽기 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.', 'warn'); return; }
-  if (!isDocx && typeof ExcelJS === 'undefined') { setStatus('loadStatus', '엑셀 읽기 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.', 'warn'); return; }
-  setStatus('loadStatus', '읽는 중…');
+  if (isDocx && typeof JSZip === 'undefined') { setStatus('loadStatus', '워드 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
+  if (!isDocx && typeof ExcelJS === 'undefined') { setStatus('loadStatus', '엑셀 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
+  setStatus('loadStatus', `${file.name} 읽는 중… (큰 파일은 몇 초 걸려요)`);
   try {
-    fileBuf = await file.arrayBuffer(); fileName = file.name; kind = isDocx ? 'docx' : 'xlsx';
-    if (isDocx) { data = await readDocx(fileBuf); run(); return; }
-    const wb = new ExcelJS.Workbook(); await wb.xlsx.load(fileBuf.slice(0));
-    data = [];
-    wb.eachSheet(ws => {
-      const cells = [];
-      ws.eachRow({ includeEmpty:false }, (row, r) => row.eachCell({ includeEmpty:false }, (cell, c) => {
-        if (cell.isMerged && cell.master.address !== cell.address) return;
-        const t = cellText(cell); if (t === '') return;
-        cells.push({ r, c, addr: cell.address, text: t });
-      }));
-      data.push({ name: ws.name, cells });
-    });
+    const buf = await file.arrayBuffer(), isD = isDocx;
+    let d;
+    if (isD) d = await readDocx(buf);
+    else {
+      const wb = new ExcelJS.Workbook(); await wb.xlsx.load(buf.slice(0));
+      d = [];
+      wb.eachSheet(ws => {
+        const cells = [];
+        ws.eachRow({ includeEmpty:false }, (row, r) => row.eachCell({ includeEmpty:false }, (cell, c) => {
+          if (cell.isMerged && cell.master.address !== cell.address) return;
+          const t = cellText(cell); if (t === '') return;
+          cells.push({ r, c, addr: cell.address, text: t, runs: runsOf(cell.value) });
+        }));
+        d.push({ name: ws.name, cells });
+      });
+    }
+    fileBuf = buf; fileName = file.name; kind = isD ? 'docx' : 'xlsx'; data = d;
+    choice.clear(); closed.clear(); undoSnap = null; $('undoBtn').disabled = true; $('saveStatus').textContent = '';
     run();
   } catch (e) {
-    console.error(e); data = null;
+    console.error(e);
     setStatus('loadStatus', '파일을 열지 못했어요. 암호가 걸려 있거나 손상된 파일인지 확인해 주세요.', 'warn');
   }
 }
 
+function cellOf(i){ const sh = data.find(s => s.name === i.sheet); return sh && sh.cells.find(c => c.r === i.r && c.c === i.c); }
+function canFix(i){
+  const c = cellOf(i);
+  return !!(ListCheck.fixable(i) && c && c.runs && (i.trim || c.runs.some(t => t.includes(i.fix[0]))));
+}
+
 function run(){
-  result = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null });
-  if (kind === 'docx') result.issues.forEach(i => { if (!i.rec) i.recLabel = `${i.sheet} ${locOf(i)}`; });
-  off.clear(); result.issues.filter(i => i.optIn).forEach(i => off.add(i.id)); // 띄어쓰기 제안은 꺼진 채로 시작
-  const recs = result.meta.reduce((a, m) => a + m.records, 0);
-  const main = result.meta.filter(m => m.records).map(m => `「${m.name}」 ${m.records}명`).join(', ');
+  const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null });
+  if (kind === 'docx') r.issues.forEach(i => { if (!i.rec) i.recLabel = `${i.sheet} ${locOf(i)}`; });
+  const ign = ignoreSet();
+  r.ignored = r.issues.filter(i => ign.has(ignoreKey(i))).length;
+  r.issues = r.issues.filter(i => !ign.has(ignoreKey(i)));
+  r.issues.forEach(i => {
+    i.can = canFix(i);
+    // 처음 보는 항목만 기본값(띄어쓰기 제안은 빼기). 이미 고른 건 그대로
+    if (!choice.has(i.id) || (choice.get(i.id) === 'fix' && !i.can)) choice.set(i.id, i.optIn ? 'off' : i.can ? 'fix' : 'mark');
+  });
+  result = r;
+  const recs = r.meta.reduce((a, m) => a + m.records, 0);
+  const main = r.meta.filter(m => m.records).map(m => `「${m.name}」 ${m.records}명`).join(', ');
   setStatus('loadStatus', `${fileName} — ${main || '표 형태를 찾지 못해 칸별 점검만 했어요'}`, recs ? 'ok' : 'warn');
-  $('rerunBtn').disabled = false;
   ['allOn','allOff','xlsxBtn'].forEach(id => $(id).disabled = false);
+  $('tools').hidden = false;
+  const cur = $('catSel').value, cats = [...new Set(r.issues.map(i => i.cat))];
+  $('catSel').innerHTML = '<option value="">모든 종류</option>' + cats.map(c => `<option${c === cur ? ' selected' : ''}>${esc(c)}</option>`).join('');
   render();
 }
 
 // ---------- 결과 화면 ----------
 document.querySelectorAll('.tal').forEach(b => b.onclick = () => {
   const lv = b.dataset.lv; if (hidden.has(lv)) hidden.delete(lv); else hidden.add(lv);
-  b.setAttribute('aria-pressed', hidden.has(lv) ? 'false' : 'true'); render();
+  b.setAttribute('aria-pressed', hidden.has(lv) ? 'false' : 'true'); if (result) render();
 });
-$('allOn').onclick = () => { off.clear(); render(); };
-$('allOff').onclick = () => { result.issues.forEach(i => off.add(i.id)); render(); };
+$('q').oninput = () => render();
+$('catSel').onchange = () => render();
+function visible(){
+  const q = $('q').value.trim().toLowerCase(), cat = $('catSel').value;
+  return result.issues.filter(i => !hidden.has(i.level) && (!cat || i.cat === cat) &&
+    (!q || `${i.recLabel} ${i.sheet} ${locOf(i)} ${i.title} ${i.msg}`.toLowerCase().includes(q)));
+}
+function bulk(to){
+  undoSnap = new Map(choice);
+  visible().forEach(i => choice.set(i.id, to(i)));
+  $('undoBtn').disabled = false; render();
+}
+$('allOn').onclick = () => bulk(i => i.can ? 'fix' : 'mark');
+$('allOff').onclick = () => bulk(() => 'off');
+$('undoBtn').onclick = () => { if (!undoSnap) return; choice.clear(); undoSnap.forEach((v, k) => choice.set(k, v)); undoSnap = null; $('undoBtn').disabled = true; render(); };
 
 const locOf = i => kind !== 'docx' ? i.addr : i.sheet === '본문' ? `${i.r}번째 문단` : `${i.r}행 ${i.c}열`;
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function sourceOf(i){
-  const sh = data.find(s => s.name === i.sheet); const cell = sh && sh.cells.find(c => c.r === i.r && c.c === i.c);
-  return cell ? cell.text : '';
-}
+function sourceOf(i){ const c = cellOf(i); return c ? c.text : ''; }
 function highlight(text, i){
   let h = esc(text);
   const keys = [];
@@ -747,52 +835,96 @@ function highlight(text, i){
   keys.sort((a, b) => b.length - a.length).forEach(k => { h = h.split(esc(k)).join('<mark>' + esc(k) + '</mark>'); });
   return h;
 }
+const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${label}</option>`;
+const CANT = '숫자·수식 칸이거나 글자 서식이 나뉘어 있어서 자동 수정은 못 하고 표시만 해요.';
+const SHORT = 200; // 이보다 짧은 원문은 펼쳐 둠
 
 function render(){
-  const box = $('results');
-  const iss = result.issues;
+  const box = $('results'), iss = result.issues;
   $('nFix').textContent = iss.filter(i => i.level === 'fix').length;
   $('nCheck').textContent = iss.filter(i => i.level === 'check').length;
   $('nTypo').textContent = iss.filter(i => i.level === 'typo').length;
   const meta = result.meta.filter(m => m.records).map(m =>
     `<b>${esc(m.name)}</b> 시트에서 학생 <b>${m.records}명</b>을 찾았어요` +
     (m.nameCol ? ` · 성명 ${m.nameCol}열` : '') + (m.birthCol ? ` · 생년월일 ${m.birthCol}열` : '') + (m.noCol ? ` · 연번 ${m.noCol}열` : '')).join('<br>');
-  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b> — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
-  const vis = iss.filter(i => !hidden.has(i.level));
+  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
+  const vis = visible();
+  $('visCount').textContent = vis.length === iss.length ? `${iss.length}개` : `${iss.length}개 중 ${vis.length}개 보임`;
   if (!iss.length) html += `<div class="empty"><h3>찾은 문제가 없어요</h3>그래도 문맥상 이상한 부분은 한 번 훑어봐 주세요.</div>`;
-  else if (!vis.length) html += `<div class="empty"><h3>모든 구분을 숨겼어요</h3>왼쪽 숫자 칸을 눌러 다시 보이게 할 수 있어요.</div>`;
+  else if (!vis.length) html += `<div class="empty"><h3>조건에 맞는 항목이 없어요</h3>검색어·종류를 바꾸거나 왼쪽 숫자 칸을 눌러 숨긴 구분을 다시 보이게 해 주세요.</div>`;
   const groups = new Map();
   vis.forEach(i => { if (!groups.has(i.recLabel)) groups.set(i.recLabel, []); groups.get(i.recLabel).push(i); });
   for (const [label, arr] of groups) {
-    const on = arr.filter(i => !off.has(i.id)).length;
-    html += `<section class="rec"><div class="rec-h"><h3>${esc(label)}</h3><span>${on}/${arr.length}개 포함</span></div>`;
+    const on = arr.filter(i => choice.get(i.id) !== 'off').length;
+    html += `<details class="rec"${closed.has(label) ? '' : ' open'} data-label="${esc(label)}"><summary class="rec-h"><h3>${esc(label)}</h3><span>${on}/${arr.length}개 포함</span></summary>`;
     for (const i of arr) {
-      const src = sourceOf(i);
-      html += `<div class="iss${off.has(i.id) ? ' off' : ''}" data-id="${i.id}">
-        <input type="checkbox" ${off.has(i.id) ? '' : 'checked'} aria-label="수정·엑셀에 포함">
+      const src = sourceOf(i), ch = choice.get(i.id), ik = ignoreKey(i);
+      const acts = ((i.guess || i.cat === '띄어쓰기') ? '<button class="link" data-act="dict">사전에 추가</button>' : '') +
+        (ik && !(i.cat === '오탈자' && i.fix && !i.guess) ? '<button class="link" data-act="ignore">다음부터 무시</button>' : '');
+      html += `<div class="iss${ch === 'off' ? ' off' : ''}" data-id="${esc(i.id)}">
         <span class="lv ${i.level}">${LVNAME[i.level]}</span>
-        <div class="msg"><span class="loc">${esc(i.sheet)} ${esc(locOf(i))}${i.title ? ' · ' + esc(i.title) : ''} · ${esc(i.cat)}${ListCheck.fixable(i) ? '<span class="auto">자동 수정</span>' : ''}</span>${esc(i.msg)}</div>
-        ${src ? `<details class="src"><summary>원문 보기</summary><pre>${highlight(src, i)}</pre></details>` : ''}
+        <div class="msg"><span class="loc">${esc(i.sheet)} ${esc(locOf(i))}${i.title ? ' · ' + esc(i.title) : ''} · ${esc(i.cat)}</span><span class="txt">${esc(i.msg)}</span>${ListCheck.fixable(i) && !i.can ? `<span class="cant">${CANT}</span>` : ''}${acts ? `<div class="acts">${acts}</div>` : ''}</div>
+        <select class="pick${ch === 'fix' ? ' fix' : ''}" aria-label="내보낼 때 처리">${i.can ? opt('fix', '자동 수정', ch) : ''}${opt('mark', '표시만', ch)}${opt('off', '빼기', ch)}</select>
+        ${src ? `<details class="src"${src.length <= SHORT ? ' open' : ''}><summary>원문${src.length <= SHORT ? '' : ' 보기 (긴 글)'}</summary><pre>${highlight(src, i)}</pre></details>` : ''}
       </div>`;
     }
-    html += `</section>`;
+    html += `</details>`;
   }
   box.innerHTML = html;
-  countAuto();
-  box.querySelectorAll('.iss input').forEach(cb => cb.onchange = () => {
-    const id = cb.closest('.iss').dataset.id; if (cb.checked) off.delete(id); else off.add(id);
-    cb.closest('.iss').classList.toggle('off', !cb.checked);
-    const sec = cb.closest('.rec'); const all = sec.querySelectorAll('.iss').length; const n = sec.querySelectorAll('.iss input:checked').length;
-    sec.querySelector('.rec-h span').textContent = `${n}/${all}개 포함`;
-    countAuto();
-  });
+  countPicked();
 }
+// 결과 목록 이벤트는 한 번만 연결(다시 그려도 유지)
+$('results').addEventListener('change', e => {
+  const sel = e.target.closest('.pick'); if (!sel) return;
+  const row = sel.closest('.iss'); choice.set(row.dataset.id, sel.value);
+  row.classList.toggle('off', sel.value === 'off'); sel.classList.toggle('fix', sel.value === 'fix');
+  const all = [...row.closest('.rec').querySelectorAll('.pick')];
+  row.closest('.rec').querySelector('.rec-h span').textContent = `${all.filter(s => s.value !== 'off').length}/${all.length}개 포함`;
+  countPicked();
+});
+$('results').addEventListener('click', e => {
+  const b = e.target.closest('.link'); if (!b) return;
+  const i = result.issues.find(x => x.id === b.closest('.iss').dataset.id); if (!i) return;
+  const append = (el, line) => { el.value = (el.value.trim() ? el.value.replace(/\s*$/, '\n') : '') + line; };
+  if (b.dataset.act === 'dict') { append($('dict'), `${i.fix[0]} → ${i.fix[1]}`); saveDict(`'${i.fix[0]} → ${i.fix[1]}'을(를) 사전에 넣었어요.`); }
+  else { append($('ignore'), ignoreKey(i)); saveIgnore(); }
+});
+$('results').addEventListener('toggle', e => {
+  const d = e.target; if (!d.classList || !d.classList.contains('rec')) return;
+  if (d.open) closed.delete(d.dataset.label); else closed.add(d.dataset.label);
+}, true);
 
-function picked(){ return result ? result.issues.filter(i => !off.has(i.id)) : []; }
-const countAuto = () => { $('nAuto').textContent = picked().filter(ListCheck.fixable).length; };
+const willFix = i => !$('markOnly').checked && choice.get(i.id) === 'fix';
+function picked(){ return result ? result.issues.filter(i => choice.get(i.id) !== 'off') : []; }
+function countPicked(){
+  let a = 0, m = 0, o = 0;
+  result.issues.forEach(i => { if (choice.get(i.id) === 'off') o++; else if (willFix(i)) a++; else m++; });
+  $('nAuto').textContent = a; $('nMark').textContent = m; $('nOff').textContent = o;
+}
+$('markOnly').onchange = () => { if (result) countPicked(); };
+
+// ---------- 내보내기 공통 ----------
+const FILL = { fix:'FFF8CBAD', check:'FFFFE699', typo:'FFDDEBF7', auto:'FFC6EFCE' };
+const LEGEND = [['fix', '수정 필요', '틀린 게 거의 확실한 칸'], ['check', '확인 요망', '틀렸을 수 있어 확인이 필요한 칸'],
+  ['typo', '오탈자·형식', '철자·띄어쓰기·공백·괄호'], ['auto', '자동 수정함', '검수기가 고친 칸 (칸 메모에 고친 내용)']];
+const RANK = { fix:0, check:1, typo:2 };
+const topLevel = arr => { const left = arr.filter(i => !i.done); return left.length ? left.slice().sort((a, b) => RANK[a.level] - RANK[b.level])[0].level : 'auto'; };
+let lastUrl = null;
+function saved(blob, name, list, nDone){
+  if (lastUrl) URL.revokeObjectURL(lastUrl);
+  lastUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = lastUrl; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  const el = $('saveStatus'); el.className = 'status ok';
+  el.innerHTML = `저장했어요 — 자동 수정 ${nDone}개, 표시만 ${list.length - nDone}개. <a href="${lastUrl}" download="${esc(name)}">안 받아졌으면 여기를 눌러 다시 받기</a>`;
+}
+$('xlsxBtn').onclick = () => {
+  const list = picked();
+  if (!list.length) { setStatus('saveStatus', '내보낼 항목이 없어요(모두 빼기). 원본 그대로 쓰면 돼요.', 'warn'); return; }
+  setStatus('saveStatus', '파일 만드는 중…');
+  return kind === 'docx' ? exportDocx(list) : exportXlsx(list);
+};
 
 // ---------- 엑셀 ----------
-const FILL = { fix:'FFF8CBAD', check:'FFFFE699', typo:'FFDDEBF7', auto:'FFC6EFCE' };
 // 글자 칸(문자열·서식 있는 글자)만 고침. 수식·숫자·날짜 칸은 건드리지 않음
 function editCell(cell, i){
   const f = i.trim ? null : (t => ListCheck.replaceSafe(t, i.fix[0], i.fix[1]));
@@ -807,45 +939,42 @@ function editCell(cell, i){
   }
   return false;
 }
-$('xlsxBtn').onclick = async () => {
-  const list = picked();
-  setStatus('saveStatus', '파일 만드는 중…');
-  if (kind === 'docx') return exportDocx(list);
+const solid = argb => ({ type:'pattern', pattern:'solid', fgColor:{ argb } });
+async function exportXlsx(list){
   try {
     const wb = new ExcelJS.Workbook(); await wb.xlsx.load(fileBuf.slice(0));
     const byCell = new Map();
     list.forEach(i => { const k = i.sheet + '!' + i.addr; if (!byCell.has(k)) byCell.set(k, []); byCell.get(k).push(i); });
-    const rank = { fix:0, check:1, typo:2 }; let nDone = 0;
+    let nDone = 0;
     for (const [, arr] of byCell) {
       const ws = wb.getWorksheet(arr[0].sheet); if (!ws) continue;
       let cell = ws.getCell(arr[0].addr); if (cell.isMerged) cell = cell.master;
-      arr.forEach(i => { i.done = ListCheck.fixable(i) && editCell(cell, i); if (i.done) nDone++; });
-      const left = arr.filter(i => !i.done);
-      const top = left.length ? left.slice().sort((a, b) => rank[a.level] - rank[b.level])[0].level : 'auto';
-      cell.fill = { type:'pattern', pattern:'solid', fgColor:{ argb: FILL[top] } };
+      arr.forEach(i => { i.done = willFix(i) && editCell(cell, i); if (i.done) nDone++; });
+      cell.fill = solid(FILL[topLevel(arr)]);
       const text = arr.map(i => `[${i.done ? '자동 수정' : LVNAME[i.level]}] ${i.msg}`).join('\n');
       const prev = cell.note ? (typeof cell.note === 'string' ? cell.note : (cell.note.texts || []).map(t => t.text).join('')) : '';
       cell.note = { texts: [{ text: (prev ? prev + '\n\n' : '') + '■ 검수\n' + text }] };
     }
     let name = '검수 결과', n = 2; while (wb.getWorksheet(name)) name = '검수 결과 ' + n++;
     const rs = wb.addWorksheet(name);
-    rs.columns = [
-      { header:'학생', key:'rec', width:28 }, { header:'구분', key:'lv', width:12 }, { header:'시트', key:'sheet', width:18 },
-      { header:'칸', key:'addr', width:8 }, { header:'항목', key:'title', width:20 }, { header:'처리', key:'done', width:12 }, { header:'내용', key:'msg', width:90 }
-    ];
-    list.forEach(i => rs.addRow({ rec:i.recLabel, lv:LVNAME[i.level], sheet:i.sheet, addr:i.addr, title:i.title, done:i.done ? '자동 수정' : '확인 필요', msg:i.msg }));
-    rs.getRow(1).font = { bold:true };
-    rs.getRow(1).eachCell(c => c.fill = { type:'pattern', pattern:'solid', fgColor:{ argb:'FFD9D9D9' } });
-    rs.eachRow((row, r) => { if (r > 1) { row.getCell(7).alignment = { wrapText:true, vertical:'top' }; const it = list[r - 2]; row.getCell(2).fill = { type:'pattern', pattern:'solid', fgColor:{ argb: FILL[it.level] } }; if (it.done) row.getCell(6).fill = { type:'pattern', pattern:'solid', fgColor:{ argb: FILL.auto } }; } });
-    rs.views = [{ state:'frozen', ySplit:1 }];
+    rs.columns = [28, 12, 18, 8, 20, 12, 90].map(width => ({ width }));
+    rs.addRow(['색 안내 (본 시트 칸 색깔의 뜻)']).font = { bold:true };
+    LEGEND.forEach(([k, a, b]) => rs.addRow([a, b]).getCell(1).fill = solid(FILL[k]));
+    rs.addRow([]);
+    const head = rs.addRow(['학생', '구분', '시트', '칸', '항목', '처리', '내용']);
+    head.font = { bold:true }; head.eachCell(c => c.fill = solid('FFD9D9D9'));
+    list.forEach(i => {
+      const row = rs.addRow([i.recLabel, LVNAME[i.level], i.sheet, i.addr, i.title, i.done ? '자동 수정' : '확인 필요', i.msg]);
+      row.getCell(2).fill = solid(FILL[i.level]); if (i.done) row.getCell(6).fill = solid(FILL.auto);
+      row.getCell(7).alignment = { wrapText:true, vertical:'top' };
+    });
+    rs.views = [{ state:'frozen', ySplit: head.number }];
     const buf = await wb.xlsx.writeBuffer();
-    const blob = new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    download(blob, fileName.replace(/\.[^.]+$/, '') + '_검수수정.xlsx');
-    setStatus('saveStatus', `저장했어요 — 자동 수정 ${nDone}개, 표시만 ${list.length - nDone}개.`, 'ok');
+    saved(new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), fileName.replace(/\.[^.]+$/, '') + '_검수수정.xlsx', list, nDone);
   } catch (e) {
     console.error(e); setStatus('saveStatus', '엑셀을 만들지 못했어요. 다시 시도해 주세요.', 'warn');
   }
-};
+}
 
 // ---------- 워드(.docx) ----------
 // 표 하나 = 시트 하나(표1, 표2…), 표 밖 문단은 「본문」 시트의 한 줄씩
@@ -881,7 +1010,8 @@ async function readDocx(buf){
     let t = nodeText(u.node); if (u.sheet === '본문') t = t.trim(); // 문단 들여쓰기 공백은 오류로 안 봄
     if (t.trim() === '') continue;
     if (!by.has(u.sheet)) by.set(u.sheet, []);
-    by.get(u.sheet).push({ r:u.r, c:u.c, addr: u.sheet === '본문' ? `${u.r}번째 문단` : `${u.r}행 ${u.c}열`, text:t });
+    by.get(u.sheet).push({ r:u.r, c:u.c, addr: u.sheet === '본문' ? `${u.r}번째 문단` : `${u.r}행 ${u.c}열`, text:t,
+      runs: [...u.node.getElementsByTagNameNS(W, 't')].map(x => x.textContent) });
   }
   return [...by].map(([name, cells]) => ({ name, cells }));
 }
@@ -913,33 +1043,28 @@ function para(doc, text, bold){
   if (bold) { const rp = doc.createElementNS(W, 'w:rPr'); rp.appendChild(doc.createElementNS(W, 'w:b')); r.appendChild(rp); }
   t.setAttribute('xml:space', 'preserve'); t.textContent = text; r.appendChild(t); p.appendChild(r); return p;
 }
-function download(blob, name){
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
-  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-}
 async function exportDocx(list){
   try {
     const { zip, doc } = await openDocx(fileBuf);
     const nodes = new Map(docxUnits(doc).map(u => [u.sheet + '|' + u.r + '|' + u.c, u.node]));
     const by = new Map();
     list.forEach(i => { const k = i.sheet + '|' + i.r + '|' + i.c; if (!by.has(k)) by.set(k, []); by.get(k).push(i); });
-    const rank = { fix:0, check:1, typo:2 }; let nDone = 0;
+    let nDone = 0;
     for (const [k, arr] of by) {
       const node = nodes.get(k); if (!node) continue;
-      arr.forEach(i => { i.done = ListCheck.fixable(i) && editRuns(node, i); if (i.done) nDone++; });
-      const left = arr.filter(i => !i.done);
-      const top = left.length ? left.slice().sort((a, b) => rank[a.level] - rank[b.level])[0].level : 'auto';
-      shade(doc, node, FILL[top].slice(2));
+      arr.forEach(i => { i.done = willFix(i) && editRuns(node, i); if (i.done) nDone++; });
+      shade(doc, node, FILL[topLevel(arr)].slice(2));
     }
-    // 문서 끝에 검수 결과 목록
+    // 문서 끝에 색 안내와 검수 결과 목록
     const body = doc.getElementsByTagNameNS(W, 'body')[0], end = kids(body, 'sectPr')[0] || null;
-    const lines = [para(doc, ''), para(doc, `■ 검수 결과 — 자동 수정 ${nDone}개 · 확인 필요 ${list.length - nDone}개`, true)];
+    const colors = { fix:'살구색', check:'노란색', typo:'하늘색', auto:'초록색' };
+    const lines = [para(doc, ''), para(doc, `■ 검수 결과 — 자동 수정 ${nDone}개 · 확인 필요 ${list.length - nDone}개`, true),
+      para(doc, '색 안내: ' + LEGEND.map(([k, a]) => `${colors[k]} = ${a}`).join(' · '))];
     list.forEach(i => lines.push(para(doc, `[${i.done ? '자동 수정' : LVNAME[i.level]}] ${i.rec ? i.recLabel + ' · ' : ''}${i.sheet} ${locOf(i)} — ${i.msg}`)));
     lines.forEach(p => body.insertBefore(p, end));
     zip.file('word/document.xml', new XMLSerializer().serializeToString(doc));
-    download(await zip.generateAsync({ type:'blob', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }),
-      fileName.replace(/\.[^.]+$/, '') + '_검수수정.docx');
-    setStatus('saveStatus', `저장했어요 — 자동 수정 ${nDone}개, 표시만 ${list.length - nDone}개.`, 'ok');
+    saved(await zip.generateAsync({ type:'blob', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }),
+      fileName.replace(/\.[^.]+$/, '') + '_검수수정.docx', list, nDone);
   } catch (e) {
     console.error(e); setStatus('saveStatus', '워드 파일을 만들지 못했어요. 다시 시도해 주세요.', 'warn');
   }
@@ -947,21 +1072,21 @@ async function exportDocx(list){
 
 // ---------- 띄어쓰기 (Kiwi, 브라우저 안에서만 실행) ----------
 // ponytail: 화면 스레드에서 실행(처음 1~2초 멈춤). 느리면 Web Worker로 옮기기
-const KIWI = 'https://cdn.jsdelivr.net/npm/kiwi-nlp@0.24.0/dist/';
+const KIWI = new URL('kiwi-js/', location.href).href;
 const KIWI_FILES = ['combiningRule.txt','cong.mdl','default.dict','dialect.dict','extract.mdl','nounchr.mdl','sj.morph','typo.dict'];
 let kiwi = null, kiwiLoading = null;
 function loadKiwi(){
   if (kiwi) return Promise.resolve(kiwi);
   if (kiwiLoading) return kiwiLoading;
-  setStatus('kiwiStatus', '띄어쓰기 검사 도구 받는 중… (처음 한 번은 1~2분 걸릴 수 있어요)');
+  setStatus('kiwiStatus', '띄어쓰기 검사 도구 불러오는 중… (처음엔 1~2분, 끝날 때 화면이 잠깐 멈출 수 있어요)');
   kiwiLoading = (async () => {
     const { KiwiBuilder } = await import(KIWI + 'index.js');
     const b = await KiwiBuilder.create(KIWI + 'kiwi-wasm.wasm');
     kiwi = await b.build({ loadMultiDict:false, modelFiles: Object.fromEntries(KIWI_FILES.map(n => [n, new URL('kiwi-model/' + n, location.href).href])) });
     setStatus('kiwiStatus', '띄어쓰기 검사를 켰어요.', 'ok');
     return kiwi;
-  })().catch(e => { console.error(e); kiwiLoading = null; $('kiwiOn').checked = false; store.set('kiwi', '');
-    setStatus('kiwiStatus', '띄어쓰기 검사 도구를 받지 못했어요. 인터넷 연결을 확인해 주세요.', 'warn'); });
+  })().catch(e => { console.error(e); kiwiLoading = null; $('kiwiOn').checked = false;
+    setStatus('kiwiStatus', '띄어쓰기 검사 도구를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.', 'warn'); });
   return kiwiLoading;
 }
 // 원문과 Kiwi 교정본에서 띄어쓰기만 다른 어절 묶음을 찾음
@@ -996,12 +1121,11 @@ function spacer(text){
   }
   return out;
 }
+// 다음 방문 때 저절로 100MB를 받지 않도록 켜짐 상태는 저장하지 않음
 $('kiwiOn').onchange = async () => {
-  store.set('kiwi', $('kiwiOn').checked ? '1' : '');
   if ($('kiwiOn').checked) await loadKiwi(); else setStatus('kiwiStatus', '');
   if (data) run();
 };
-if (store.get('kiwi')) { $('kiwiOn').checked = true; loadKiwi().then(() => { if (data && kiwi) run(); }); }
 })();
 </script>
 </body>
