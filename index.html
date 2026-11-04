@@ -85,6 +85,7 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
 .rec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
 .rec-h h3{margin:0;font-size:15px;font-weight:600}
 .rec-h span{font-size:12px;color:var(--muted);white-space:nowrap}
+.tools[hidden]{display:none}
 .tools{position:sticky;top:0;z-index:2;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--desk);padding:0 0 12px}
 .tools input{flex:1 1 220px;width:auto}
 .tools select{width:auto;flex:none}
@@ -175,7 +176,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     <div>
       <h1>오타 및 계산 수정기 <span class="ver">MK1.5</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
-      <p class="lead">유학원이 보낸 엑셀·워드·PPT 파일을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자 오류, 오탈자를 찾아 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
+      <p class="lead">엑셀·워드·PPT 파일을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
     <ol class="flow" aria-label="사용 순서">
       <li><b>1</b>파일 넣기</li>
@@ -237,7 +238,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       <h2><b>3</b>자동 수정·내보내기</h2>
       <p class="note" style="margin-top:0">자동 수정 <b id="nAuto">0</b>개 · 표시만 <b id="nMark">0</b>개 · 빼기 <b id="nOff">0</b>개</p>
       <label class="kw" style="margin-top:8px;font-weight:500"><input type="checkbox" id="markOnly"> 고치지 말고 표시만 해서 내보내기</label>
-      <p class="note" style="margin-top:2px">유학원에 돌려보내 직접 고치게 할 때 켜세요.</p>
+      <p class="note" style="margin-top:2px">파일을 보낸 곳에 돌려보내 직접 고치게 할 때 켜세요.</p>
       <button class="btn primary wide" id="xlsxBtn" style="margin-top:10px" disabled>내보내기</button>
       <p class="note">맨 뒤에 「검수 결과」 시트(워드는 문서 끝 목록, PPT는 맨 뒤 결과 슬라이드)와 색 안내가 붙어요. 원본 파일은 바뀌지 않습니다.</p>
       <div class="status" id="saveStatus" aria-live="polite"></div>
@@ -254,14 +255,17 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   <div class="results" id="results">
     <div class="empty">
       <h3>왼쪽에 엑셀·워드·PPT 파일을 넣어 주세요</h3>
-      서식이 유학원마다 달라도 같은 파일 안에서 서로 비교해서 찾아요.
+      서식이 달라도 같은 파일 안에서 서로 비교해서 찾아요.
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
-        <li>같은 칸 비교: 남들은 다 있는데 빠진 항목, 빈 값, 중복 항목</li>
-        <li>숫자: 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
-        <li>오탈자: 오타 사전, 파일 안에서 한 글자만 다른 말, 괄호·공백 (‘-’, ‘/’, ‘×’처럼 내용 없음 표시만 있는 칸은 넘어가요)</li>
-        <li>띄어쓰기: Kiwi 검사를 켜면 긴 글의 띄어쓰기 제안</li>
+        <li>같은 칸 비교: 다른 줄엔 다 있는데 빠진 항목, 빈 값, 중복 항목</li>
+        <li>숫자·계산: 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
+        <li>오탈자·형식: 오타 사전, 한 글자만 다른 말, 괄호 짝, 앞뒤 공백</li>
+        <li>띄어쓰기: Kiwi 검사를 켜면 띄어쓰기 제안</li>
+        <li>문서 보기: 오른쪽에 파일이 그대로 보이고, 틀린 곳이 색칠돼요</li>
+        <li>내보내기: 고른 것만 자동으로 고치고, 나머지는 색칠·메모로 표시해요</li>
       </ul>
+      <p class="note">‘-’, ‘/’ 같은 「내용 없음」 표시와 ‘1)’, ‘가)’ 같은 번호는 오류로 보지 않아요.</p>
     </div>
   </div>
   </main>
