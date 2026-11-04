@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>신청자 명단 검수기 MK1.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --desk:#E6EAEE; --paper:#FFFFFF; --ink:#1C2733; --muted:#5B6773; --rule:#2B3640; --line:#C9D1D8;
+  --accent:#1F5F8B; --accent-ink:#FFFFFF; --accent-soft:#DCE8F1; --warn:#9A5B00; --warn-soft:#FBEFD9; --ok:#2E6E48;
+  --fix:#A3341F; --fix-soft:#F8E1DB; --panel:#F7F9FA; --focus:#1F5F8B; --mark:#FFF0A8;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --desk:#141A20; --paper:#1E262E; --ink:#E4E9EE; --muted:#9AA6B2; --rule:#8B98A5; --line:#3A4651;
+    --accent:#6FA8D6; --accent-ink:#0F1A24; --accent-soft:#22384A; --warn:#E3B062; --warn-soft:#3A2E1A; --ok:#7CC496;
+    --fix:#F08C76; --fix-soft:#3D2420; --panel:#19212A; --focus:#8EC0E8; --mark:#5A4E12;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --desk:#141A20; --paper:#1E262E; --ink:#E4E9EE; --muted:#9AA6B2; --rule:#8B98A5; --line:#3A4651;
+  --accent:#6FA8D6; --accent-ink:#0F1A24; --accent-soft:#22384A; --warn:#E3B062; --warn-soft:#3A2E1A; --ok:#7CC496;
+  --fix:#F08C76; --fix-soft:#3D2420; --panel:#19212A; --focus:#8EC0E8; --mark:#5A4E12;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--desk);color:var(--ink);font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:15px;line-height:1.55}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.hero{background:var(--paper);border-bottom:1px solid var(--line)}
+.hero-in{max-width:1240px;margin:0 auto;padding:36px 20px 30px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px 24px;flex-wrap:wrap}
+@media (max-width:900px){.hero-in{padding:22px 16px 20px}}
+.eyebrow{margin:0 0 8px;font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.02em}
+.hero h1{font-size:clamp(24px,4vw,34px);line-height:1.2;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:700;letter-spacing:-0.01em}
+.ver{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--accent-ink);background:var(--accent);border-radius:4px;padding:3px 8px}
+.lead{color:var(--muted);margin:10px 0 0;font-size:15px;max-width:600px}
+.flow{display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:0;list-style:none}
+.flow li{font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.flow li b{color:var(--ink);font-weight:600;margin-right:4px}
+.wrap{display:grid;grid-template-columns:340px minmax(0,1fr);gap:28px;max-width:1240px;margin:0 auto;padding:28px 20px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;padding:16px 12px 40px}}
+aside{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:start;display:flex;flex-direction:column;gap:14px;max-height:calc(100vh - 32px);overflow:auto}
+@media (max-width:900px){aside{position:static;max-height:none}}
+.step{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px}
+.step h2{font-size:15px;font-weight:600;margin:0 0 10px;display:flex;gap:10px;align-items:baseline}
+.step h2 b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--paper);font-size:12px;flex:none}
+.drop{border:1.5px dashed var(--rule);border-radius:4px;padding:18px 12px;text-align:center;cursor:pointer;color:var(--muted);font-size:14px;background:var(--panel)}
+.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.drop strong{display:block;color:var(--ink);font-weight:600;margin-bottom:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:4px;padding:7px 12px;cursor:pointer;font-size:14px}
+.btn:hover{border-color:var(--rule)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.wide{width:100%;padding:10px}
+label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+input.t,textarea{width:100%;border:1px solid var(--line);border-radius:4px;padding:7px 9px;background:var(--panel)}
+textarea{min-height:110px;resize:vertical;font-size:13px}
+.note{font-size:13px;color:var(--muted);margin:8px 0 0}
+.status{font-size:13px;margin-top:8px;min-height:1.2em}
+.status.warn{color:var(--warn)} .status.ok{color:var(--ok)}
+details summary{cursor:pointer;font-size:13px;color:var(--muted)}
+/* 구분 필터 */
+.tally{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tal{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:8px 6px;text-align:left;cursor:pointer}
+.tal span{display:block;font-size:12px;color:var(--muted)}
+.tal strong{font-size:20px;font-weight:700;line-height:1.2}
+.tal[data-lv="fix"] strong{color:var(--fix)} .tal[data-lv="check"] strong{color:var(--warn)} .tal[data-lv="typo"] strong{color:var(--accent)}
+.tal[aria-pressed="false"]{opacity:.45}
+/* 결과 */
+.results{display:flex;flex-direction:column;gap:14px}
+.empty{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:56px 24px;text-align:center;color:var(--muted)}
+.empty h3{color:var(--ink);font-size:17px;margin:0 0 8px;font-weight:600}
+.empty ul{text-align:left;display:inline-block;margin:14px 0 0;padding-left:18px;font-size:14px;line-height:1.8}
+.meta{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;font-size:13px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600}
+.rec{background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.rec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.rec-h h3{margin:0;font-size:15px;font-weight:600}
+.rec-h span{font-size:12px;color:var(--muted);white-space:nowrap}
+.iss{display:grid;grid-template-columns:auto 86px minmax(0,1fr);gap:4px 12px;align-items:start;padding:10px 16px;border-top:1px solid var(--line)}
+.iss:first-of-type{border-top:0}
+.iss input{margin-top:4px;width:16px;height:16px;accent-color:var(--accent)}
+.iss.off .msg,.iss.off .lv{opacity:.45}
+.iss.off .msg{text-decoration:line-through;text-decoration-color:var(--muted)}
+.lv{font-size:12px;font-weight:600;border-radius:3px;padding:2px 6px;text-align:center;margin-top:2px}
+.lv.fix{color:var(--fix);background:var(--fix-soft)}
+.lv.check{color:var(--warn);background:var(--warn-soft)}
+.lv.typo{color:var(--accent);background:var(--accent-soft)}
+.auto{font-size:11px;font-weight:600;color:var(--ok);border:1px solid var(--ok);border-radius:3px;padding:0 5px;margin-left:6px}
+.msg{font-size:14px;overflow-wrap:anywhere}
+.loc{display:block;font-size:12px;color:var(--muted);margin-bottom:1px}
+.src{grid-column:3;font-size:12px}
+.src pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 10px;margin:6px 0 0;font:inherit;font-size:12.5px;line-height:1.6;max-height:240px;overflow:auto}
+.src mark{background:var(--mark);color:inherit;border-radius:2px}
+.copied{color:var(--ok)}
+.foot{max-width:1240px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:var(--muted)}
+@media (max-width:600px){.iss{grid-template-columns:auto minmax(0,1fr)}.iss .lv{grid-column:2;justify-self:start}.iss .msg,.src{grid-column:2}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <div>
+      <p class="eyebrow">for 계명문화대학교 국제처</p>
+      <h1>신청자 명단 검수기 <span class="ver">MK1.1</span></h1>
+      <p class="lead">유학원이 보낸 엑셀 명단을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자 오류, 오탈자를 찾아 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
+    </div>
+    <ol class="flow" aria-label="사용 순서">
+      <li><b>1</b>엑셀 넣기</li>
+      <li><b>2</b>결과 고르기</li>
+      <li><b>3</b>자동 수정·내보내기</li>
+    </ol>
+  </div>
+</header>
+
+<div class="wrap">
+  <aside>
+    <section class="step">
+      <h2><b>1</b>엑셀 넣기</h2>
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="엑셀 파일 선택">
+        <strong>엑셀 파일을 여기에 끌어 놓기</strong>
+        또는 눌러서 선택 (.xlsx)
+      </div>
+      <input type="file" id="file" accept=".xlsx,.xlsm" hidden>
+      <div class="status" id="loadStatus"></div>
+      <button class="btn wide" id="rerunBtn" style="margin-top:10px" disabled>같은 파일 다시 검사</button>
+    </section>
+
+    <section class="step">
+      <h2><b>2</b>결과 고르기</h2>
+      <div class="tally" id="tally">
+        <button class="tal" data-lv="fix" aria-pressed="true"><span>수정 필요</span><strong id="nFix">0</strong></button>
+        <button class="tal" data-lv="check" aria-pressed="true"><span>확인 요망</span><strong id="nCheck">0</strong></button>
+        <button class="tal" data-lv="typo" aria-pressed="true"><span>오탈자·형식</span><strong id="nTypo">0</strong></button>
+      </div>
+      <p class="note">숫자 칸을 누르면 목록에서 숨기거나 다시 보여요. 각 항목의 체크를 끄면 자동 수정과 엑셀 표시에서 빠집니다. <b>자동 수정</b> 표시가 붙은 항목은 내보낼 때 바로 고쳐져요.</p>
+      <div class="row">
+        <button class="btn" id="allOn" disabled>모두 체크</button>
+        <button class="btn" id="allOff" disabled>모두 해제</button>
+      </div>
+      <details style="margin-top:12px">
+        <summary>오타 사전 고치기</summary>
+        <p class="note">한 줄에 하나씩 <b>틀린말 → 맞는말</b> 형식으로 적어 주세요. 이 브라우저에 저장돼서 다음에도 쓰여요.</p>
+        <textarea id="dict" spellcheck="false" style="margin-top:6px"></textarea>
+        <div class="row">
+          <button class="btn" id="dictSave">저장하고 다시 검사</button>
+          <button class="btn" id="dictReset">기본값으로</button>
+        </div>
+        <div class="status" id="dictStatus"></div>
+      </details>
+    </section>
+
+    <section class="step">
+      <h2><b>3</b>자동 수정·내보내기</h2>
+      <p class="note" style="margin-top:0">자동 수정 가능 <b id="nAuto">0</b>개 · 나머지는 칸 색칠과 메모로 표시</p>
+      <button class="btn primary wide" id="xlsxBtn" style="margin-top:10px" disabled>자동 수정해서 엑셀 내보내기</button>
+      <p class="note">오타 사전·오타 의심·앞뒤 공백은 고친 값으로 바꾸고(초록), 나머지는 색칠·메모만 해요. 맨 뒤에 「검수 결과」 시트가 붙고, 원본 파일은 바뀌지 않습니다.</p>
+      <div class="status" id="saveStatus"></div>
+    </section>
+  </aside>
+
+  <main class="results" id="results" aria-live="polite">
+    <div class="empty">
+      <h3>왼쪽에 엑셀 명단을 넣어 주세요</h3>
+      서식이 유학원마다 달라도 같은 파일 안에서 서로 비교해서 찾아요.
+      <ul>
+        <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
+        <li>같은 칸 비교: 남들은 다 있는데 빠진 항목, 빈 값, 중복 항목</li>
+        <li>숫자: 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
+        <li>오탈자: 오타 사전, 파일 안에서 한 글자만 다른 말, 괄호·공백</li>
+      </ul>
+    </div>
+  </main>
+</div>
+<p class="foot">문맥으로만 알 수 있는 오류(예: 목록엔 형 서류가 있는데 가족정보엔 형이 없음)는 못 잡을 수 있어요. 마지막 확인은 사람이 해 주세요.</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script>
+/* 명단 검수 엔진 — 서식에 기대지 않고 같은 파일 안에서 서로 비교해 찾는다 */
+(function (root) {
+  'use strict';
+  const LV = { FIX: 'fix', CHECK: 'check', TYPO: 'typo' };
+
+  // ---------- 기본 도구 ----------
+  function colLetter(c) { let s = ''; while (c > 0) { const m = (c - 1) % 26; s = String.fromCharCode(65 + m) + s; c = Math.floor((c - 1) / 26); } return s; }
+  function lev(a, b) {
+    if (a === b) return 0; const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+    let p = Array.from({ length: n + 1 }, (_, i) => i);
+    for (let i = 1; i <= m; i++) { const q = [i]; for (let j = 1; j <= n; j++) q[j] = Math.min(p[j] + 1, q[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = q; }
+    return p[n];
+  }
+  function jamo(ch) { const c = ch.charCodeAt(0) - 0xAC00; if (c < 0 || c > 11171) return null; return [Math.floor(c / 588), Math.floor((c % 588) / 28), c % 28]; }
+  function jamoDiff(a, b) { const x = jamo(a), y = jamo(b); if (!x || !y) return 9; return (x[0] !== y[0]) + (x[1] !== y[1]) + (x[2] !== y[2]); }
+  const isHangul = ch => /[\uAC00-\uD7A3]/.test(ch);
+  const num = s => parseFloat(String(s).replace(/,/g, ''));
+  const fmtN = n => (Math.round(n * 100) / 100).toLocaleString('ko-KR');
+  const pad = n => String(n).padStart(2, '0');
+  const fmtD = d => `${d.y}.${pad(d.m)}.${pad(d.d)}`;
+  const clip = (s, n = 40) => { s = String(s).replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+
+  // ---------- 날짜 ----------
+  const DATE_RE = /((?:19|20)\d{2})[ ]*[.\-\/][ ]*(\d{1,2})[ ]*[.\-\/][ ]*(\d{1,2})(?!\d)/g;
+  function datesIn(text) {
+    const out = []; let m; DATE_RE.lastIndex = 0;
+    while ((m = DATE_RE.exec(text))) out.push({ y: +m[1], m: +m[2], d: +m[3], raw: m[0], idx: m.index });
+    return out;
+  }
+  function validDate(d) {
+    if (d.m < 1 || d.m > 12 || d.d < 1) return false;
+    const dim = [31, (d.y % 4 === 0 && (d.y % 100 !== 0 || d.y % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][d.m - 1];
+    return d.d <= dim;
+  }
+  const dkey = d => d.y * 10000 + d.m * 100 + d.d;
+
+  // ---------- 이름(로마자 대문자) ----------
+  const NAME_STOP = new Set(('HIGH SCHOOL BANK CENTER CENTRE FOR OF AND THE VOCATIONAL EDUCATION CONTINUING CITY FATHER MOTHER ' +
+    'VND KRW USD CNY JPY EUR ID UNIVERSITY COLLEGE INSTITUTE HS EDU MB SHB BIDV AGRIBANK VIETCOMBANK VIETINBANK MSB VPBANK ' +
+    'BAOVIET TECHCOMBANK SACOMBANK ACB TPBANK OCB HDBANK SEABANK LIENVIETPOSTBANK WOORI SHINHAN HANA KB IBK NH CO LTD JSC ' +
+    'COMPANY BRANCH HANOI DANANG HCMC VIETNAM KOREA GENERAL ACADEMY SECONDARY PRIMARY NO NUMBER CLASS GRADE APOSTILLE').split(' '));
+  const NAME_RE = /\p{Lu}{1,8}(?:[ ]+\p{Lu}{1,8}){1,5}(?!\p{L})/gu;
+  function namesIn(text) {
+    const out = []; let m; NAME_RE.lastIndex = 0;
+    while ((m = NAME_RE.exec(text))) {
+      const toks = m[0].trim().split(/\s+/);
+      if (toks.some(t => NAME_STOP.has(t))) continue;
+      out.push({ name: toks.join(' '), toks, idx: m.index });
+    }
+    return out;
+  }
+  function oneTokenOff(a, b) { // 같은 길이, 한 단어만 한 글자 차이
+    if (a.length !== b.length || a.length < 3) return false;
+    let diff = 0, ok = true;
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) { diff++; if (lev(a[i], b[i]) !== 1) ok = false; }
+    return diff === 1 && ok;
+  }
+
+  // ---------- 금액 ----------
+  const UNIT = 'VND|KRW|USD|CNY|RMB|JPY|EUR|GBP|AUD|CAD|원|달러|위안|엔|동|\\$';
+  const NUMP = '\\d[\\d,]*(?:\\.\\d+)?';
+  const LEFT_RE = new RegExp(`(?:(${UNIT})\\s*\\(\\s*(${NUMP})\\s*\\)|(${NUMP})[ ]*(${UNIT})?)\\s*$`);
+  const RIGHT_RE = new RegExp(`^\\s*(?:(${UNIT})\\s*\\(\\s*(${NUMP})\\s*\\)|(${NUMP})[ ]*(${UNIT})?)`);
+  const canonUnit = u => !u ? '' : (u === '원' || u === 'KRW') ? 'KRW' : (u === '동') ? 'VND' : (u === '달러' || u === '$') ? 'USD' : (u === '위안' || u === 'RMB') ? 'CNY' : (u === '엔') ? 'JPY' : u;
+  function pairsIn(text) {
+    const out = [];
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] !== '=') continue;
+      const L = text.slice(Math.max(0, i - 45), i).match(LEFT_RE);
+      const R = text.slice(i + 1, i + 46).match(RIGHT_RE);
+      if (!L || !R) continue;
+      const lv = L[2] || L[3], rv = R[2] || R[3]; if (!lv || !rv) continue;
+      const lu = L[1] || L[4] || '', ru = R[1] || R[4] || '';
+      out.push({ lv: num(lv), rv: num(rv), lu, ru, lform: L[1] ? 'paren' : 'suffix', raw: (L[0] + '=' + R[0]).replace(/\s+/g, ' ').trim(), idx: i });
+    }
+    return out;
+  }
+
+  const REL = new Set('아버지 어머니 부 모 형 누나 언니 오빠 남동생 여동생 동생 배우자 남편 아내 할아버지 할머니 FATHER MOTHER'.split(' '));
+  // ---------- 오타 사전 ----------
+  const DEFAULT_TYPOS = [
+    ['특히사항', '특이사항'], ['사압자', '사업자'], ['대하교', '대학교'], ['아포스티', '아포스티유'],
+    ['몇일', '며칠'], ['되요', '돼요'], ['안되요', '안 돼요'], ['할께요', '할게요'], ['금새', '금세'],
+    ['웬지', '왠지'], ['왠만', '웬만'], ['바램', '바람'], ['역활', '역할'], ['어의없', '어이없'],
+    ['증명서서', '증명서'], ['확인서서', '확인서'], ['재학중', '재학 중'], ['졸업예정증명서', '졸업 예정 증명서']
+  ];
+
+  // ---------- 셀·표 구조 ----------
+  function buildSheet(sh) {
+    const rows = new Map();
+    for (const c of sh.cells) { if (!rows.has(c.r)) rows.set(c.r, new Map()); rows.get(c.r).set(c.c, c); }
+    const rowNums = [...rows.keys()].sort((a, b) => a - b);
+    const filled = r => [...rows.get(r).values()].filter(c => c.text.trim() !== '').length;
+    const maxFill = Math.max(0, ...rowNums.map(filled));
+    let qual = rowNums.filter(r => filled(r) >= Math.max(3, Math.ceil(maxFill * 0.4)));
+    let header = null;
+    const avgLen = r => { const v = [...rows.get(r).values()].filter(c => c.text.trim()); return v.reduce((a, c) => a + c.text.length, 0) / (v.length || 1); };
+    if (qual.length >= 2 && avgLen(qual[0]) < avgLen(qual[1]) * 0.5) { header = qual[0]; qual = qual.slice(1); }
+    const titles = new Map();
+    if (header != null) for (const [c, cell] of rows.get(header)) {
+      const t = cell.text.split('\n').map(s => s.trim()).filter(Boolean).join(' ')
+        .replace(/^[\d]+\s*[.)]\s*/, '').replace(/^[*※○\-·]+\s*/, '').replace(/\(.*?\)/g, '').trim();
+      titles.set(c, clip(t, 18));
+    }
+    const records = qual.length >= 2 ? qual : [];
+    const cols = new Set(); records.forEach(r => rows.get(r).forEach((_, c) => cols.add(c)));
+    const findCol = (re, test) => {
+      for (const [c, t] of titles) if (re.test(t)) return c;
+      if (!test) return null;
+      let best = null, bs = 0;
+      for (const c of cols) { const s = records.filter(r => { const x = rows.get(r).get(c); return x && test(x.text.trim()); }).length; if (s > bs) { bs = s; best = c; } }
+      return bs >= Math.max(2, records.length * 0.6) ? best : null;
+    };
+    const nameCol = findCol(/성명|이름|name/i, t => { const n = namesIn(t); return n.length === 1 && n[0].name === t.replace(/\s+/g, ' '); });
+    const noCol = findCol(/연번|번호|^no\.?$/i, t => /^\d{1,4}$/.test(t));
+    const birthCol = findCol(/생년월일|birth/i, t => { const d = datesIn(t); return d.length === 1 && t.length <= 14; });
+    const ageCol = findCol(/나이|age/i, null);
+    return { name: sh.name, rows, rowNums, header, records, titles, cols: [...cols].sort((a, b) => a - b), nameCol, noCol, birthCol, ageCol };
+  }
+
+  // ---------- 본 검사 ----------
+  function analyze(workbook, opts = {}) {
+    const today = opts.today || new Date();
+    const typoList = (opts.typos || DEFAULT_TYPOS).filter(t => t[0] && t[1] && t[0] !== t[1]);
+    const issues = []; let seq = 0;
+    const sheets = workbook.map(buildSheet);
+    const recInfo = new Map();
+    for (const S of sheets) for (const r of S.records) {
+      const row = S.rows.get(r);
+      const no = S.noCol && row.get(S.noCol) ? row.get(S.noCol).text.trim() : '';
+      const nm = S.nameCol && row.get(S.nameCol) ? row.get(S.nameCol).text.trim() : '';
+      recInfo.set(S.name + '|' + r, { no, name: nm, label: (no ? no + '번' : r + '행') + (nm ? ' ' + nm : ''), order: issues.length });
+    }
+    function add(S, r, c, level, cat, msg, extra = {}) {
+      const key = S.name + '|' + r;
+      const ri = recInfo.get(key);
+      const title = S.titles.get(c) || '';
+      const dupe = issues.find(x => x.sheet === S.name && x.r === r && x.c === c && x.msg === msg);
+      if (dupe) return;
+      issues.push({
+        id: 'i' + (++seq), sheet: S.name, r, c, addr: colLetter(c) + r, level, cat, msg, title,
+        rec: ri ? key : null, recLabel: ri ? ri.label : `${S.name} ${colLetter(c)}${r}`, ...extra
+      });
+    }
+
+    for (const S of sheets) {
+      const recSet = new Set(S.records);
+      const allCells = [];
+      S.rows.forEach((row) => row.forEach(cell => allCells.push(cell)));
+
+      // ===== 1. 행 대조 =====
+      for (const r of S.records) {
+        const row = S.rows.get(r);
+        const cells = [...row.values()];
+        // 성명
+        if (S.nameCol && row.get(S.nameCol)) {
+          const nc = row.get(S.nameCol), raw = nc.text, N = raw.trim().replace(/\s+/g, ' ');
+          if (raw !== raw.trim()) add(S, r, S.nameCol, LV.TYPO, '형식', `성명 앞뒤에 공백이 있습니다('${N}').`, { trim: true });
+          if (N && namesIn(N).length) {
+            const others = cells.filter(c => c !== nc);
+            const found = others.some(c => c.text.replace(/\s+/g, ' ').toUpperCase().includes(N.toUpperCase()));
+            if (!found) {
+              const nt = N.split(' ');
+              for (const c of others) for (const x of namesIn(c.text)) if (oneTokenOff(nt, x.toks)) {
+                add(S, r, c.c, LV.FIX, '행 대조', `성명이 다르게 적혀 있습니다: ${colLetter(S.nameCol)}${r} '${N}' ↔ ${c.c ? colLetter(c.c) + r : ''} '${x.name}'`);
+              }
+            }
+          }
+        }
+        // 생년월일
+        if (S.birthCol && row.get(S.birthCol)) {
+          const bc = row.get(S.birthCol); const bd = datesIn(bc.text);
+          if (bd.length === 1) {
+            const b = bd[0];
+            const others = []; cells.filter(c => c !== bc).forEach(c => datesIn(c.text).forEach(d => others.push({ d, c })));
+            if (!others.some(o => dkey(o.d) === dkey(b))) {
+              const sw = others.find(o => o.d.y === b.y && o.d.m === b.d && o.d.d === b.m);
+              const sameY = others.find(o => o.d.y === b.y);
+              const hit = sw || sameY;
+              if (hit) add(S, r, S.birthCol, LV.FIX, '행 대조', `생년월일이 다르게 적혀 있습니다: ${bc.addr} ${fmtD(b)} ↔ ${hit.c.addr} ${fmtD(hit.d)}`);
+            }
+            // 만나이
+            if (S.ageCol && row.get(S.ageCol) && /^\d{1,3}$/.test(row.get(S.ageCol).text.trim())) {
+              const ag = +row.get(S.ageCol).text.trim();
+              let calc = today.getFullYear() - b.y; if (today.getMonth() + 1 < b.m || (today.getMonth() + 1 === b.m && today.getDate() < b.d)) calc--;
+              if (Math.abs(calc - ag) > 1) add(S, r, S.ageCol, LV.CHECK, '숫자', `만나이 ${ag}세가 생년월일(${fmtD(b)}) 기준 계산(${calc}세)과 다릅니다.`);
+            }
+          }
+        }
+        // 비슷하지만 다른 이름
+        const seen = new Map();
+        cells.forEach(c => namesIn(c.text).forEach(x => { if (x.toks.length >= 3 && !seen.has(x.name)) seen.set(x.name, { x, c }); }));
+        const list = [...seen.values()];
+        for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+          const a = list[i], b = list[j];
+          const stu = S.nameCol && row.get(S.nameCol) ? row.get(S.nameCol).text.trim().replace(/\s+/g, ' ') : '';
+          if (a.x.name === stu || b.x.name === stu) continue;
+          if (oneTokenOff(a.x.toks, b.x.toks)) {
+            const tgt = a;
+            add(S, r, tgt.c.c, LV.CHECK, '행 대조', `비슷하지만 철자가 다른 이름이 있습니다: '${a.x.name}'(${a.c.addr}) ↔ '${b.x.name}'(${b.c.addr}). 같은 사람이면 철자를 맞춰 주세요.`);
+          }
+        }
+      }
+
+      // ===== 2. 열 비교 =====
+      for (const c of S.cols) {
+        const recs = S.records.map(r => ({ r, cell: S.rows.get(r).get(c) }));
+        if (recs.length < 4) continue;
+        const nonEmpty = recs.filter(x => x.cell && x.cell.text.trim());
+        // 빈칸
+        if (nonEmpty.length / recs.length >= 0.7) {
+          for (const x of recs) if (!x.cell || !x.cell.text.trim())
+            add(S, x.r, c, LV.CHECK, '열 비교', `${S.titles.get(c) ? `'${S.titles.get(c)}' 칸이` : '칸이'} 비어 있습니다(다른 학생은 대부분 작성됨).`);
+        }
+        // 항목명(라벨 : 값)
+        const lab = new Map(); // label -> {recs:Set, filled:Set}
+        const perRec = new Map();
+        for (const x of nonEmpty) {
+          const set = new Map();
+          const lns = x.cell.text.split('\n');
+          lns.forEach((line, li) => { const segs = line.split(/\s\/\s|\s\/|\/\s/); segs.forEach((seg, si) => {
+            const m = seg.match(/^\s*[-○●※•·*()\[\]\d.]*\s*([^:：()\[\]]{1,16}?)\s*[:：](.*)$/);
+            if (!m) return;
+            const L = m[1].replace(/\s+/g, ''); if (!/[\p{L}]/u.test(L) || /^\d/.test(L)) return;
+            let val = m[2].replace(/[\s()\/\[\]~\-·,.]/g, '');
+            if (!val && si === segs.length - 1 && li + 1 < lns.length) {
+              const ind = s => (s.match(/^\s*/) || [''])[0].length;
+              if (lns[li + 1].trim() && ind(lns[li + 1]) > ind(line)) val = 'sub';
+            }
+            if (!set.has(L)) set.set(L, { empty: !val, label: m[1].trim() });
+            else if (val) set.get(L).empty = false;
+          }); });
+          perRec.set(x.r, set);
+          for (const [L, v] of set) { if (!lab.has(L)) lab.set(L, { n: 0, filled: 0, label: v.label }); const o = lab.get(L); o.n++; if (!v.empty) o.filled++; }
+        }
+        for (const [L, o] of lab) {
+          for (const x of nonEmpty) {
+            const set = perRec.get(x.r); const v = set.get(L);
+            if (!v && o.n / nonEmpty.length >= 0.6 && nonEmpty.length >= 4 && !REL.has(L))
+              add(S, x.r, c, LV.CHECK, '열 비교', `다른 학생 대부분에 있는 '${o.label}' 항목이 없습니다.`);
+            if (v && v.empty && (o.filled - 0) / o.n >= 0.5)
+              add(S, x.r, c, LV.FIX, '열 비교', `'${o.label}' 값이 비어 있습니다.`);
+          }
+        }
+        // 목록(- 로 시작하는 줄)
+        const listOf = cell => {
+          const lines = cell.text.split('\n').map(s => s.trim()).filter(Boolean);
+          const bul = lines.filter(s => /^[-–•·]/.test(s) && !/[:：]/.test(s));
+          return bul.length >= 3 && bul.length / lines.length >= 0.6 ? lines.filter(s => !/[:：]/.test(s)) : null;
+        };
+        const normItem = s => s.replace(/^[-–•·]\s*/, '').replace(/[–—]/g, '-').replace(/\s+/g, '').replace(/\(.*?\)/g, '');
+        const lists = nonEmpty.map(x => ({ x, lines: listOf(x.cell) })).filter(o => o.lines);
+        if (lists.length >= 4) {
+          const freq = new Map();
+          lists.forEach(o => new Set(o.lines.map(normItem)).forEach(k => { if (k.length >= 3) freq.set(k, (freq.get(k) || 0) + 1); }));
+          const need = [...freq].filter(([, n]) => n / lists.length >= 0.75).map(([k]) => k);
+          const firstBul = lists.filter(o => /^[-–•·]/.test(o.lines[0])).length / lists.length;
+          for (const o of lists) {
+            const items = o.lines.map(normItem);
+            for (const k of need) {
+              const has = items.some(it => it === k || it.includes(k) || (k.includes(it) && it.length >= 3) || (it.length >= 4 && lev(it, k) <= 1));
+              if (!has) add(S, o.x.r, c, LV.CHECK, '열 비교', `다른 학생 대부분에 있는 '${k}'이(가) 목록에 없습니다.`);
+            }
+            // 중복 줄
+            const seenL = new Map();
+            o.lines.forEach(l => { const k = l.replace(/^[-–•·]\s*/, '').replace(/[–—]/g, '-').replace(/\s+/g, ''); seenL.set(k, (seenL.get(k) || 0) + 1); });
+            for (const [k, n] of seenL) if (n > 1 && k.length >= 3) {
+              const orig = o.lines.find(l => l.replace(/^[-–•·]\s*/, '').replace(/[–—]/g, '-').replace(/\s+/g, '') === k);
+              add(S, o.x.r, c, LV.FIX, '열 비교', `같은 항목이 ${n}번 들어가 있습니다: '${clip(orig.replace(/^[-–•·]\s*/, ''), 30)}'`);
+            }
+            // 첫 줄 글머리표 누락
+            const bulletShare = o.lines.filter(s => /^[-–•·]/.test(s)).length / o.lines.length;
+            if (bulletShare >= 0.6 && firstBul >= 0.6 && !/^[-–•·]/.test(o.lines[0]))
+              add(S, o.x.r, c, LV.TYPO, '형식', `목록 첫 줄에 '-'가 빠져 있습니다('${clip(o.lines[0], 24)}').`);
+          }
+        }
+      }
+
+      // ===== 3. 숫자 =====
+      const rateGroups = new Map();
+      for (const cell of allCells) {
+        const t = cell.text;
+        const pairs = pairsIn(t);
+        for (const p of pairs) {
+          const L = canonUnit(p.lu), R = canonUnit(p.ru);
+          if (L && R && L === R) {
+            add(S, cell.r, cell.c, LV.FIX, '숫자', `금액 단위가 같은 채로 환산되어 있습니다: '${clip(p.raw, 46)}' (앞 금액 단위 확인)`);
+          } else if (L && L !== 'KRW' && R === 'KRW' && p.lv > 0) {
+            const k = L + '|' + p.lform;
+            if (!rateGroups.has(k)) rateGroups.set(k, []);
+            rateGroups.get(k).push({ rate: p.rv / p.lv, cell, p, L });
+          }
+        }
+        // 합계
+        const lines = t.split('\n');
+        lines.forEach((line, li) => {
+          const m = line.match(/(?:총|합계|합산|total)\s*[가-힣A-Za-z]*\s*[:：]\s*(\d[\d,]*)/i);
+          if (m) {
+            const T = num(m[1]); const before = [];
+            for (let k = li - 1; k >= 0; k--) { const ps = pairsIn(lines[k]).filter(p => canonUnit(p.ru) === 'KRW'); if (!ps.length) break; before.push(...ps); }
+            if (before.length >= 2) {
+              const sum = before.reduce((a, p) => a + p.rv, 0);
+              if (Math.abs(sum - T) > 1) add(S, cell.r, cell.c, LV.FIX, '숫자', `합계가 맞지 않습니다: 적힌 값 ${fmtN(T)} ↔ 앞 금액 합 ${fmtN(sum)}`);
+            }
+          }
+        });
+        // 성적 평균·결석
+        let avg = null, avgAbs = null; const grades = [], abs = [];
+        for (const line of lines) {
+          const g = line.match(/(\d)\s*학년\s*[\[(:：]?\s*(\d+(?:\.\d+)?)/);
+          if (g) { grades.push(+g[2]); const a = line.match(/결석\s*[:：]?\s*(\d+)/); if (a) abs.push(+a[1]); continue; }
+          const av = line.match(/평균\s*[:：]?\s*(\d+(?:\.\d+)?)/);
+          if (av && avg == null) { avg = av[1]; const a = line.match(/결석\s*[:：]?\s*(\d+)/); if (a) avgAbs = +a[1]; }
+        }
+        if (avg != null && grades.length >= 2) {
+          const mean = grades.reduce((a, b) => a + b, 0) / grades.length;
+          const dec = (avg.split('.')[1] || '').length;
+          const tol = 0.05 + 0.5 * Math.pow(10, -dec);
+          if (Math.abs(mean - +avg) > tol) add(S, cell.r, cell.c, LV.CHECK, '숫자', `평균 확인: 학년별(${grades.join(', ')})의 평균은 ${mean.toFixed(2)}인데 ${avg}로 적혀 있습니다.`);
+        }
+        if (avgAbs != null && abs.length >= 2) {
+          const s = abs.reduce((a, b) => a + b, 0);
+          if (s !== avgAbs) add(S, cell.r, cell.c, LV.FIX, '숫자', `결석 합계가 맞지 않습니다: 총 ${avgAbs}회 ↔ 학년별 합 ${s}회`);
+        }
+        // 날짜 유효성·기간
+        for (const d of datesIn(t)) if (!validDate(d)) add(S, cell.r, cell.c, LV.FIX, '숫자', `존재하지 않는 날짜입니다: '${d.raw.trim()}'`);
+        const RANGE = /((?:19|20)\d{2}[ ]*[.\-\/][ ]*\d{1,2}[ ]*[.\-\/][ ]*\d{1,2})\.?\s*[~∼\-]\s*((?:19|20)\d{2}[ ]*[.\-\/][ ]*\d{1,2}[ ]*[.\-\/][ ]*\d{1,2})/g;
+        let rm; while ((rm = RANGE.exec(t))) {
+          const a = datesIn(rm[1])[0], b = datesIn(rm[2])[0];
+          if (a && b && dkey(b) < dkey(a)) add(S, cell.r, cell.c, LV.FIX, '숫자', `기간의 끝이 시작보다 빠릅니다: ${fmtD(a)} ~ ${fmtD(b)}`);
+        }
+      }
+      for (const [, arr] of rateGroups) {
+        if (arr.length < 4) continue;
+        const sorted = arr.map(a => a.rate).sort((a, b) => a - b);
+        const med = sorted[Math.floor(sorted.length / 2)];
+        for (const a of arr) {
+          const near = arr.filter(o => o !== a).map(o => Math.abs(a.rate - o.rate) / o.rate);
+          if (Math.min(...near) > 0.03) {
+            const shown = a.rate < 1 ? a.rate.toFixed(4) : a.rate.toFixed(2);
+            const medS = med < 1 ? med.toFixed(4) : med.toFixed(2);
+            add(S, a.cell.r, a.cell.c, LV.CHECK, '숫자', `환율이 다른 금액들과 다릅니다: '${clip(a.p.raw, 40)}' → 1${a.L}=${shown}원 (보통 ${medS}원)`);
+          }
+        }
+      }
+
+      // ===== 4. 오탈자·형식 =====
+      const parenBad = new Map();
+      for (const cell of allCells) {
+        const t = cell.text, tr = t.trim();
+        if (tr && /^[^\p{L}\p{N}]+$/u.test(tr)) { add(S, cell.r, cell.c, LV.TYPO, '형식', `의미 없는 문자만 들어 있습니다('${tr}'). 지워도 되는지 확인해 주세요.`); continue; }
+        if (!t.includes('\n') && t.length <= 60 && t !== tr && tr && !(S.nameCol === cell.c && recSet.has(cell.r)))
+          add(S, cell.r, cell.c, LV.TYPO, '형식', `앞뒤에 공백이 있습니다('${clip(tr, 24)}').`, { trim: true });
+        // 괄호 짝 (같은 열에서 절반 이상이 똑같이 틀리면 그 파일의 서식으로 보고 넘어감)
+        t.split('\n').forEach(line => {
+          const o1 = (line.match(/\(/g) || []).length, c1 = (line.match(/\)/g) || []).length;
+          const o2 = (line.match(/\[/g) || []).length, c2 = (line.match(/\]/g) || []).length;
+          if (o1 !== c1 || o2 !== c2) {
+            const k = cell.c + '|' + (line.match(/^[\s\-○※(]*([^:：]{1,12})/) || ['', ''])[1].replace(/\s+/g, '');
+            if (!parenBad.has(k)) parenBad.set(k, []);
+            parenBad.get(k).push({ cell, line });
+          }
+        });
+        // 사전
+        for (const [w, rgt] of typoList) {
+          let i = t.indexOf(w);
+          while (i >= 0) {
+            if (!t.startsWith(rgt, i) && !(rgt.endsWith(w) && t.slice(Math.max(0, i - (rgt.length - w.length)), i + w.length) === rgt)) {
+              add(S, cell.r, cell.c, LV.TYPO, '오탈자', `'${w}' → '${rgt}'`, { fix: [w, rgt] }); break;
+            }
+            i = t.indexOf(w, i + 1);
+          }
+        }
+        // 같은 단어 연속
+        const rep = t.match(/(?:^|\s)([\p{L}]{2,})\s+\1(?=\s|$)/u);
+        if (rep) add(S, cell.r, cell.c, LV.TYPO, '오탈자', `같은 단어가 두 번 이어집니다: '${rep[1]} ${rep[1]}'`);
+      }
+      const recCount = Math.max(1, S.records.length);
+      for (const [, arr] of parenBad) {
+        const rowsHit = new Set(arr.map(a => a.cell.r)).size;
+        if (rowsHit >= 4 && rowsHit / recCount >= 0.5) continue;
+        arr.forEach(a => add(S, a.cell.r, a.cell.c, LV.TYPO, '형식', `괄호 짝이 맞지 않습니다: '${clip(a.line, 34)}'`));
+      }
+      // 파일 안에서 자주 쓰인 말과 한 글자(자모 하나) 다른 말
+      const tri = new Map(), words = new Map();
+      for (const cell of allCells) {
+        const runs = cell.text.match(/[\uAC00-\uD7A3]+/g) || [];
+        for (const w of runs) {
+          words.set(w, (words.get(w) || 0) + 1);
+          for (let i = 0; i + 3 <= w.length; i++) { const k = w.slice(i, i + 3); tri.set(k, (tri.get(k) || 0) + 1); }
+        }
+      }
+      const triArr = [...tri].filter(([, n]) => n >= 2).map(([k]) => k);
+      const dictWrong = new Set(typoList.map(t => t[0]));
+      for (const cell of allCells) {
+        const runs = cell.text.match(/[\uAC00-\uD7A3]+/g) || [];
+        for (const w of runs) {
+          let reported = false;
+          for (let i = 0; i + 3 <= w.length && !reported; i++) {
+            const k = w.slice(i, i + 3); if (tri.get(k) !== 1) continue;
+            const cand = triArr.find(o => { let d = 0, pos = -1; for (let j = 0; j < 3; j++) if (o[j] !== k[j]) { d++; pos = j; } return d === 1 && jamoDiff(o[pos], k[pos]) === 1; });
+            const fixed = cand ? w.slice(0, i) + cand + w.slice(i + 3) : '';
+            if (cand && (words.get(fixed) || 0) >= 2 && ![...dictWrong].some(dw => w.includes(dw))) {
+              add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w}' → '${fixed}'? (파일 안에서 '${cand}'가 여러 번 쓰임)`, { fix: [w, fixed], guess: true });
+              reported = true;
+            }
+          }
+        }
+      }
+    }
+
+    // 정렬: 시트 → 행 → 열
+    const sOrder = new Map(sheets.map((s, i) => [s.name, i]));
+    issues.sort((a, b) => (sOrder.get(a.sheet) - sOrder.get(b.sheet)) || (a.r - b.r) || (a.c - b.c));
+    const meta = sheets.map(S => ({
+      name: S.name, records: S.records.length, header: S.header,
+      nameCol: S.nameCol && colLetter(S.nameCol), birthCol: S.birthCol && colLetter(S.birthCol), noCol: S.noCol && colLetter(S.noCol)
+    }));
+    return { issues, meta };
+  }
+
+  // ---------- 자동 수정 ----------
+  // 검사와 같은 규칙: 이미 맞는말의 일부인 곳('아포스티유' 속 '아포스티')은 건드리지 않음
+  function replaceSafe(t, w, rgt) {
+    let out = '', i = 0, j;
+    while ((j = t.indexOf(w, i)) >= 0) {
+      const inside = t.startsWith(rgt, j) || (rgt.endsWith(w) && t.slice(Math.max(0, j - (rgt.length - w.length)), j + w.length) === rgt);
+      out += t.slice(i, j) + (inside ? w : rgt); i = j + w.length;
+    }
+    return out + t.slice(i);
+  }
+  const fixable = i => !!(i.fix || i.trim);
+
+  root.ListCheck = { analyze, replaceSafe, fixable, DEFAULT_TYPOS, LV, colLetter };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try{ return localStorage.getItem('listcheck:'+k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem('listcheck:'+k,v); }catch(e){} }
+};
+const LVNAME = { fix:'수정 필요', check:'확인 요망', typo:'오탈자·형식' };
+let fileBuf = null, fileName = '', data = null, result = null, off = new Set(), hidden = new Set();
+
+// ---------- 설정 ----------
+function dictText(list){ return list.map(p => p[0] + ' → ' + p[1]).join('\n'); }
+function readDict(){
+  return $('dict').value.split('\n').map(l => l.split(/\s*(?:→|->|=>|=)\s*/)).filter(p => p.length === 2 && p[0].trim() && p[1].trim()).map(p => [p[0].trim(), p[1].trim()]);
+}
+$('dict').value = store.get('dict') || dictText(ListCheck.DEFAULT_TYPOS);
+$('dictSave').onclick = () => { store.set('dict', $('dict').value); $('dictStatus').textContent = `${readDict().length}개 저장했어요.`; $('dictStatus').className = 'status ok'; if (data) run(); };
+$('dictReset').onclick = () => { $('dict').value = dictText(ListCheck.DEFAULT_TYPOS); store.set('dict', $('dict').value); $('dictStatus').textContent = '기본 사전으로 되돌렸어요.'; $('dictStatus').className = 'status ok'; if (data) run(); };
+
+// ---------- 파일 ----------
+const drop = $('drop');
+drop.onclick = () => $('file').click();
+drop.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('file').click(); } };
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); };
+$('file').onchange = e => { if (e.target.files[0]) load(e.target.files[0]); e.target.value = ''; };
+$('rerunBtn').onclick = () => run();
+
+function setStatus(id, msg, cls){ const el = $(id); el.textContent = msg; el.className = 'status' + (cls ? ' ' + cls : ''); }
+
+function fmtDate(d){ const p = n => String(n).padStart(2,'0'); return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())}`; }
+function cellText(cell){
+  let v = cell.value; if (v == null) return '';
+  if (v instanceof Date) return fmtDate(v);
+  if (typeof v === 'object') {
+    if (v.richText) return v.richText.map(t => t.text).join('');
+    if ('result' in v) { const r = v.result; return r == null ? '' : (r instanceof Date ? fmtDate(r) : String(r)); }
+    if (v.text) return String(v.text);
+    if (v.error) return String(v.error);
+    return '';
+  }
+  return String(v);
+}
+
+async function load(file){
+  if (!/\.xls[xm]$/i.test(file.name)) { setStatus('loadStatus', /\.xls$/i.test(file.name) ? '옛날 .xls 파일은 못 읽어요. 엑셀에서 「다른 이름으로 저장 → .xlsx」로 바꿔 주세요.' : '.xlsx 엑셀 파일만 넣을 수 있어요.', 'warn'); return; }
+  if (typeof ExcelJS === 'undefined') { setStatus('loadStatus', '엑셀 읽기 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.', 'warn'); return; }
+  setStatus('loadStatus', '읽는 중…');
+  try {
+    fileBuf = await file.arrayBuffer(); fileName = file.name;
+    const wb = new ExcelJS.Workbook(); await wb.xlsx.load(fileBuf.slice(0));
+    data = [];
+    wb.eachSheet(ws => {
+      const cells = [];
+      ws.eachRow({ includeEmpty:false }, (row, r) => row.eachCell({ includeEmpty:false }, (cell, c) => {
+        if (cell.isMerged && cell.master.address !== cell.address) return;
+        const t = cellText(cell); if (t === '') return;
+        cells.push({ r, c, addr: cell.address, text: t });
+      }));
+      data.push({ name: ws.name, cells });
+    });
+    off.clear();
+    run();
+  } catch (e) {
+    console.error(e); data = null;
+    setStatus('loadStatus', '파일을 열지 못했어요. 암호가 걸려 있거나 손상된 파일인지 확인해 주세요.', 'warn');
+  }
+}
+
+function run(){
+  result = ListCheck.analyze(data, { typos: readDict() });
+  const recs = result.meta.reduce((a, m) => a + m.records, 0);
+  const main = result.meta.filter(m => m.records).map(m => `「${m.name}」 ${m.records}명`).join(', ');
+  setStatus('loadStatus', `${fileName} — ${main || '표 형태를 찾지 못해 칸별 점검만 했어요'}`, recs ? 'ok' : 'warn');
+  $('rerunBtn').disabled = false;
+  ['allOn','allOff','xlsxBtn'].forEach(id => $(id).disabled = false);
+  render();
+}
+
+// ---------- 결과 화면 ----------
+document.querySelectorAll('.tal').forEach(b => b.onclick = () => {
+  const lv = b.dataset.lv; if (hidden.has(lv)) hidden.delete(lv); else hidden.add(lv);
+  b.setAttribute('aria-pressed', hidden.has(lv) ? 'false' : 'true'); render();
+});
+$('allOn').onclick = () => { off.clear(); render(); };
+$('allOff').onclick = () => { result.issues.forEach(i => off.add(i.id)); render(); };
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function sourceOf(i){
+  const sh = data.find(s => s.name === i.sheet); const cell = sh && sh.cells.find(c => c.r === i.r && c.c === i.c);
+  return cell ? cell.text : '';
+}
+function highlight(text, i){
+  let h = esc(text);
+  const keys = [];
+  const q = i.msg.match(/'([^']{2,})'/g) || [];
+  q.forEach(x => { x = x.slice(1, -1).replace(/…$/, ''); if (x.length >= 2 && text.includes(x)) keys.push(x); });
+  (i.msg.match(/\d{4}\.\d{2}\.\d{2}/g) || []).forEach(d => { if (text.includes(d)) keys.push(d); });
+  keys.sort((a, b) => b.length - a.length).forEach(k => { h = h.split(esc(k)).join('<mark>' + esc(k) + '</mark>'); });
+  return h;
+}
+
+function render(){
+  const box = $('results');
+  const iss = result.issues;
+  $('nFix').textContent = iss.filter(i => i.level === 'fix').length;
+  $('nCheck').textContent = iss.filter(i => i.level === 'check').length;
+  $('nTypo').textContent = iss.filter(i => i.level === 'typo').length;
+  const meta = result.meta.filter(m => m.records).map(m =>
+    `<b>${esc(m.name)}</b> 시트에서 학생 <b>${m.records}명</b>을 찾았어요` +
+    (m.nameCol ? ` · 성명 ${m.nameCol}열` : '') + (m.birthCol ? ` · 생년월일 ${m.birthCol}열` : '') + (m.noCol ? ` · 연번 ${m.noCol}열` : '')).join('<br>');
+  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b> — 표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.</div>`;
+  const vis = iss.filter(i => !hidden.has(i.level));
+  if (!iss.length) html += `<div class="empty"><h3>찾은 문제가 없어요</h3>그래도 문맥상 이상한 부분은 한 번 훑어봐 주세요.</div>`;
+  else if (!vis.length) html += `<div class="empty"><h3>모든 구분을 숨겼어요</h3>왼쪽 숫자 칸을 눌러 다시 보이게 할 수 있어요.</div>`;
+  const groups = new Map();
+  vis.forEach(i => { if (!groups.has(i.recLabel)) groups.set(i.recLabel, []); groups.get(i.recLabel).push(i); });
+  for (const [label, arr] of groups) {
+    const on = arr.filter(i => !off.has(i.id)).length;
+    html += `<section class="rec"><div class="rec-h"><h3>${esc(label)}</h3><span>${on}/${arr.length}개 포함</span></div>`;
+    for (const i of arr) {
+      const src = sourceOf(i);
+      html += `<div class="iss${off.has(i.id) ? ' off' : ''}" data-id="${i.id}">
+        <input type="checkbox" ${off.has(i.id) ? '' : 'checked'} aria-label="수정·엑셀에 포함">
+        <span class="lv ${i.level}">${LVNAME[i.level]}</span>
+        <div class="msg"><span class="loc">${esc(i.sheet)} ${i.addr}${i.title ? ' · ' + esc(i.title) : ''} · ${esc(i.cat)}${ListCheck.fixable(i) ? '<span class="auto">자동 수정</span>' : ''}</span>${esc(i.msg)}</div>
+        ${src ? `<details class="src"><summary>원문 보기</summary><pre>${highlight(src, i)}</pre></details>` : ''}
+      </div>`;
+    }
+    html += `</section>`;
+  }
+  box.innerHTML = html;
+  countAuto();
+  box.querySelectorAll('.iss input').forEach(cb => cb.onchange = () => {
+    const id = cb.closest('.iss').dataset.id; if (cb.checked) off.delete(id); else off.add(id);
+    cb.closest('.iss').classList.toggle('off', !cb.checked);
+    const sec = cb.closest('.rec'); const all = sec.querySelectorAll('.iss').length; const n = sec.querySelectorAll('.iss input:checked').length;
+    sec.querySelector('.rec-h span').textContent = `${n}/${all}개 포함`;
+    countAuto();
+  });
+}
+
+function picked(){ return result ? result.issues.filter(i => !off.has(i.id)) : []; }
+const countAuto = () => { $('nAuto').textContent = picked().filter(ListCheck.fixable).length; };
+
+// ---------- 엑셀 ----------
+const FILL = { fix:'FFF8CBAD', check:'FFFFE699', typo:'FFDDEBF7', auto:'FFC6EFCE' };
+// 글자 칸(문자열·서식 있는 글자)만 고침. 수식·숫자·날짜 칸은 건드리지 않음
+function editCell(cell, i){
+  const f = i.trim ? null : (t => ListCheck.replaceSafe(t, i.fix[0], i.fix[1]));
+  const v = cell.value;
+  if (typeof v === 'string') { const n = f ? f(v) : v.trim(); if (n === v) return false; cell.value = n; return true; }
+  if (v && v.richText && v.richText.length) {
+    const runs = v.richText.map(r => ({ ...r }));
+    if (f) runs.forEach(r => r.text = f(r.text));
+    else { runs[0].text = runs[0].text.replace(/^\s+/, ''); runs[runs.length-1].text = runs[runs.length-1].text.replace(/\s+$/, ''); }
+    if (runs.every((r, k) => r.text === v.richText[k].text)) return false;
+    cell.value = { richText: runs }; return true;
+  }
+  return false;
+}
+$('xlsxBtn').onclick = async () => {
+  const list = picked();
+  setStatus('saveStatus', '엑셀 만드는 중…');
+  try {
+    const wb = new ExcelJS.Workbook(); await wb.xlsx.load(fileBuf.slice(0));
+    const byCell = new Map();
+    list.forEach(i => { const k = i.sheet + '!' + i.addr; if (!byCell.has(k)) byCell.set(k, []); byCell.get(k).push(i); });
+    const rank = { fix:0, check:1, typo:2 }; let nDone = 0;
+    for (const [, arr] of byCell) {
+      const ws = wb.getWorksheet(arr[0].sheet); if (!ws) continue;
+      let cell = ws.getCell(arr[0].addr); if (cell.isMerged) cell = cell.master;
+      arr.forEach(i => { i.done = ListCheck.fixable(i) && editCell(cell, i); if (i.done) nDone++; });
+      const left = arr.filter(i => !i.done);
+      const top = left.length ? left.slice().sort((a, b) => rank[a.level] - rank[b.level])[0].level : 'auto';
+      cell.fill = { type:'pattern', pattern:'solid', fgColor:{ argb: FILL[top] } };
+      const text = arr.map(i => `[${i.done ? '자동 수정' : LVNAME[i.level]}] ${i.msg}`).join('\n');
+      const prev = cell.note ? (typeof cell.note === 'string' ? cell.note : (cell.note.texts || []).map(t => t.text).join('')) : '';
+      cell.note = { texts: [{ text: (prev ? prev + '\n\n' : '') + '■ 검수\n' + text }] };
+    }
+    let name = '검수 결과', n = 2; while (wb.getWorksheet(name)) name = '검수 결과 ' + n++;
+    const rs = wb.addWorksheet(name);
+    rs.columns = [
+      { header:'학생', key:'rec', width:28 }, { header:'구분', key:'lv', width:12 }, { header:'시트', key:'sheet', width:18 },
+      { header:'칸', key:'addr', width:8 }, { header:'항목', key:'title', width:20 }, { header:'처리', key:'done', width:12 }, { header:'내용', key:'msg', width:90 }
+    ];
+    list.forEach(i => rs.addRow({ rec:i.recLabel, lv:LVNAME[i.level], sheet:i.sheet, addr:i.addr, title:i.title, done:i.done ? '자동 수정' : '확인 필요', msg:i.msg }));
+    rs.getRow(1).font = { bold:true };
+    rs.getRow(1).eachCell(c => c.fill = { type:'pattern', pattern:'solid', fgColor:{ argb:'FFD9D9D9' } });
+    rs.eachRow((row, r) => { if (r > 1) { row.getCell(7).alignment = { wrapText:true, vertical:'top' }; const it = list[r - 2]; row.getCell(2).fill = { type:'pattern', pattern:'solid', fgColor:{ argb: FILL[it.level] } }; if (it.done) row.getCell(6).fill = { type:'pattern', pattern:'solid', fgColor:{ argb: FILL.auto } }; } });
+    rs.views = [{ state:'frozen', ySplit:1 }];
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = fileName.replace(/\.[^.]+$/, '') + '_검수수정.xlsx';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    setStatus('saveStatus', `저장했어요 — 자동 수정 ${nDone}개, 표시만 ${list.length - nDone}개.`, 'ok');
+  } catch (e) {
+    console.error(e); setStatus('saveStatus', '엑셀을 만들지 못했어요. 다시 시도해 주세요.', 'warn');
+  }
+};
+})();
+</script>
+</body>
+</html>
