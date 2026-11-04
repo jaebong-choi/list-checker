@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK2.7</title>
+<title>오타 및 계산 수정기 MK2.8</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -246,7 +246,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK2.7</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK2.8</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -475,6 +475,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     return out;
   }
 
+  // 동사·형용사로 보이는 말(읽었다/있었다, 했습니다, 먹고…)은 활용이 많아 '한 글자 다른 말'로 비교하면 오탐이 많음 → 오타 의심에서 뺌
+  const VERBISH = w => /[었았였겠했됐셨갔왔봤줬렸]/.test(w) || /[다요고서며니지게음함됨기죠네까]$/.test(w);
   // 조사·어미에 자주 쓰이는 글자
   const PARTICLE = '은는이가을를에의와과도로으만서야여요다께며고면인게데라랑';
   // 괄호 짝: 여는 괄호보다 닫는 괄호가 먼저 나왔는데 바로 앞이 '1)'·'가)'·'a)'·'ex)' 같은 번호·예시 표시면 괄호가 아닌 표시로 봄.
@@ -772,7 +774,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         const t = cell.text, tr = t.trim();
         // '-', '–', '/', '·', '×' 같은 표시만 있는 칸은 "내용 없음"을 일부러 적은 것으로 봄
         if (EMPTY_MARK.test(tr)) continue;
-        if (tr && /^[^\p{L}\p{N}]+$/u.test(tr)) { add(S, cell.r, cell.c, LV.TYPO, '형식', `의미 없는 문자만 들어 있습니다('${tr}'). 지워도 되는지 확인해 주세요.`); continue; }
+        if (tr && /^[^\p{L}\p{N}]+$/u.test(tr) && !/\p{Extended_Pictographic}/u.test(tr)) { add(S, cell.r, cell.c, LV.TYPO, '형식', `의미 없는 문자만 들어 있습니다('${tr}'). 지워도 되는지 확인해 주세요.`); continue; }
         if (!t.includes('\n') && t.length <= 60 && t !== tr && tr && !(S.nameCol === cell.c && recSet.has(cell.r)))
           add(S, cell.r, cell.c, LV.TYPO, '형식', `앞뒤에 공백이 있습니다('${clip(tr, 24)}').`, { trim: true });
         // 괄호 짝 (같은 열에서 절반 이상이 똑같이 틀리면 그 파일의 서식으로 보고 넘어감)
@@ -839,7 +841,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
             // 끝 글자나 조사·어미 글자만 다른 건 둘 다 맞는 말(대학에/대학의, 명으로/명의로, 관리가/관리자)
             const dp = cand ? [...w].findIndex((ch, j) => ch !== fixed[j]) : -1;
             const josa = dp >= 0 && (dp === w.length - 1 || (PARTICLE.includes(w[dp]) && PARTICLE.includes(fixed[dp])));
-            if (cand && !josa && (words.get(fixed) || 0) >= 2 && ![...dictWrong].some(dw => w.includes(dw) || fixed.includes(dw))) {
+            // 3글자 이하 짧은 말은 서로 다른 맞는 말끼리 겹치기 쉬워(질문을/지문을) 비교할 말이 3번 이상 나올 때만
+            if (cand && !josa && !VERBISH(w) && !VERBISH(fixed) && (words.get(fixed) || 0) >= (w.length <= 3 ? 3 : 2) && ![...dictWrong].some(dw => w.includes(dw) || fixed.includes(dw))) {
               add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w}' → '${fixed}'? (파일 안에서 '${cand}'가 여러 번 쓰임)`, { fix: [w, fixed], guess: true });
               reported = true;
             }
