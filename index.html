@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK1.4</title>
+<title>오타 및 계산 수정기 MK1.5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -140,6 +140,9 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
 .pv-doc{max-width:820px;margin:0 auto;font-size:14px}
 .pv-doc p{margin:0 0 6px;padding:2px 6px;border-radius:3px;white-space:pre-wrap;overflow-wrap:anywhere}
 .pv-doc table{margin:10px 0 14px;width:100%}
+.pv-slide{margin:22px 0 8px;padding-top:12px;border-top:2px solid var(--rule);font-size:14px;font-weight:700}
+.pv-slide:first-child{margin-top:0;padding-top:0;border-top:0}
+.pv-doc p[data-box]{border:1px dashed var(--line);padding:6px 8px;margin-bottom:8px}
 .hit{cursor:pointer}
 .hit.fix{background:var(--fix-soft)}.hit.check{background:var(--warn-soft)}.hit.typo{background:var(--accent-soft)}.hit.auto{background:var(--ok-soft)}
 .hit:hover{outline:2px solid var(--focus);outline-offset:-2px}
@@ -170,9 +173,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <header class="hero">
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK1.4</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK1.5</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
-      <p class="lead">유학원이 보낸 엑셀·워드 명단을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자 오류, 오탈자를 찾아 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
+      <p class="lead">유학원이 보낸 엑셀·워드·PPT 파일을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자 오류, 오탈자를 찾아 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
     <ol class="flow" aria-label="사용 순서">
       <li><b>1</b>파일 넣기</li>
@@ -186,11 +189,11 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   <aside>
     <section class="step">
       <h2><b>1</b>파일 넣기</h2>
-      <div class="drop" id="drop" tabindex="0" role="button" aria-label="엑셀·워드 파일 선택">
-        <strong>엑셀·워드 파일을 여기에 끌어 놓기</strong>
-        또는 눌러서 선택 (.xlsx, .docx)
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="엑셀·워드·PPT 파일 선택">
+        <strong>엑셀·워드·PPT 파일을 여기에 끌어 놓기</strong>
+        또는 눌러서 선택 (.xlsx, .docx, .pptx)
       </div>
-      <input type="file" id="file" accept=".xlsx,.xlsm,.docx" hidden>
+      <input type="file" id="file" accept=".xlsx,.xlsm,.docx,.pptx" hidden>
       <div class="status" id="loadStatus" aria-live="polite"></div>
       <p class="note">사전·무시 목록·띄어쓰기 설정을 바꾸면 자동으로 다시 검사하고, 이미 고른 선택은 그대로 둬요.</p>
     </section>
@@ -236,7 +239,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       <label class="kw" style="margin-top:8px;font-weight:500"><input type="checkbox" id="markOnly"> 고치지 말고 표시만 해서 내보내기</label>
       <p class="note" style="margin-top:2px">유학원에 돌려보내 직접 고치게 할 때 켜세요.</p>
       <button class="btn primary wide" id="xlsxBtn" style="margin-top:10px" disabled>내보내기</button>
-      <p class="note">맨 뒤에 「검수 결과」 시트(워드는 문서 끝 목록)와 색 안내가 붙어요. 원본 파일은 바뀌지 않습니다.</p>
+      <p class="note">맨 뒤에 「검수 결과」 시트(워드는 문서 끝 목록, PPT는 맨 뒤 결과 슬라이드)와 색 안내가 붙어요. 원본 파일은 바뀌지 않습니다.</p>
       <div class="status" id="saveStatus" aria-live="polite"></div>
     </section>
   </aside>
@@ -250,7 +253,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="results" id="results">
     <div class="empty">
-      <h3>왼쪽에 엑셀·워드 명단을 넣어 주세요</h3>
+      <h3>왼쪽에 엑셀·워드·PPT 파일을 넣어 주세요</h3>
       서식이 유학원마다 달라도 같은 파일 안에서 서로 비교해서 찾아요.
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
@@ -803,22 +806,24 @@ function cellText(cell){
 const runsOf = v => typeof v === 'string' ? [v] : v && v.richText ? v.richText.map(r => r.text) : null;
 
 async function load(file){
-  const isDocx = /\.docx$/i.test(file.name);
-  if (!isDocx && !/\.xls[xm]$/i.test(file.name)) {
+  const k = /\.docx$/i.test(file.name) ? 'docx' : /\.pptx$/i.test(file.name) ? 'pptx' : /\.xls[xm]$/i.test(file.name) ? 'xlsx' : null;
+  if (!k) {
     const n = file.name;
     setStatus('loadStatus', /\.xls$/i.test(n) ? '옛날 .xls 파일은 못 읽어요. 엑셀에서 「다른 이름으로 저장 → .xlsx」로 바꿔 주세요.'
       : /\.doc$/i.test(n) ? '옛날 .doc 파일은 못 읽어요. 워드에서 「다른 이름으로 저장 → .docx」로 바꿔 주세요.'
-      : /\.(hwpx?|pptx?)$/i.test(n) ? '한글·PPT 파일은 아직 못 읽어요. 한컴·파워포인트에서 .docx로 저장해서 넣어 주세요.'
-      : '.xlsx 엑셀이나 .docx 워드 파일만 넣을 수 있어요.', 'warn');
+      : /\.ppt$/i.test(n) ? '옛날 .ppt 파일은 못 읽어요. 파워포인트에서 「다른 이름으로 저장 → .pptx」로 바꿔 주세요.'
+      : /\.hwpx?$/i.test(n) ? '한글 파일은 아직 못 읽어요. 한컴에서 .docx로 저장해서 넣어 주세요.'
+      : '.xlsx 엑셀, .docx 워드, .pptx PPT 파일만 넣을 수 있어요.', 'warn');
     return;
   }
-  if (isDocx && typeof JSZip === 'undefined') { setStatus('loadStatus', '워드 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
-  if (!isDocx && typeof ExcelJS === 'undefined') { setStatus('loadStatus', '엑셀 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
+  if (k !== 'xlsx' && typeof JSZip === 'undefined') { setStatus('loadStatus', '워드·PPT 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
+  if (k === 'xlsx' && typeof ExcelJS === 'undefined') { setStatus('loadStatus', '엑셀 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
   setStatus('loadStatus', `${file.name} 읽는 중… (큰 파일은 몇 초 걸려요)`);
   try {
-    const buf = await file.arrayBuffer(), isD = isDocx;
+    const buf = await file.arrayBuffer();
     let d;
-    if (isD) d = await readDocx(buf);
+    if (k === 'docx') d = await readDocx(buf);
+    else if (k === 'pptx') d = await readPptx(buf);
     else {
       const wb = new ExcelJS.Workbook(); await wb.xlsx.load(buf.slice(0));
       d = [];
@@ -832,7 +837,7 @@ async function load(file){
         d.push({ name: ws.name, cells, merges: Object.values(ws._merges || {}).map(m => m.model) });
       });
     }
-    fileBuf = buf; fileName = file.name; kind = isD ? 'docx' : 'xlsx'; data = d;
+    fileBuf = buf; fileName = file.name; kind = k; data = d;
     choice.clear(); closed.clear(); undoSnap = null; pvSheet = null; $('undoBtn').disabled = true; $('saveStatus').textContent = '';
     run();
   } catch (e) {
@@ -849,7 +854,7 @@ function canFix(i){
 
 function run(){
   const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null });
-  if (kind === 'docx') r.issues.forEach(i => { if (!i.rec) i.recLabel = `${i.sheet} ${locOf(i)}`; });
+  if (kind !== 'xlsx') r.issues.forEach(i => { if (!i.rec) i.recLabel = `${i.sheet} ${locOf(i)}`; });
   const ign = ignoreSet();
   r.ignored = r.issues.filter(i => ign.has(ignoreKey(i))).length;
   r.issues = r.issues.filter(i => !ign.has(ignoreKey(i)));
@@ -890,7 +895,7 @@ $('allOn').onclick = () => bulk(i => i.can ? 'fix' : 'mark');
 $('allOff').onclick = () => bulk(() => 'off');
 $('undoBtn').onclick = () => { if (!undoSnap) return; choice.clear(); undoSnap.forEach((v, k) => choice.set(k, v)); undoSnap = null; $('undoBtn').disabled = true; render(); };
 
-const locOf = i => kind !== 'docx' ? i.addr : i.sheet === '본문' ? `${i.r}번째 문단` : `${i.r}행 ${i.c}열`;
+const locOf = i => kind === 'xlsx' ? i.addr : i.sheet === '본문' ? `${i.r}번째 문단` : /^슬라이드\d+$/.test(i.sheet) ? `${i.r}번째 글상자` : `${i.r}행 ${i.c}열`;
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function sourceOf(i){ const c = cellOf(i); return c ? c.text : ''; }
 function keysOf(text, i){
@@ -916,9 +921,9 @@ function render(){
   $('nCheck').textContent = iss.filter(i => i.level === 'check').length;
   $('nTypo').textContent = iss.filter(i => i.level === 'typo').length;
   const meta = result.meta.filter(m => m.records).map(m =>
-    `<b>${esc(m.name)}</b> 시트에서 학생 <b>${m.records}명</b>을 찾았어요` +
+    `<b>${esc(m.name)}</b>${kind === 'xlsx' ? ' 시트' : ''}에서 학생 <b>${m.records}명</b>을 찾았어요` +
     (m.nameCol ? ` · 성명 ${m.nameCol}열` : '') + (m.birthCol ? ` · 생년월일 ${m.birthCol}열` : '') + (m.noCol ? ` · 연번 ${m.noCol}열` : '')).join('<br>');
-  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
+  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : kind === 'pptx' ? '위치는 슬라이드 번호와 글상자 순서(표는 몇 행 몇 열)예요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
   const vis = visible();
   $('visCount').textContent = vis.length === iss.length ? `${iss.length}개` : `${iss.length}개 중 ${vis.length}개 보임`;
   if (!iss.length) html += `<div class="empty"><h3>찾은 문제가 없어요</h3>그래도 문맥상 이상한 부분은 한 번 훑어봐 주세요.</div>`;
@@ -1048,17 +1053,17 @@ function sheetHtml(sh, by){
   }
   return h + '</tbody></table>';
 }
+// 워드는 문단·표, PPT는 슬라이드 제목·글상자·표를 파일 순서대로 그림
 function docHtml(by){
-  const sheets = new Map(data.map(s => [s.name, s]));
-  const paras = new Map(((sheets.get('본문') || {}).cells || []).map(c => [c.r, c]));
+  const at = new Map(); data.forEach(s => s.cells.forEach(c => at.set(`${s.name}|${c.r}|${c.c}`, c)));
   let h = '<div class="pv-doc">';
   for (const b of data.blocks || []) {
-    if (b.p) { const c = paras.get(b.p); if (!c) continue; const key = `본문|${c.r}|1`, arr = by.get(key); h += `<p${hitAttrs(key, arr)}>${cellHtml(c.text, arr || [])}</p>`; continue; }
-    const sh = sheets.get(b.t); const at = new Map(((sh || {}).cells || []).map(c => [c.r + '|' + c.c, c]));
+    if (b.h) { h += `<h4 class="pv-slide">${esc(b.h)}</h4>`; continue; }
+    if (b.p) { const key = `${b.s || '본문'}|${b.p}|1`, c = at.get(key); if (!c) continue; const arr = by.get(key); h += `<p${b.s ? ' data-box' : ''}${hitAttrs(key, arr)}>${cellHtml(c.text, arr || [])}</p>`; continue; }
     h += `<div class="note">${esc(b.t)}</div><table><tbody>`;
     for (let r = 1; r <= b.rows; r++) {
       h += '<tr>';
-      for (let c = 1; c <= b.cols; c++) { const key = `${b.t}|${r}|${c}`, arr = by.get(key), cell = at.get(r + '|' + c); h += `<td${hitAttrs(key, arr)}>${cell ? cellHtml(cell.text, arr || []) : ''}</td>`; }
+      for (let c = 1; c <= b.cols; c++) { const key = `${b.t}|${r}|${c}`, arr = by.get(key), cell = at.get(key); h += `<td${hitAttrs(key, arr)}>${cell ? cellHtml(cell.text, arr || []) : ''}</td>`; }
       h += '</tr>';
     }
     h += '</tbody></table>';
@@ -1069,7 +1074,7 @@ function renderPreview(){
   if (!result) return;
   const by = activeByCell(), body = $('pvBody'), keep = [body.scrollTop, body.scrollLeft];
   $('pvName').textContent = fileName;
-  if (kind === 'docx') { $('pvTabs').innerHTML = ''; body.innerHTML = docHtml(by); }
+  if (kind !== 'xlsx') { $('pvTabs').innerHTML = ''; body.innerHTML = docHtml(by); }
   else {
     if (!data.some(s => s.name === pvSheet)) pvSheet = (data.find(s => result.issues.some(i => i.sheet === s.name)) || data[0] || {}).name;
     $('pvTabs').innerHTML = data.map(s => {
@@ -1084,7 +1089,7 @@ function renderPreview(){
 function flash(el){ el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
 function showInDoc(i){
   if (narrow()) document.body.classList.add('doc');
-  if (kind !== 'docx' && pvSheet !== i.sheet) { pvSheet = i.sheet; renderPreview(); }
+  if (kind === 'xlsx' && pvSheet !== i.sheet) { pvSheet = i.sheet; renderPreview(); }
   const el = $('pvBody').querySelector(`[data-cell="${CSS.escape(cellKey(i))}"]`);
   if (el) { el.scrollIntoView({ block:'center', inline:'center', behavior:'smooth' }); flash(el); }
 }
@@ -1127,7 +1132,7 @@ $('xlsxBtn').onclick = () => {
   const list = picked();
   if (!list.length) { setStatus('saveStatus', '내보낼 항목이 없어요(모두 빼기). 원본 그대로 쓰면 돼요.', 'warn'); return; }
   setStatus('saveStatus', '파일 만드는 중…');
-  return kind === 'docx' ? exportDocx(list) : exportXlsx(list);
+  return kind === 'docx' ? exportDocx(list) : kind === 'pptx' ? exportPptx(list) : exportXlsx(list);
 };
 
 // ---------- 엑셀 ----------
@@ -1226,11 +1231,11 @@ async function readDocx(buf){
 }
 // 글자 조각(w:t)별로 고침. 한 단어가 여러 조각에 걸쳐 있으면 못 고치고 표시만 남김
 function editRuns(node, i){
-  const ts = [...node.getElementsByTagNameNS(W, 't')]; if (!ts.length) return false;
+  const ts = [...node.getElementsByTagNameNS(kind === 'pptx' ? A : W, 't')]; if (!ts.length) return false;
   const before = ts.map(t => t.textContent);
   if (i.trim) { ts[0].textContent = ts[0].textContent.replace(/^\s+/, ''); ts[ts.length-1].textContent = ts[ts.length-1].textContent.replace(/\s+$/, ''); }
   else ts.forEach(t => t.textContent = ListCheck.replaceSafe(t.textContent, i.fix[0], i.fix[1]));
-  ts.forEach(t => t.setAttribute('xml:space', 'preserve'));
+  if (kind !== 'pptx') ts.forEach(t => t.setAttribute('xml:space', 'preserve'));
   return ts.some((t, k) => t.textContent !== before[k]);
 }
 // 칸·문단 배경색. 워드는 속성 순서를 따지므로 정해진 자리에 넣음
@@ -1272,10 +1277,139 @@ async function exportDocx(list){
     list.forEach(i => lines.push(para(doc, `[${i.done ? '자동 수정' : LVNAME[i.level]}] ${i.rec ? i.recLabel + ' · ' : ''}${i.sheet} ${locOf(i)} — ${i.msg}`)));
     lines.forEach(p => body.insertBefore(p, end));
     zip.file('word/document.xml', new XMLSerializer().serializeToString(doc));
-    saved(await zip.generateAsync({ type:'blob', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }),
+    saved(await zip.generateAsync({ type:'blob', compression:'DEFLATE', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }),
       fileName.replace(/\.[^.]+$/, '') + '_검수수정.docx', list, nDone);
   } catch (e) {
     console.error(e); setStatus('saveStatus', '워드 파일을 만들지 못했어요. 다시 시도해 주세요.', 'warn');
+  }
+}
+
+// ---------- PPT(.pptx) ----------
+// 슬라이드 하나 = 글상자 묶음(「슬라이드N」, 글상자 순서대로 한 줄씩), 슬라이드 속 표 = 「슬라이드N 표M」
+const P = 'http://schemas.openxmlformats.org/presentationml/2006/main', A = 'http://schemas.openxmlformats.org/drawingml/2006/main';
+const RNS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+const kidsA = (el, tag) => [...el.childNodes].filter(n => n.namespaceURI === A && n.localName === tag);
+async function openPptx(buf){
+  const zip = await JSZip.loadAsync(buf.slice(0));
+  const xml = async n => new DOMParser().parseFromString(await zip.file(n).async('string'), 'application/xml');
+  const pres = await xml('ppt/presentation.xml'), rels = await xml('ppt/_rels/presentation.xml.rels');
+  const tgt = new Map([...rels.getElementsByTagName('Relationship')].map(r => [r.getAttribute('Id'), r.getAttribute('Target')]));
+  const slides = [];
+  for (const sid of pres.getElementsByTagNameNS(P, 'sldId')) { // 발표 순서(presentation.xml)대로
+    const t = tgt.get(sid.getAttributeNS(RNS, 'id')); if (!t) continue;
+    const path = 'ppt/' + t.replace(/^\/?ppt\//, '').replace(/^\.\//, '');
+    if (zip.file(path)) slides.push({ path, doc: await xml(path) });
+  }
+  return { zip, slides };
+}
+function pptxUnits(slides){
+  const units = [], blocks = [];
+  slides.forEach(({ doc }, si) => {
+    const name = '슬라이드' + (si + 1); let bi = 0, ti = 0;
+    blocks.push({ h: `슬라이드 ${si + 1}` });
+    for (const el of doc.getElementsByTagName('*')) {
+      if (el.namespaceURI === P && el.localName === 'sp') {
+        const tx = [...el.childNodes].find(n => n.localName === 'txBody'); if (!tx) continue;
+        bi++; units.push({ sheet: name, r: bi, c: 1, node: tx, shape: el, doc }); blocks.push({ s: name, p: bi });
+      } else if (el.namespaceURI === A && el.localName === 'tbl') {
+        const sh = `${name} 표${++ti}`, b = { t: sh, rows: 0, cols: 0 }; blocks.push(b);
+        kidsA(el, 'tr').forEach((tr, ri) => kidsA(tr, 'tc').forEach((tc, ci) => {
+          b.rows = Math.max(b.rows, ri + 1); b.cols = Math.max(b.cols, ci + 1);
+          if (tc.getAttribute('hMerge') !== '1' && tc.getAttribute('vMerge') !== '1') units.push({ sheet: sh, r: ri + 1, c: ci + 1, node: tc, doc });
+        }));
+      }
+    }
+  });
+  return { units, blocks };
+}
+function pText(node){
+  return [...node.getElementsByTagNameNS(A, 'p')].map(p => {
+    let t = '';
+    for (const e of p.getElementsByTagNameNS(A, '*')) {
+      if (e.localName === 't' && /^(r|fld)$/.test(e.parentNode.localName)) t += e.textContent; else if (e.localName === 'br') t += '\n';
+    }
+    return t;
+  }).join('\n');
+}
+async function readPptx(buf){
+  const { slides } = await openPptx(buf), { units, blocks } = pptxUnits(slides), by = new Map();
+  for (const u of units) {
+    let t = pText(u.node); if (u.shape) t = t.trim(); // 글상자 앞뒤 공백은 오류로 안 봄
+    if (t.trim() === '') continue;
+    if (!by.has(u.sheet)) by.set(u.sheet, []);
+    by.get(u.sheet).push({ r: u.r, c: u.c, addr: u.shape ? `${u.r}번째 글상자` : `${u.r}행 ${u.c}열`, text: t,
+      runs: [...u.node.getElementsByTagNameNS(A, 't')].map(x => x.textContent) });
+  }
+  return Object.assign([...by].map(([name, cells]) => ({ name, cells })), { blocks });
+}
+// 표시: 표 칸은 배경색, 글상자는 굵은 색 테두리. PPT도 속성 순서를 따지므로 정해진 자리에 넣음
+const LINE = { fix:'C0504D', check:'D99A00', typo:'4F81BD', auto:'4E9A5B' };
+function solidA(doc, hex){ const f = doc.createElementNS(A, 'a:solidFill'), c = doc.createElementNS(A, 'a:srgbClr'); c.setAttribute('val', hex); f.appendChild(c); return f; }
+function markPptx(u, lv){
+  const doc = u.doc;
+  if (!u.shape) {
+    let pr = kidsA(u.node, 'tcPr')[0];
+    if (!pr) { pr = doc.createElementNS(A, 'a:tcPr'); u.node.insertBefore(pr, kidsA(u.node, 'extLst')[0] || null); }
+    [...pr.childNodes].filter(n => /^(noFill|solidFill|gradFill|blipFill|pattFill|grpFill)$/.test(n.localName)).forEach(n => pr.removeChild(n));
+    pr.insertBefore(solidA(doc, FILL[lv].slice(2)), [...pr.childNodes].find(n => /^(headers|extLst)$/.test(n.localName)) || null);
+    return;
+  }
+  let pr = [...u.shape.childNodes].find(n => n.localName === 'spPr');
+  if (!pr) { pr = doc.createElementNS(P, 'p:spPr'); u.shape.insertBefore(pr, u.node); }
+  [...pr.childNodes].filter(n => n.localName === 'ln').forEach(n => pr.removeChild(n));
+  const ln = doc.createElementNS(A, 'a:ln'); ln.setAttribute('w', '38100'); ln.appendChild(solidA(doc, LINE[lv]));
+  pr.insertBefore(ln, [...pr.childNodes].find(n => /^(effectLst|effectDag|scene3d|sp3d|extLst)$/.test(n.localName)) || null);
+}
+// 맨 뒤에 결과 슬라이드(글상자 하나)를 붙임. 레이아웃은 빈 화면이 있으면 그것, 없으면 첫 슬라이드 것
+async function addResultSlides(zip, slides, lines){
+  const str = n => zip.file(n).async('string');
+  let pres = await str('ppt/presentation.xml'), rels = await str('ppt/_rels/presentation.xml.rels'), types = await str('[Content_Types].xml');
+  if (!/<p:sldIdLst>/.test(pres) || !slides.length) return;
+  const sz = pres.match(/<p:sldSz[^>]*cx="(\d+)"[^>]*cy="(\d+)"/) || [0, 12192000, 6858000], W0 = +sz[1], H0 = +sz[2];
+  const layouts = Object.keys(zip.files).filter(n => /^ppt\/slideLayouts\/slideLayout\d+\.xml$/.test(n));
+  let layout = null;
+  for (const n of layouts) if (/<p:sldLayout[^>]*type="blank"/.test(await str(n))) { layout = '../slideLayouts/' + n.split('/').pop(); break; }
+  if (!layout) {
+    const r1 = zip.file(slides[0].path.replace(/slides\/([^/]+)$/, 'slides/_rels/$1.rels'));
+    layout = r1 && ((await r1.async('string')).match(/Target="([^"]*slideLayout\d+\.xml)"/) || [])[1];
+  }
+  if (!layout) return;
+  let num = Math.max(0, ...Object.keys(zip.files).map(n => +(n.match(/^ppt\/slides\/slide(\d+)\.xml$/) || [0, 0])[1]));
+  let sid = Math.max(255, ...[...pres.matchAll(/<p:sldId [^>]*id="(\d+)"/g)].map(m => +m[1]));
+  const para = (t, b) => `<a:p><a:r><a:rPr lang="ko-KR" sz="${b ? 1600 : 1100}"${b ? ' b="1"' : ''}/><a:t>${esc(t)}</a:t></a:r></a:p>`;
+  const PER = 16;
+  for (let k = 0; k < lines.length; k += PER) {
+    num++; sid++; const rid = 'rIdLc' + num;
+    const body = (k ? [para('■ 검수 결과 (이어서)', true)] : []).concat(lines.slice(k, k + PER).map((t, j) => para(t, !k && j === 0))).join('');
+    zip.file(`ppt/slides/slide${num}.xml`, `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sld xmlns:a="${A}" xmlns:r="${RNS}" xmlns:p="${P}"><p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/><p:sp><p:nvSpPr><p:cNvPr id="2" name="검수 결과"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${Math.round(W0 * .05)}" y="${Math.round(H0 * .05)}"/><a:ext cx="${Math.round(W0 * .9)}" cy="${Math.round(H0 * .9)}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr><p:txBody><a:bodyPr wrap="square"><a:normAutofit/></a:bodyPr><a:lstStyle/>${body}</p:txBody></p:sp></p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>`);
+    zip.file(`ppt/slides/_rels/slide${num}.xml.rels`, `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="${layout}"/></Relationships>`);
+    types = types.replace('</Types>', `<Override PartName="/ppt/slides/slide${num}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/></Types>`);
+    rels = rels.replace('</Relationships>', `<Relationship Id="${rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide${num}.xml"/></Relationships>`);
+    pres = pres.replace('</p:sldIdLst>', `<p:sldId id="${sid}" r:id="${rid}"/></p:sldIdLst>`);
+  }
+  zip.file('ppt/presentation.xml', pres); zip.file('ppt/_rels/presentation.xml.rels', rels); zip.file('[Content_Types].xml', types);
+}
+async function exportPptx(list){
+  try {
+    const { zip, slides } = await openPptx(fileBuf);
+    const nodes = new Map(pptxUnits(slides).units.map(u => [u.sheet + '|' + u.r + '|' + u.c, u]));
+    const by = new Map();
+    list.forEach(i => { const k = i.sheet + '|' + i.r + '|' + i.c; if (!by.has(k)) by.set(k, []); by.get(k).push(i); });
+    let nDone = 0;
+    for (const [k, arr] of by) {
+      const u = nodes.get(k); if (!u) continue;
+      arr.forEach(i => { i.done = willFix(i) && editRuns(u.node, i); if (i.done) nDone++; });
+      markPptx(u, topLevel(arr));
+    }
+    slides.forEach(sl => zip.file(sl.path, new XMLSerializer().serializeToString(sl.doc)));
+    const colors = { fix:'빨간 테두리·살구색 칸', check:'노란 테두리·노란 칸', typo:'파란 테두리·하늘색 칸', auto:'초록 테두리·초록 칸' };
+    await addResultSlides(zip, slides, [`■ 검수 결과 — 자동 수정 ${nDone}개 · 확인 필요 ${list.length - nDone}개`,
+      '색 안내: ' + LEGEND.map(([k, a]) => `${colors[k]} = ${a}`).join(' · '),
+      ...list.map(i => `[${i.done ? '자동 수정' : LVNAME[i.level]}] ${i.rec ? i.recLabel + ' · ' : ''}${i.sheet} ${locOf(i)} — ${i.msg}`)]);
+    saved(await zip.generateAsync({ type:'blob', compression:'DEFLATE', mimeType:'application/vnd.openxmlformats-officedocument.presentationml.presentation' }),
+      fileName.replace(/\.[^.]+$/, '') + '_검수수정.pptx', list, nDone);
+  } catch (e) {
+    console.error(e); setStatus('saveStatus', 'PPT 파일을 만들지 못했어요. 다시 시도해 주세요.', 'warn');
   }
 }
 
