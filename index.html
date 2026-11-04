@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK2.0</title>
+<title>오타 및 계산 수정기 MK2.1</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -123,7 +123,6 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
 .lv.typo{color:var(--accent);background:var(--accent-soft)}
 .kw{display:flex;gap:8px;align-items:center;margin-top:14px;font-size:14px;font-weight:600;cursor:pointer}
 .kw input{width:18px;height:18px;accent-color:var(--brand)}
-.auto{font-size:11px;font-weight:600;color:var(--ok);border:1px solid var(--ok);border-radius:3px;padding:0 5px;margin-left:6px}
 .msg{font-size:14px;overflow-wrap:anywhere}
 .loc{display:block;font-size:12px;color:var(--muted);margin-bottom:1px}
 .src{grid-column:2 / 4;font-size:12px}
@@ -159,6 +158,18 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
 .pv-slide:first-child{margin-top:0;padding-top:0;border-top:0}
 .pv-doc p[data-box]{border:1px dashed var(--line);padding:6px 8px;margin-bottom:8px}
 .hit{cursor:pointer}
+.slv{padding:16px;background:var(--panel);min-height:100%}
+.slv .pv-slide{border-top:0;margin:0 0 8px;padding-top:0}
+.slv .note{margin:0 0 12px}
+.sl{position:relative;width:100%;container-type:inline-size;background:#fff;color:#000;border-radius:6px;box-shadow:0 2px 14px rgba(0,0,0,.14);overflow:hidden;margin-bottom:22px;font-family:"Pretendard Variable","Malgun Gothic",sans-serif}
+.sl .el{position:absolute;box-sizing:border-box;margin:0}
+.sl img.el{object-fit:fill;pointer-events:none}
+.sl .box{display:flex;flex-direction:column;line-height:1.2;white-space:pre-wrap;overflow-wrap:anywhere;padding:.35cqw .7cqw;overflow:visible}
+.pv-body .sl .stbl{border-collapse:collapse;table-layout:fixed;width:auto}
+.pv-body .sl .stbl td{border:1px solid rgba(0,0,0,.28);padding:.25cqw .45cqw;vertical-align:top;white-space:pre-wrap;line-height:1.2;min-width:0;max-width:none;overflow:hidden}
+.pv-body .sl .hit.fix,.pv-body .sl .hit.check,.pv-body .sl .hit.typo,.pv-body .sl .hit.auto{background-color:transparent;outline:3px solid #DC2626;outline-offset:1px;z-index:2}
+.pv-body .sl .hit.check{outline-color:#D97706}.pv-body .sl .hit.typo{outline-color:#2563EB}.pv-body .sl .hit.auto{outline-color:#16A34A}
+.pv-body .sl .hit:hover{outline-width:4px}
 .pv-pdf{display:flex;flex-direction:column;align-items:center;gap:18px;padding:16px;background:var(--panel);min-height:100%}
 .pg{position:relative;width:100%;max-width:920px;background:#fff;border-radius:6px;box-shadow:0 2px 14px rgba(0,0,0,.14);overflow:hidden}
 .pg canvas{display:block;width:100%;height:100%}
@@ -200,7 +211,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <header class="hero">
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK2.0</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK2.1</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF 파일을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -1159,7 +1170,8 @@ function renderPreview(){
   if (!result) return;
   const by = activeByCell(), body = $('pvBody'), keep = [body.scrollTop, body.scrollLeft];
   $('pvName').textContent = fileName;
-  if (result.noText) { $('pvTabs').innerHTML = ''; body.innerHTML = `<div class="pv-doc"><p class="note">${esc(noTextHelp())}</p></div>`; }
+  if (kind === 'pptx' && data.view) { $('pvTabs').innerHTML = ''; body.innerHTML = slidesHtml(by); }
+  else if (result.noText) { $('pvTabs').innerHTML = ''; body.innerHTML = `<div class="pv-doc"><p class="note">${esc(noTextHelp())}</p></div>`; }
   else if (kind === 'pdf') { renderPdf(by); return; }
   else if (kind !== 'xlsx') { $('pvTabs').innerHTML = ''; body.innerHTML = docHtml(by); }
   else {
@@ -1389,7 +1401,7 @@ async function openPptx(buf){
     const path = 'ppt/' + t.replace(/^\/?ppt\//, '').replace(/^\.\//, '');
     if (zip.file(path)) slides.push({ path, doc: await xml(path) });
   }
-  return { zip, slides };
+  return { zip, slides, pres };
 }
 function pptxUnits(slides){
   const units = [], blocks = [];
@@ -1401,7 +1413,7 @@ function pptxUnits(slides){
         const tx = [...el.childNodes].find(n => n.localName === 'txBody'); if (!tx) continue;
         bi++; units.push({ sheet: name, r: bi, c: 1, node: tx, shape: el, doc }); blocks.push({ s: name, p: bi });
       } else if (el.namespaceURI === A && el.localName === 'tbl') {
-        const sh = `${name} 표${++ti}`, b = { t: sh, rows: 0, cols: 0 }; blocks.push(b);
+        const sh = `${name} 표${++ti}`, b = { t: sh, rows: 0, cols: 0, el }; blocks.push(b);
         kidsA(el, 'tr').forEach((tr, ri) => kidsA(tr, 'tc').forEach((tc, ci) => {
           b.rows = Math.max(b.rows, ri + 1); b.cols = Math.max(b.cols, ci + 1);
           if (tc.getAttribute('hMerge') !== '1' && tc.getAttribute('vMerge') !== '1') units.push({ sheet: sh, r: ri + 1, c: ci + 1, node: tc, doc });
@@ -1421,7 +1433,7 @@ function pText(node){
   }).join('\n');
 }
 async function readPptx(buf){
-  const { slides } = await openPptx(buf), { units, blocks } = pptxUnits(slides), by = new Map();
+  const { zip, slides, pres } = await openPptx(buf), { units, blocks } = pptxUnits(slides), by = new Map();
   for (const u of units) {
     let t = pText(u.node); if (u.shape) t = t.trim(); // 글상자 앞뒤 공백은 오류로 안 봄
     if (t.trim() === '') continue;
@@ -1431,8 +1443,184 @@ async function readPptx(buf){
   }
   // 글자가 그림으로만 된 슬라이드(미리캔버스 「이미지형」 내보내기 등)를 알려주려고 그림 수를 셈
   const pics = slides.reduce((a, sl) => a + sl.doc.getElementsByTagNameNS(P, 'pic').length, 0);
-  return Object.assign([...by].map(([name, cells]) => ({ name, cells })), { blocks, pics });
+  let view = null;
+  try { view = await pptView(zip, slides, pres, units, blocks); } catch (e) { console.error(e); } // 그리기가 실패해도 검사는 됨
+  return Object.assign([...by].map(([name, cells]) => ({ name, cells })), { blocks, pics, view });
 }
+// ---------- PPT 화면 미리보기: 슬라이드 모양 그대로(위치·그림·배경·채우기·글자 크기·색) ----------
+// ponytail: 글꼴·그림자·회전·효과·애니메이션은 못 따라 함. 위치·크기·그림·색까지만 흉내
+let pptUrls = [];
+const EMU_PT = 12700;
+const kid = (el, ns, name) => el ? [...el.children].find(n => n.localName === name && (!ns || n.namespaceURI === ns)) : null;
+const xmlOf = async (zip, path) => new DOMParser().parseFromString(await zip.file(path).async('string'), 'application/xml');
+async function relsOf(zip, part){
+  const f = zip.file(part.replace(/([^/]+)$/, '_rels/$1.rels')); if (!f) return new Map();
+  const d = new DOMParser().parseFromString(await f.async('string'), 'application/xml');
+  return new Map([...d.getElementsByTagName('Relationship')].map(r => [r.getAttribute('Id'), { type: r.getAttribute('Type') || '', target: r.getAttribute('Target') || '', ext: r.getAttribute('TargetMode') === 'External' }]));
+}
+function resolvePart(part, target){
+  if (target.startsWith('/')) return target.slice(1);
+  const parts = part.split('/').slice(0, -1);
+  for (const seg of target.split('/')) { if (seg === '..') parts.pop(); else if (seg !== '.') parts.push(seg); }
+  return parts.join('/');
+}
+async function partInfo(zip, path){ return { path, doc: await xmlOf(zip, path), rels: await relsOf(zip, path) }; }
+const relTo = (part, re) => part && [...part.rels.values()].find(r => re.test(r.type));
+function xfrmOf(el){
+  const pr = kid(el, null, 'spPr') || kid(el, null, 'grpSpPr'), x = pr ? kid(pr, A, 'xfrm') : kid(el, P, 'xfrm'); if (!x) return null;
+  const v = (n, a) => { const e = kid(x, A, n); return e ? +e.getAttribute(a) || 0 : 0; };
+  return { x: v('off', 'x'), y: v('off', 'y'), w: v('ext', 'cx'), h: v('ext', 'cy'), cx: v('chOff', 'x'), cy: v('chOff', 'y'), cw: v('chExt', 'cx'), ch: v('chExt', 'cy') };
+}
+function phKey(sp){ const ph = sp.getElementsByTagNameNS(P, 'ph')[0]; return ph ? { idx: ph.getAttribute('idx'), type: ph.getAttribute('type') || 'body' } : null; }
+function phMap(part){
+  const m = new Map(); if (!part) return m;
+  for (const sp of part.doc.getElementsByTagNameNS(P, 'sp')) {
+    const k = phKey(sp), x = xfrmOf(sp); if (!k || !x) continue;
+    if (k.idx) m.set('i' + k.idx, { x, sp }); if (!m.has('t' + k.type)) m.set('t' + k.type, { x, sp });
+  }
+  return m;
+}
+function colorOf(el, th){
+  if (!el) return null;
+  const s = kid(el, A, 'srgbClr'); if (s) return '#' + s.getAttribute('val');
+  const sc = kid(el, A, 'schemeClr'); if (sc) { const v = sc.getAttribute('val'); return th[{ tx1: 'dk1', bg1: 'lt1', tx2: 'dk2', bg2: 'lt2' }[v] || v] || null; }
+  const sy = kid(el, A, 'sysClr'); if (sy) return '#' + (sy.getAttribute('lastClr') || '000000');
+  return null;
+}
+const fillOf = (pr, th) => !pr ? null : kid(pr, A, 'noFill') ? 'none' : colorOf(kid(pr, A, 'solidFill'), th);
+const IMG_TYPE = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', svg: 'image/svg+xml', bmp: 'image/bmp', webp: 'image/webp' };
+async function imgUrl(zip, part, rid, cache){
+  const r = part.rels.get(rid); if (!r || r.ext) return null;
+  const path = resolvePart(part.path, r.target); if (cache.has(path)) return cache.get(path);
+  const f = zip.file(path), type = IMG_TYPE[path.split('.').pop().toLowerCase()]; // EMF·WMF 같은 형식은 못 그림
+  const u = f && type ? URL.createObjectURL(new Blob([await f.async('arraybuffer')], { type })) : null;
+  if (u) pptUrls.push(u); cache.set(path, u); return u;
+}
+async function bgOf(zip, part, th, cache){
+  const bg = part && part.doc.getElementsByTagNameNS(P, 'bg')[0], pr = bg && kid(bg, P, 'bgPr'); if (!pr) return null;
+  const blip = pr.getElementsByTagNameNS(A, 'blip')[0];
+  if (blip) { const u = await imgUrl(zip, part, blip.getAttributeNS(RNS, 'embed'), cache); if (u) return { img: u }; }
+  const c = fillOf(pr, th); return c && c !== 'none' ? { color: c } : null;
+}
+function textStyle(tx, th, inherit){
+  const r0 = tx && (tx.getElementsByTagNameNS(A, 'rPr')[0] || tx.getElementsByTagNameNS(A, 'endParaRPr')[0]);
+  const d0 = inherit && inherit.getElementsByTagNameNS(A, 'defRPr')[0];
+  const sz = (r0 && +r0.getAttribute('sz')) || (d0 && +d0.getAttribute('sz')) || 0;
+  const p0 = tx && tx.getElementsByTagNameNS(A, 'pPr')[0], bp = tx && kid(tx, A, 'bodyPr');
+  return { sz: sz / 100, b: !!(r0 && r0.getAttribute('b') === '1'), color: (r0 && colorOf(kid(r0, A, 'solidFill'), th)) || (d0 && colorOf(kid(d0, A, 'solidFill'), th)),
+    algn: p0 && p0.getAttribute('algn'), anchor: bp && bp.getAttribute('anchor') };
+}
+async function walkTree(zip, part, root, tf, out, ctx){
+  for (const n of root.children) {
+    const ln = n.localName;
+    if (ln === 'AlternateContent') { const c = kid(n, null, 'Choice') || kid(n, null, 'Fallback'); if (c) await walkTree(zip, part, c, tf, out, ctx); continue; }
+    if (ln === 'grpSp') {
+      const g = xfrmOf(n);
+      const t2 = g && g.cw && g.ch ? (x, y, w, h) => tf(g.x + (x - g.cx) * g.w / g.cw, g.y + (y - g.cy) * g.h / g.ch, w * g.w / g.cw, h * g.h / g.ch) : tf;
+      await walkTree(zip, part, n, t2, out, ctx); continue;
+    }
+    if (!/^(sp|pic|graphicFrame|cxnSp)$/.test(ln)) continue;
+    const k = ln === 'sp' ? phKey(n) : null;
+    if (ctx.master && k) continue; // 레이아웃·마스터의 자리표시자("제목을 입력하세요")는 안 그림
+    let x = xfrmOf(n), inh = null;
+    if (k && ctx.ph) { const hit = ctx.ph(k); if (hit) { inh = hit.sp; if (!x) x = hit.x; } } // 위치를 안 적은 자리표시자는 레이아웃·마스터 위치를 따름
+    if (!x) continue;
+    const [X, Y, Wd, Hd] = tf(x.x, x.y, x.w, x.h), g = { X, Y, W: Wd, H: Hd };
+    if (ln === 'pic') {
+      const b = n.getElementsByTagNameNS(A, 'blip')[0], u = b && await imgUrl(zip, part, b.getAttributeNS(RNS, 'embed'), ctx.cache);
+      if (u) out.push({ t: 'pic', ...g, src: u }); continue;
+    }
+    if (ln === 'graphicFrame') {
+      const tbl = n.getElementsByTagNameNS(A, 'tbl')[0], blk = tbl && ctx.tbl && ctx.tbl.get(tbl); if (!blk) continue;
+      const fills = new Map(), span = new Map(), skip = new Set();
+      kidsA(tbl, 'tr').forEach((tr, ri) => kidsA(tr, 'tc').forEach((tc, ci) => {
+        const key = (ri + 1) + '|' + (ci + 1);
+        if (tc.getAttribute('hMerge') === '1' || tc.getAttribute('vMerge') === '1') { skip.add(key); return; }
+        const gs = +tc.getAttribute('gridSpan') || 1, rs = +tc.getAttribute('rowSpan') || 1; if (gs > 1 || rs > 1) span.set(key, [gs, rs]);
+        const f = fillOf(kid(tc, A, 'tcPr'), ctx.th); if (f && f !== 'none') fills.set(key, f);
+      }));
+      out.push({ t: 'tbl', ...g, blk, fills, span, skip, sz: textStyle(tbl, ctx.th).sz || 12,
+        cols: [...tbl.getElementsByTagNameNS(A, 'gridCol')].map(c => +c.getAttribute('w') || 1), rows: kidsA(tbl, 'tr').map(r => +r.getAttribute('h') || 1) });
+      continue;
+    }
+    const spPr = kid(n, null, 'spPr'), tx = kid(n, null, 'txBody'), geom = spPr && kid(spPr, A, 'prstGeom'), lnEl = spPr && kid(spPr, A, 'ln');
+    const st = textStyle(tx, ctx.th, inh);
+    out.push({ t: 'box', ...g, key: ctx.box && ctx.box.get(n), text: ctx.master && tx ? pText(tx) : '', fill: fillOf(spPr, ctx.th), prst: geom && geom.getAttribute('prst'),
+      line: lnEl && !kid(lnEl, A, 'noFill') ? colorOf(kid(lnEl, A, 'solidFill'), ctx.th) : null, ...st, sz: st.sz || (k && /title/i.test(k.type) ? 36 : 18) });
+  }
+}
+async function pptView(zip, slides, pres, units, blocks){
+  pptUrls.forEach(u => URL.revokeObjectURL(u)); pptUrls = [];
+  const sz = pres.getElementsByTagNameNS(P, 'sldSz')[0], W = sz ? +sz.getAttribute('cx') : 12192000, H = sz ? +sz.getAttribute('cy') : 6858000;
+  const box = new Map(units.filter(u => u.shape).map(u => [u.shape, `${u.sheet}|${u.r}|1`])), tbl = new Map(blocks.filter(b => b.el).map(b => [b.el, b]));
+  const parts = new Map(), themes = new Map(), cache = new Map(), id = (x, y, w, h) => [x, y, w, h];
+  const load = async path => { if (!parts.has(path)) parts.set(path, zip.file(path) ? await partInfo(zip, path) : null); return parts.get(path); };
+  const out = [];
+  for (const sl of slides) {
+    const part = { path: sl.path, doc: sl.doc, rels: await relsOf(zip, sl.path) };
+    const lr = relTo(part, /\/slideLayout$/), layout = lr && await load(resolvePart(part.path, lr.target));
+    const mr = relTo(layout, /\/slideMaster$/), master = mr && await load(resolvePart(layout.path, mr.target));
+    let th = {};
+    if (master) {
+      if (!themes.has(master.path)) {
+        const tr = relTo(master, /\/theme$/), t = {};
+        if (tr) { const cs = (await xmlOf(zip, resolvePart(master.path, tr.target))).getElementsByTagNameNS(A, 'clrScheme')[0]; if (cs) for (const c of cs.children) t[c.localName] = colorOf(c, {}); }
+        themes.set(master.path, t);
+      }
+      th = themes.get(master.path);
+    }
+    const pl = phMap(layout), pm = phMap(master);
+    const ph = k => (k.idx && (pl.get('i' + k.idx) || pm.get('i' + k.idx))) || pl.get('t' + k.type) || pm.get('t' + k.type)
+      || (/ctrTitle/.test(k.type) && (pl.get('ttitle') || pm.get('ttitle'))) || (/subTitle/.test(k.type) && (pl.get('tbody') || pm.get('tbody'))) || null;
+    const bg = await bgOf(zip, part, th, cache) || await bgOf(zip, layout, th, cache) || await bgOf(zip, master, th, cache);
+    const els = [], tree = d => d && d.doc.getElementsByTagNameNS(P, 'spTree')[0];
+    const showMaster = sd => !sd || sd.doc.documentElement.getAttribute('showMasterSp') !== '0';
+    if (master && showMaster(part) && showMaster(layout)) await walkTree(zip, master, tree(master), id, els, { master: true, th, cache });
+    if (layout && showMaster(part)) await walkTree(zip, layout, tree(layout), id, els, { master: true, th, cache });
+    await walkTree(zip, part, tree(part), id, els, { th, cache, box, tbl, ph });
+    out.push({ bg, els });
+  }
+  return { W, H, slides: out };
+}
+const withCls = (cls, ha) => ha.includes('class="') ? ha.replace('class="', `class="${cls} `) : ` class="${cls}"` + ha;
+function slidesHtml(by){
+  const V = data.view, Wpt = (V.W / EMU_PT).toFixed(2), at = new Map();
+  data.forEach(sh => sh.cells.forEach(c => at.set(`${sh.name}|${c.r}|${c.c}`, c)));
+  const pc = (v, of) => (v / of * 100).toFixed(3) + '%', fs = pt => `calc(${pt} / ${Wpt} * 100cqw)`;
+  let h = '<div class="slv">' + (result.noText ? `<p class="note">${esc(noTextHelp())}</p>` : '');
+  V.slides.forEach((S, k) => {
+    h += `<h4 class="pv-slide">슬라이드 ${k + 1}</h4><div class="sl" style="aspect-ratio:${V.W}/${V.H};${S.bg && S.bg.color ? `background:${S.bg.color};` : ''}">`;
+    if (S.bg && S.bg.img) h += `<img class="el" src="${S.bg.img}" style="left:0;top:0;width:100%;height:100%" alt="">`;
+    for (const e of S.els) {
+      const pos = `left:${pc(e.X, V.W)};top:${pc(e.Y, V.H)};width:${pc(e.W, V.W)};height:${pc(e.H, V.H)};`;
+      if (e.t === 'pic') { h += `<img class="el" src="${e.src}" style="${pos}" alt="">`; continue; }
+      if (e.t === 'tbl') {
+        const tw = e.cols.reduce((a, b) => a + b, 0), trh = e.rows.reduce((a, b) => a + b, 0);
+        h += `<table class="el stbl" style="${pos}font-size:${fs(e.sz)}"><colgroup>${e.cols.map(w => `<col style="width:${pc(w, tw)}">`).join('')}</colgroup><tbody>`;
+        for (let r = 1; r <= e.rows.length; r++) {
+          h += `<tr style="height:${pc(e.rows[r - 1], trh)}">`;
+          for (let c = 1; c <= e.cols.length; c++) {
+            const rc = r + '|' + c; if (e.skip.has(rc)) continue;
+            const key = `${e.blk.t}|${r}|${c}`, cell = at.get(key), arr = by.get(key), sp = e.span.get(rc), f = e.fills.get(rc);
+            h += `<td${sp ? ` colspan="${sp[0]}" rowspan="${sp[1]}"` : ''}${hitAttrs(key, arr)}${f ? ` style="background:${f}"` : ''}>${cell ? cellHtml(cell.text, arr || []) : ''}</td>`;
+          }
+          h += '</tr>';
+        }
+        h += '</tbody></table>'; continue;
+      }
+      const cell = e.key && at.get(e.key), arr = e.key && by.get(e.key);
+      if (!cell && !e.text && (!e.fill || e.fill === 'none') && !e.line) continue; // 빈 자리표시자
+      const st = pos + (e.fill && e.fill !== 'none' ? `background:${e.fill};` : '') + (e.line ? `border:1px solid ${e.line};` : '')
+        + (e.prst === 'ellipse' ? 'border-radius:50%;' : /^round/.test(e.prst || '') ? 'border-radius:8%;' : '')
+        + `font-size:${fs(e.sz)};` + (e.color ? `color:${e.color};` : '') + (e.b ? 'font-weight:700;' : '')
+        + `text-align:${{ ctr: 'center', r: 'right', just: 'justify' }[e.algn] || 'left'};justify-content:${{ ctr: 'center', b: 'flex-end' }[e.anchor] || 'flex-start'};`;
+      h += `<div${withCls('el box', e.key ? hitAttrs(e.key, arr) : '')} style="${st}">${cell ? `<div>${cellHtml(cell.text, arr || [])}</div>` : e.text ? `<div>${esc(e.text)}</div>` : ''}</div>`;
+    }
+    h += '</div>';
+  });
+  return h + '</div>';
+}
+
 // 표시: 표 칸은 배경색, 글상자는 굵은 색 테두리. PPT도 속성 순서를 따지므로 정해진 자리에 넣음
 const LINE = { fix:'C0504D', check:'D99A00', typo:'4F81BD', auto:'4E9A5B' };
 function solidA(doc, hex){ const f = doc.createElementNS(A, 'a:solidFill'), c = doc.createElementNS(A, 'a:srgbClr'); c.setAttribute('val', hex); f.appendChild(c); return f; }
