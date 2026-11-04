@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK1.7</title>
+<title>오타 및 계산 수정기 MK1.8</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -42,12 +42,11 @@ body{margin:0;background:var(--desk);color:var(--ink);font-family:"Pretendard Va
 button,input,textarea,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .hero{position:relative;overflow:hidden;background:var(--hero)}
-.hero::before,.hero::after,.hero-in::before{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
 .hero::before{width:380px;height:380px;right:-70px;top:-150px;background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95) 0 6%,var(--blob1) 34%,var(--blob2) 62%,transparent 71%)}
 .hero::after{width:200px;height:200px;left:46%;bottom:-120px;background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.9) 0 7%,var(--blob3) 40%,var(--blob1) 66%,transparent 72%)}
-.hero-in::before{width:120px;height:120px;left:-34px;top:-30px;background:transparent;border:22px solid var(--blob1);box-shadow:inset 0 0 18px rgba(255,255,255,.55),0 0 24px var(--blob2);opacity:.8}
 .hero-in{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:52px 20px 44px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px 24px;flex-wrap:wrap}
-@media (max-width:900px){.hero-in{padding:30px 16px 26px}.hero::before{width:240px;height:240px;right:-90px;top:-110px}.hero::after,.hero-in::before{display:none}}
+@media (max-width:900px){.hero-in{padding:30px 16px 26px}.hero::before{width:240px;height:240px;right:-90px;top:-110px}.hero::after{display:none}}
 .eyebrow{margin:0 0 8px;font-size:14px;font-weight:700;color:var(--brand-strong);letter-spacing:0}
 .hero h1{font-size:clamp(28px,4.4vw,44px);line-height:1.15;margin:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-weight:800;letter-spacing:-0.03em}
 .ver{font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--brand-ink);background:var(--brand);border-radius:999px;padding:4px 11px}
@@ -189,7 +188,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <header class="hero">
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK1.7</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK1.8</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT 파일을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -880,6 +879,10 @@ function canFix(i){
   return !!(ListCheck.fixable(i) && c && c.runs && (i.trim || c.runs.some(t => t.includes(i.fix[0]))));
 }
 
+// 글자를 하나도 못 찾았을 때 안내(그림으로만 된 PPT, 스캔한 파일 등)
+const noTextHelp = () => kind === 'pptx' && data.pics
+  ? `슬라이드에 그림은 ${data.pics}개 있는데 글상자가 없어요. 글자까지 그림으로 들어 있는 PPT예요(미리캔버스·캔바에서 「이미지」 형식으로 내보낸 파일 등). 만든 프로그램에서 「텍스트 편집 가능」 PPTX로 다시 내보내서 넣어 주세요.`
+  : '스캔한 파일이거나 글자가 그림으로 들어 있을 수 있어요. 글자를 고칠 수 있는 원본 파일로 넣어 주세요.';
 function run(){
   const useEng = eng && $('engOn').checked;
   if (useEng) { engBudget = ENG_MAX; engFreq = new Map(); data.forEach(sh => sh.cells.forEach(c => { for (const m of stripUrl(c.text).matchAll(EN_WORD)) engFreq.set(m[0], (engFreq.get(m[0]) || 0) + 1); })); }
@@ -896,7 +899,9 @@ function run(){
   result = r;
   const recs = r.meta.reduce((a, m) => a + m.records, 0);
   const main = r.meta.filter(m => m.records).map(m => `「${m.name}」 ${m.records}명`).join(', ');
-  setStatus('loadStatus', `${fileName} — ${main || '표 형태를 찾지 못해 칸별 점검만 했어요'}`, recs ? 'ok' : 'warn');
+  r.noText = !data.some(sh => sh.cells.length);
+  if (r.noText) setStatus('loadStatus', `${fileName} — 읽을 수 있는 글자가 없어요(가운데 안내를 봐 주세요).`, 'warn');
+  else setStatus('loadStatus', `${fileName} — ${main || '표 형태를 찾지 못해 칸별 점검만 했어요'}`, recs ? 'ok' : 'warn');
   ['allOn','allOff','xlsxBtn'].forEach(id => $(id).disabled = false);
   $('tools').hidden = false; document.body.classList.add('has-data');
   const cur = $('catSel').value, cats = [...new Set(r.issues.map(i => i.cat))];
@@ -956,7 +961,8 @@ function render(){
   let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : kind === 'pptx' ? '위치는 슬라이드 번호와 글상자 순서(표는 몇 행 몇 열)예요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
   const vis = visible();
   $('visCount').textContent = vis.length === iss.length ? `${iss.length}개` : `${iss.length}개 중 ${vis.length}개 보임`;
-  if (!iss.length) html += `<div class="empty"><h3>찾은 문제가 없어요</h3>그래도 문맥상 이상한 부분은 한 번 훑어봐 주세요.</div>`;
+  if (result.noText) html += `<div class="empty"><h3>글자를 읽을 수 없는 파일이에요</h3><p style="margin:0">${esc(noTextHelp())}</p></div>`;
+  else if (!iss.length) html += `<div class="empty"><h3>찾은 문제가 없어요</h3>그래도 문맥상 이상한 부분은 한 번 훑어봐 주세요.</div>`;
   else if (!vis.length) html += `<div class="empty"><h3>조건에 맞는 항목이 없어요</h3>검색어·종류를 바꾸거나 왼쪽 숫자 칸을 눌러 숨긴 구분을 다시 보이게 해 주세요.</div>`;
   const groups = new Map();
   vis.forEach(i => { if (!groups.has(i.recLabel)) groups.set(i.recLabel, []); groups.get(i.recLabel).push(i); });
@@ -1104,7 +1110,8 @@ function renderPreview(){
   if (!result) return;
   const by = activeByCell(), body = $('pvBody'), keep = [body.scrollTop, body.scrollLeft];
   $('pvName').textContent = fileName;
-  if (kind !== 'xlsx') { $('pvTabs').innerHTML = ''; body.innerHTML = docHtml(by); }
+  if (result.noText) { $('pvTabs').innerHTML = ''; body.innerHTML = `<div class="pv-doc"><p class="note">${esc(noTextHelp())}</p></div>`; }
+  else if (kind !== 'xlsx') { $('pvTabs').innerHTML = ''; body.innerHTML = docHtml(by); }
   else {
     if (!data.some(s => s.name === pvSheet)) pvSheet = (data.find(s => result.issues.some(i => i.sheet === s.name)) || data[0] || {}).name;
     $('pvTabs').innerHTML = data.map(s => {
@@ -1370,7 +1377,9 @@ async function readPptx(buf){
     by.get(u.sheet).push({ r: u.r, c: u.c, addr: u.shape ? `${u.r}번째 글상자` : `${u.r}행 ${u.c}열`, text: t,
       runs: [...u.node.getElementsByTagNameNS(A, 't')].map(x => x.textContent) });
   }
-  return Object.assign([...by].map(([name, cells]) => ({ name, cells })), { blocks });
+  // 글자가 그림으로만 된 슬라이드(미리캔버스 「이미지형」 내보내기 등)를 알려주려고 그림 수를 셈
+  const pics = slides.reduce((a, sl) => a + sl.doc.getElementsByTagNameNS(P, 'pic').length, 0);
+  return Object.assign([...by].map(([name, cells]) => ({ name, cells })), { blocks, pics });
 }
 // 표시: 표 칸은 배경색, 글상자는 굵은 색 테두리. PPT도 속성 순서를 따지므로 정해진 자리에 넣음
 const LINE = { fix:'C0504D', check:'D99A00', typo:'4F81BD', auto:'4E9A5B' };
