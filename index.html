@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>신청자 명단 검수기 MK1.1</title>
+<title>신청자 명단 검수기 MK1.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -94,6 +94,8 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
 .lv.fix{color:var(--fix);background:var(--fix-soft)}
 .lv.check{color:var(--warn);background:var(--warn-soft)}
 .lv.typo{color:var(--accent);background:var(--accent-soft)}
+.kw{display:flex;gap:8px;align-items:center;margin-top:14px;font-size:14px;font-weight:600;cursor:pointer}
+.kw input{width:16px;height:16px;accent-color:var(--accent)}
 .auto{font-size:11px;font-weight:600;color:var(--ok);border:1px solid var(--ok);border-radius:3px;padding:0 5px;margin-left:6px}
 .msg{font-size:14px;overflow-wrap:anywhere}
 .loc{display:block;font-size:12px;color:var(--muted);margin-bottom:1px}
@@ -111,8 +113,8 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
   <div class="hero-in">
     <div>
       <p class="eyebrow">for 계명문화대학교 국제처</p>
-      <h1>신청자 명단 검수기 <span class="ver">MK1.1</span></h1>
-      <p class="lead">유학원이 보낸 엑셀 명단을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자 오류, 오탈자를 찾아 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
+      <h1>신청자 명단 검수기 <span class="ver">MK1.2</span></h1>
+      <p class="lead">유학원이 보낸 엑셀·워드 명단을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자 오류, 오탈자를 찾아 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
     <ol class="flow" aria-label="사용 순서">
       <li><b>1</b>엑셀 넣기</li>
@@ -126,11 +128,11 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
   <aside>
     <section class="step">
       <h2><b>1</b>엑셀 넣기</h2>
-      <div class="drop" id="drop" tabindex="0" role="button" aria-label="엑셀 파일 선택">
-        <strong>엑셀 파일을 여기에 끌어 놓기</strong>
-        또는 눌러서 선택 (.xlsx)
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="엑셀·워드 파일 선택">
+        <strong>엑셀·워드 파일을 여기에 끌어 놓기</strong>
+        또는 눌러서 선택 (.xlsx, .docx)
       </div>
-      <input type="file" id="file" accept=".xlsx,.xlsm" hidden>
+      <input type="file" id="file" accept=".xlsx,.xlsm,.docx" hidden>
       <div class="status" id="loadStatus"></div>
       <button class="btn wide" id="rerunBtn" style="margin-top:10px" disabled>같은 파일 다시 검사</button>
     </section>
@@ -157,12 +159,15 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
         </div>
         <div class="status" id="dictStatus"></div>
       </details>
+      <label class="kw"><input type="checkbox" id="kiwiOn"> 띄어쓰기 검사 (Kiwi)</label>
+      <p class="note">처음 켤 때 검사 도구(약 100MB)를 한 번 받아요. 제안은 <b>체크가 꺼진 채로</b> 나오고, 체크한 것만 고쳐져요. 글이 모두 이 PC 안에서만 검사돼요.</p>
+      <div class="status" id="kiwiStatus"></div>
     </section>
 
     <section class="step">
       <h2><b>3</b>자동 수정·내보내기</h2>
       <p class="note" style="margin-top:0">자동 수정 가능 <b id="nAuto">0</b>개 · 나머지는 칸 색칠과 메모로 표시</p>
-      <button class="btn primary wide" id="xlsxBtn" style="margin-top:10px" disabled>자동 수정해서 엑셀 내보내기</button>
+      <button class="btn primary wide" id="xlsxBtn" style="margin-top:10px" disabled>자동 수정해서 내보내기</button>
       <p class="note">오타 사전·오타 의심·앞뒤 공백은 고친 값으로 바꾸고(초록), 나머지는 색칠·메모만 해요. 맨 뒤에 「검수 결과」 시트가 붙고, 원본 파일은 바뀌지 않습니다.</p>
       <div class="status" id="saveStatus"></div>
     </section>
@@ -170,13 +175,14 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
 
   <main class="results" id="results" aria-live="polite">
     <div class="empty">
-      <h3>왼쪽에 엑셀 명단을 넣어 주세요</h3>
+      <h3>왼쪽에 엑셀·워드 명단을 넣어 주세요</h3>
       서식이 유학원마다 달라도 같은 파일 안에서 서로 비교해서 찾아요.
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
         <li>같은 칸 비교: 남들은 다 있는데 빠진 항목, 빈 값, 중복 항목</li>
         <li>숫자: 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
         <li>오탈자: 오타 사전, 파일 안에서 한 글자만 다른 말, 괄호·공백</li>
+        <li>띄어쓰기: Kiwi 검사를 켜면 긴 글의 띄어쓰기 제안</li>
       </ul>
     </div>
   </main>
@@ -184,6 +190,7 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
 <p class="foot">문맥으로만 알 수 있는 오류(예: 목록엔 형 서류가 있는데 가족정보엔 형이 없음)는 못 잡을 수 있어요. 마지막 확인은 사람이 해 주세요.</p>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 /* 명단 검수 엔진 — 서식에 기대지 않고 같은 파일 안에서 서로 비교해 찾는다 */
 (function (root) {
@@ -558,6 +565,9 @@ details summary{cursor:pointer;font-size:13px;color:var(--muted)}
             i = t.indexOf(w, i + 1);
           }
         }
+        // 띄어쓰기 (Kiwi) — 사전 오타가 든 곳은 사전이 먼저
+        if (opts.spacer) for (const sg of opts.spacer(t)) if (!typoList.some(([w]) => sg.from.includes(w)))
+          add(S, cell.r, cell.c, LV.TYPO, '띄어쓰기', `띄어쓰기: '${sg.from}' → '${sg.to}'`, { fix: [sg.from, sg.to], optIn: true });
         // 같은 단어 연속
         const rep = t.match(/(?:^|\s)([\p{L}]{2,})\s+\1(?=\s|$)/u);
         if (rep) add(S, cell.r, cell.c, LV.TYPO, '오탈자', `같은 단어가 두 번 이어집니다: '${rep[1]} ${rep[1]}'`);
@@ -631,7 +641,7 @@ const store = {
   set(k,v){ try{ localStorage.setItem('listcheck:'+k,v); }catch(e){} }
 };
 const LVNAME = { fix:'수정 필요', check:'확인 요망', typo:'오탈자·형식' };
-let fileBuf = null, fileName = '', data = null, result = null, off = new Set(), hidden = new Set();
+let fileBuf = null, fileName = '', kind = 'xlsx', data = null, result = null, off = new Set(), hidden = new Set();
 
 // ---------- 설정 ----------
 function dictText(list){ return list.map(p => p[0] + ' → ' + p[1]).join('\n'); }
@@ -669,11 +679,21 @@ function cellText(cell){
 }
 
 async function load(file){
-  if (!/\.xls[xm]$/i.test(file.name)) { setStatus('loadStatus', /\.xls$/i.test(file.name) ? '옛날 .xls 파일은 못 읽어요. 엑셀에서 「다른 이름으로 저장 → .xlsx」로 바꿔 주세요.' : '.xlsx 엑셀 파일만 넣을 수 있어요.', 'warn'); return; }
-  if (typeof ExcelJS === 'undefined') { setStatus('loadStatus', '엑셀 읽기 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.', 'warn'); return; }
+  const isDocx = /\.docx$/i.test(file.name);
+  if (!isDocx && !/\.xls[xm]$/i.test(file.name)) {
+    const n = file.name;
+    setStatus('loadStatus', /\.xls$/i.test(n) ? '옛날 .xls 파일은 못 읽어요. 엑셀에서 「다른 이름으로 저장 → .xlsx」로 바꿔 주세요.'
+      : /\.doc$/i.test(n) ? '옛날 .doc 파일은 못 읽어요. 워드에서 「다른 이름으로 저장 → .docx」로 바꿔 주세요.'
+      : /\.(hwpx?|pptx?)$/i.test(n) ? '한글·PPT 파일은 아직 못 읽어요. 한컴·파워포인트에서 .docx로 저장해서 넣어 주세요.'
+      : '.xlsx 엑셀이나 .docx 워드 파일만 넣을 수 있어요.', 'warn');
+    return;
+  }
+  if (isDocx && typeof JSZip === 'undefined') { setStatus('loadStatus', '워드 읽기 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.', 'warn'); return; }
+  if (!isDocx && typeof ExcelJS === 'undefined') { setStatus('loadStatus', '엑셀 읽기 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.', 'warn'); return; }
   setStatus('loadStatus', '읽는 중…');
   try {
-    fileBuf = await file.arrayBuffer(); fileName = file.name;
+    fileBuf = await file.arrayBuffer(); fileName = file.name; kind = isDocx ? 'docx' : 'xlsx';
+    if (isDocx) { data = await readDocx(fileBuf); run(); return; }
     const wb = new ExcelJS.Workbook(); await wb.xlsx.load(fileBuf.slice(0));
     data = [];
     wb.eachSheet(ws => {
@@ -685,7 +705,6 @@ async function load(file){
       }));
       data.push({ name: ws.name, cells });
     });
-    off.clear();
     run();
   } catch (e) {
     console.error(e); data = null;
@@ -694,7 +713,9 @@ async function load(file){
 }
 
 function run(){
-  result = ListCheck.analyze(data, { typos: readDict() });
+  result = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null });
+  if (kind === 'docx') result.issues.forEach(i => { if (!i.rec) i.recLabel = `${i.sheet} ${locOf(i)}`; });
+  off.clear(); result.issues.filter(i => i.optIn).forEach(i => off.add(i.id)); // 띄어쓰기 제안은 꺼진 채로 시작
   const recs = result.meta.reduce((a, m) => a + m.records, 0);
   const main = result.meta.filter(m => m.records).map(m => `「${m.name}」 ${m.records}명`).join(', ');
   setStatus('loadStatus', `${fileName} — ${main || '표 형태를 찾지 못해 칸별 점검만 했어요'}`, recs ? 'ok' : 'warn');
@@ -711,6 +732,7 @@ document.querySelectorAll('.tal').forEach(b => b.onclick = () => {
 $('allOn').onclick = () => { off.clear(); render(); };
 $('allOff').onclick = () => { result.issues.forEach(i => off.add(i.id)); render(); };
 
+const locOf = i => kind !== 'docx' ? i.addr : i.sheet === '본문' ? `${i.r}번째 문단` : `${i.r}행 ${i.c}열`;
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function sourceOf(i){
   const sh = data.find(s => s.name === i.sheet); const cell = sh && sh.cells.find(c => c.r === i.r && c.c === i.c);
@@ -735,7 +757,7 @@ function render(){
   const meta = result.meta.filter(m => m.records).map(m =>
     `<b>${esc(m.name)}</b> 시트에서 학생 <b>${m.records}명</b>을 찾았어요` +
     (m.nameCol ? ` · 성명 ${m.nameCol}열` : '') + (m.birthCol ? ` · 생년월일 ${m.birthCol}열` : '') + (m.noCol ? ` · 연번 ${m.noCol}열` : '')).join('<br>');
-  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b> — 표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.</div>`;
+  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b> — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
   const vis = iss.filter(i => !hidden.has(i.level));
   if (!iss.length) html += `<div class="empty"><h3>찾은 문제가 없어요</h3>그래도 문맥상 이상한 부분은 한 번 훑어봐 주세요.</div>`;
   else if (!vis.length) html += `<div class="empty"><h3>모든 구분을 숨겼어요</h3>왼쪽 숫자 칸을 눌러 다시 보이게 할 수 있어요.</div>`;
@@ -749,7 +771,7 @@ function render(){
       html += `<div class="iss${off.has(i.id) ? ' off' : ''}" data-id="${i.id}">
         <input type="checkbox" ${off.has(i.id) ? '' : 'checked'} aria-label="수정·엑셀에 포함">
         <span class="lv ${i.level}">${LVNAME[i.level]}</span>
-        <div class="msg"><span class="loc">${esc(i.sheet)} ${i.addr}${i.title ? ' · ' + esc(i.title) : ''} · ${esc(i.cat)}${ListCheck.fixable(i) ? '<span class="auto">자동 수정</span>' : ''}</span>${esc(i.msg)}</div>
+        <div class="msg"><span class="loc">${esc(i.sheet)} ${esc(locOf(i))}${i.title ? ' · ' + esc(i.title) : ''} · ${esc(i.cat)}${ListCheck.fixable(i) ? '<span class="auto">자동 수정</span>' : ''}</span>${esc(i.msg)}</div>
         ${src ? `<details class="src"><summary>원문 보기</summary><pre>${highlight(src, i)}</pre></details>` : ''}
       </div>`;
     }
@@ -787,7 +809,8 @@ function editCell(cell, i){
 }
 $('xlsxBtn').onclick = async () => {
   const list = picked();
-  setStatus('saveStatus', '엑셀 만드는 중…');
+  setStatus('saveStatus', '파일 만드는 중…');
+  if (kind === 'docx') return exportDocx(list);
   try {
     const wb = new ExcelJS.Workbook(); await wb.xlsx.load(fileBuf.slice(0));
     const byCell = new Map();
@@ -817,14 +840,168 @@ $('xlsxBtn').onclick = async () => {
     rs.views = [{ state:'frozen', ySplit:1 }];
     const buf = await wb.xlsx.writeBuffer();
     const blob = new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = fileName.replace(/\.[^.]+$/, '') + '_검수수정.xlsx';
-    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    download(blob, fileName.replace(/\.[^.]+$/, '') + '_검수수정.xlsx');
     setStatus('saveStatus', `저장했어요 — 자동 수정 ${nDone}개, 표시만 ${list.length - nDone}개.`, 'ok');
   } catch (e) {
     console.error(e); setStatus('saveStatus', '엑셀을 만들지 못했어요. 다시 시도해 주세요.', 'warn');
   }
 };
+
+// ---------- 워드(.docx) ----------
+// 표 하나 = 시트 하나(표1, 표2…), 표 밖 문단은 「본문」 시트의 한 줄씩
+const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+const kids = (el, tag) => [...el.childNodes].filter(n => n.namespaceURI === W && n.localName === tag);
+function docxUnits(doc){
+  const body = doc.getElementsByTagNameNS(W, 'body')[0]; const out = []; let ti = 0, pi = 0;
+  for (const el of body.childNodes) {
+    if (el.localName === 'tbl') { ti++; kids(el, 'tr').forEach((tr, ri) => kids(tr, 'tc').forEach((tc, ci) => out.push({ sheet:'표' + ti, r:ri + 1, c:ci + 1, node:tc }))); }
+    else if (el.localName === 'p') { pi++; out.push({ sheet:'본문', r:pi, c:1, node:el }); }
+  }
+  return out;
+}
+function nodeText(node){
+  const ps = node.localName === 'p' ? [node] : [...node.getElementsByTagNameNS(W, 'p')];
+  return ps.map(p => {
+    let t = '';
+    for (const e of p.getElementsByTagNameNS(W, '*')) {
+      if (e.parentNode.localName !== 'r') continue;
+      if (e.localName === 't') t += e.textContent; else if (e.localName === 'tab') t += '\t'; else if (e.localName === 'br' || e.localName === 'cr') t += '\n';
+    }
+    return t;
+  }).join('\n');
+}
+async function openDocx(buf){
+  const zip = await JSZip.loadAsync(buf.slice(0));
+  const doc = new DOMParser().parseFromString(await zip.file('word/document.xml').async('string'), 'application/xml');
+  return { zip, doc };
+}
+async function readDocx(buf){
+  const { doc } = await openDocx(buf); const by = new Map();
+  for (const u of docxUnits(doc)) {
+    let t = nodeText(u.node); if (u.sheet === '본문') t = t.trim(); // 문단 들여쓰기 공백은 오류로 안 봄
+    if (t.trim() === '') continue;
+    if (!by.has(u.sheet)) by.set(u.sheet, []);
+    by.get(u.sheet).push({ r:u.r, c:u.c, addr: u.sheet === '본문' ? `${u.r}번째 문단` : `${u.r}행 ${u.c}열`, text:t });
+  }
+  return [...by].map(([name, cells]) => ({ name, cells }));
+}
+// 글자 조각(w:t)별로 고침. 한 단어가 여러 조각에 걸쳐 있으면 못 고치고 표시만 남김
+function editRuns(node, i){
+  const ts = [...node.getElementsByTagNameNS(W, 't')]; if (!ts.length) return false;
+  const before = ts.map(t => t.textContent);
+  if (i.trim) { ts[0].textContent = ts[0].textContent.replace(/^\s+/, ''); ts[ts.length-1].textContent = ts[ts.length-1].textContent.replace(/\s+$/, ''); }
+  else ts.forEach(t => t.textContent = ListCheck.replaceSafe(t.textContent, i.fix[0], i.fix[1]));
+  ts.forEach(t => t.setAttribute('xml:space', 'preserve'));
+  return ts.some((t, k) => t.textContent !== before[k]);
+}
+// 칸·문단 배경색. 워드는 속성 순서를 따지므로 정해진 자리에 넣음
+const AFTER_SHD = {
+  tcPr: 'noWrap tcMar textDirection tcFitText vAlign hideMark headers cellIns cellDel cellMerge tcPrChange'.split(' '),
+  pPr: 'tabs suppressAutoHyphens kinsoku wordWrap overflowPunct topLinePunct autoSpaceDE autoSpaceDN bidi adjustRightInd snapToGrid spacing ind contextualSpacing mirrorIndents suppressOverlap jc textDirection textAlignment textboxTightWrap outlineLvl divId cnfStyle rPr sectPr pPrChange'.split(' ')
+};
+function shade(doc, node, fill){
+  const prName = node.localName === 'tc' ? 'tcPr' : 'pPr';
+  let pr = kids(node, prName)[0];
+  if (!pr) { pr = doc.createElementNS(W, 'w:' + prName); node.insertBefore(pr, node.firstChild); }
+  kids(pr, 'shd').forEach(x => pr.removeChild(x));
+  const shd = doc.createElementNS(W, 'w:shd');
+  shd.setAttributeNS(W, 'w:val', 'clear'); shd.setAttributeNS(W, 'w:color', 'auto'); shd.setAttributeNS(W, 'w:fill', fill);
+  pr.insertBefore(shd, [...pr.childNodes].find(n => AFTER_SHD[prName].includes(n.localName)) || null);
+}
+function para(doc, text, bold){
+  const p = doc.createElementNS(W, 'w:p'), r = doc.createElementNS(W, 'w:r'), t = doc.createElementNS(W, 'w:t');
+  if (bold) { const rp = doc.createElementNS(W, 'w:rPr'); rp.appendChild(doc.createElementNS(W, 'w:b')); r.appendChild(rp); }
+  t.setAttribute('xml:space', 'preserve'); t.textContent = text; r.appendChild(t); p.appendChild(r); return p;
+}
+function download(blob, name){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+async function exportDocx(list){
+  try {
+    const { zip, doc } = await openDocx(fileBuf);
+    const nodes = new Map(docxUnits(doc).map(u => [u.sheet + '|' + u.r + '|' + u.c, u.node]));
+    const by = new Map();
+    list.forEach(i => { const k = i.sheet + '|' + i.r + '|' + i.c; if (!by.has(k)) by.set(k, []); by.get(k).push(i); });
+    const rank = { fix:0, check:1, typo:2 }; let nDone = 0;
+    for (const [k, arr] of by) {
+      const node = nodes.get(k); if (!node) continue;
+      arr.forEach(i => { i.done = ListCheck.fixable(i) && editRuns(node, i); if (i.done) nDone++; });
+      const left = arr.filter(i => !i.done);
+      const top = left.length ? left.slice().sort((a, b) => rank[a.level] - rank[b.level])[0].level : 'auto';
+      shade(doc, node, FILL[top].slice(2));
+    }
+    // 문서 끝에 검수 결과 목록
+    const body = doc.getElementsByTagNameNS(W, 'body')[0], end = kids(body, 'sectPr')[0] || null;
+    const lines = [para(doc, ''), para(doc, `■ 검수 결과 — 자동 수정 ${nDone}개 · 확인 필요 ${list.length - nDone}개`, true)];
+    list.forEach(i => lines.push(para(doc, `[${i.done ? '자동 수정' : LVNAME[i.level]}] ${i.rec ? i.recLabel + ' · ' : ''}${i.sheet} ${locOf(i)} — ${i.msg}`)));
+    lines.forEach(p => body.insertBefore(p, end));
+    zip.file('word/document.xml', new XMLSerializer().serializeToString(doc));
+    download(await zip.generateAsync({ type:'blob', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }),
+      fileName.replace(/\.[^.]+$/, '') + '_검수수정.docx');
+    setStatus('saveStatus', `저장했어요 — 자동 수정 ${nDone}개, 표시만 ${list.length - nDone}개.`, 'ok');
+  } catch (e) {
+    console.error(e); setStatus('saveStatus', '워드 파일을 만들지 못했어요. 다시 시도해 주세요.', 'warn');
+  }
+}
+
+// ---------- 띄어쓰기 (Kiwi, 브라우저 안에서만 실행) ----------
+// ponytail: 화면 스레드에서 실행(처음 1~2초 멈춤). 느리면 Web Worker로 옮기기
+const KIWI = 'https://cdn.jsdelivr.net/npm/kiwi-nlp@0.24.0/dist/';
+const KIWI_FILES = ['combiningRule.txt','cong.mdl','default.dict','dialect.dict','extract.mdl','nounchr.mdl','sj.morph','typo.dict'];
+let kiwi = null, kiwiLoading = null;
+function loadKiwi(){
+  if (kiwi) return Promise.resolve(kiwi);
+  if (kiwiLoading) return kiwiLoading;
+  setStatus('kiwiStatus', '띄어쓰기 검사 도구 받는 중… (처음 한 번은 1~2분 걸릴 수 있어요)');
+  kiwiLoading = (async () => {
+    const { KiwiBuilder } = await import(KIWI + 'index.js');
+    const b = await KiwiBuilder.create(KIWI + 'kiwi-wasm.wasm');
+    kiwi = await b.build({ loadMultiDict:false, modelFiles: Object.fromEntries(KIWI_FILES.map(n => [n, new URL('kiwi-model/' + n, location.href).href])) });
+    setStatus('kiwiStatus', '띄어쓰기 검사를 켰어요.', 'ok');
+    return kiwi;
+  })().catch(e => { console.error(e); kiwiLoading = null; $('kiwiOn').checked = false; store.set('kiwi', '');
+    setStatus('kiwiStatus', '띄어쓰기 검사 도구를 받지 못했어요. 인터넷 연결을 확인해 주세요.', 'warn'); });
+  return kiwiLoading;
+}
+// 원문과 Kiwi 교정본에서 띄어쓰기만 다른 어절 묶음을 찾음
+function spacer(text){
+  const out = [];
+  for (const line of text.split('\n')) {
+    const o = line.trim();
+    if ((o.match(/[가-힣]/g) || []).length < 6) continue;
+    let s; try { s = kiwi.space(o, false); } catch (e) { continue; }
+    if (s === o || s.replace(/\s/g, '') !== o.replace(/\s/g, '')) continue;
+    const marks = str => { const a = []; let sp = false; for (let i = 0; i < str.length; i++) { if (/\s/.test(str[i])) { sp = true; continue; } a.push({ i, sp }); sp = false; } return a; };
+    const A = marks(o), B = marks(s);
+    let toks; try { toks = kiwi.tokenize(s); } catch (e) { continue; }
+    const tokAt = pos => toks.find(t => t.position <= pos && pos < t.position + Math.max(1, t.length));
+    const tokBefore = pos => toks.filter(t => t.position < pos).pop();
+    const keep = new Set();
+    for (let k = 1; k < A.length; k++) {
+      if (A[k].sp === B[k].sp) continue;
+      if (B[k].sp) { // 띄우라는 제안: 명사+명사(성적 증명서), 보조용언(보내 드리다)은 붙여도 맞으니 넘어감
+        const L = tokBefore(B[k].i), Rt = tokAt(B[k].i);
+        if (Rt && (Rt.tag === 'VX' || (/^(N|XSN)/.test(Rt.tag) && L && /^(N|SN|SL|XR)/.test(L.tag)))) continue;
+      }
+      keep.add(k);
+    }
+    if (!keep.size) continue;
+    let k0 = 0; // 둘 다 띄어 쓴 자리에서 끊어 어절 묶음 비교
+    for (let k = 1; k <= A.length; k++) {
+      if (k < A.length && !(A[k].sp && B[k].sp)) continue;
+      if ([...keep].some(x => x > k0 && x < k)) out.push({ from: o.slice(A[k0].i, A[k-1].i + 1), to: s.slice(B[k0].i, B[k-1].i + 1) });
+      k0 = k;
+    }
+  }
+  return out;
+}
+$('kiwiOn').onchange = async () => {
+  store.set('kiwi', $('kiwiOn').checked ? '1' : '');
+  if ($('kiwiOn').checked) await loadKiwi(); else setStatus('kiwiStatus', '');
+  if (data) run();
+};
+if (store.get('kiwi')) { $('kiwiOn').checked = true; loadKiwi().then(() => { if (data && kiwi) run(); }); }
 })();
 </script>
 </body>
