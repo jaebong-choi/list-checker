@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK2.4</title>
+<title>오타 및 계산 수정기 MK2.5</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -226,7 +226,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <header class="hero">
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK2.4</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK2.5</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -756,9 +756,16 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         if (!t.includes('\n') && t.length <= 60 && t !== tr && tr && !(S.nameCol === cell.c && recSet.has(cell.r)))
           add(S, cell.r, cell.c, LV.TYPO, '형식', `앞뒤에 공백이 있습니다('${clip(tr, 24)}').`, { trim: true });
         // 괄호 짝 (같은 열에서 절반 이상이 똑같이 틀리면 그 파일의 서식으로 보고 넘어감)
-        t.split('\n').forEach(line => {
+        // 칸 안에서 줄이 바뀌어 다음 줄(최대 3줄 뒤)에서 닫히는 괄호는 맞는 것으로 봄
+        const lns = t.split('\n');
+        const closesFirst = s => { s = s.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z])\)/, ''); const c = s.indexOf(')'), o = s.indexOf('('); return c >= 0 && (o < 0 || c < o); };
+        const opensLast = s => s.lastIndexOf('(') > s.lastIndexOf(')');
+        lns.forEach((line, li) => {
           const o2 = (line.match(/\[/g) || []).length, c2 = (line.match(/\]/g) || []).length;
-          if (parenBal(line) !== 0 || o2 !== c2) {
+          let pb = parenBal(line);
+          if (pb > 0 && lns.slice(li + 1, li + 4).some(closesFirst)) pb = 0;
+          if (pb < 0 && lns.slice(Math.max(0, li - 3), li).some(opensLast)) pb = 0;
+          if (pb !== 0 || o2 !== c2) {
             const k = cell.c + '|' + (line.match(/^[\s\-○※(]*([^:：]{1,12})/) || ['', ''])[1].replace(/\s+/g, '');
             if (!parenBad.has(k)) parenBad.set(k, []);
             parenBad.get(k).push({ cell, line });
