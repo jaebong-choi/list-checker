@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK2.5</title>
+<title>오타 및 계산 수정기 MK2.6</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -226,7 +226,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <header class="hero">
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK2.5</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK2.6</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -457,7 +457,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 
   // 조사·어미에 자주 쓰이는 글자
   const PARTICLE = '은는이가을를에의와과도로으만서야여요다께며고면인게데라랑';
-  // 괄호 짝: 여는 괄호보다 닫는 괄호가 먼저 나왔는데 바로 앞이 '1)'·'가)'·'a)' 같은 번호 모양이면 번호 표시로 봄.
+  // 괄호 짝: 여는 괄호보다 닫는 괄호가 먼저 나왔는데 바로 앞이 '1)'·'가)'·'a)'·'ex)' 같은 번호·예시 표시면 괄호가 아닌 표시로 봄.
   // 반환값 = 안 닫힌 '(' 수 − 짝 없는 ')' 수 (0이면 맞음). '(318만 명)'의 '명)'은 여는 괄호가 있으니 번호가 아님
   function parenBal(line){
     let open = 0, stray = 0;
@@ -465,7 +465,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       if (line[i] === '(') open++;
       else if (line[i] === ')') {
         if (open) open--;
-        else if (!/(^|[\s:：,·•\-])(\d{1,3}|[가-힣]|[a-zA-Z]|[ivxIVX]{2,4})$/.test(line.slice(0, i))) stray++;
+        else if (!/(^|[\s:：,·•\-])(\d{1,3}|[가-힣]|[a-zA-Z]{1,3}|[ivxIVX]{2,4})$/.test(line.slice(0, i))) stray++;
       }
     }
     return open - stray;
@@ -758,7 +758,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         // 괄호 짝 (같은 열에서 절반 이상이 똑같이 틀리면 그 파일의 서식으로 보고 넘어감)
         // 칸 안에서 줄이 바뀌어 다음 줄(최대 3줄 뒤)에서 닫히는 괄호는 맞는 것으로 봄
         const lns = t.split('\n');
-        const closesFirst = s => { s = s.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z])\)/, ''); const c = s.indexOf(')'), o = s.indexOf('('); return c >= 0 && (o < 0 || c < o); };
+        const closesFirst = s => { s = s.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z]{1,3})\)/, ''); const c = s.indexOf(')'), o = s.indexOf('('); return c >= 0 && (o < 0 || c < o); };
         const opensLast = s => s.lastIndexOf('(') > s.lastIndexOf(')');
         lns.forEach((line, li) => {
           const o2 = (line.match(/\[/g) || []).length, c2 = (line.match(/\]/g) || []).length;
@@ -1022,7 +1022,7 @@ function run(){
     // PDF 줄·한글 문단처럼 한 줄씩 읽는 곳에서, 줄이 바뀌어 다음 줄(옆 칸 줄이 끼어 최대 4줄 뒤)에서 닫히는 괄호는 맞는 것으로 봄
     const at = new Map(); data.forEach(sh => sh.cells.forEach(c => at.set(sh.name + '|' + c.r, c.text)));
     const T = (sh, n) => at.get(sh + '|' + n) || '';
-    const closesFirst = t => { t = t.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z])\)/, ''); const c = t.indexOf(')'), o = t.indexOf('('); return c >= 0 && (o < 0 || c < o); };
+    const closesFirst = t => { t = t.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z]{1,3})\)/, ''); const c = t.indexOf(')'), o = t.indexOf('('); return c >= 0 && (o < 0 || c < o); };
     const opensLast = t => t.lastIndexOf('(') > t.lastIndexOf(')');
     r.issues = r.issues.filter(i => {
       if (!i.msg.startsWith('괄호 짝') || !/^(PDF|본문)$/.test(i.sheet)) return true;
