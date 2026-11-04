@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>신청자 명단 검수기 MK1.3</title>
+<title>신청자 명단 검수기 MK1.4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
 :root{
   color-scheme: light;
   --desk:#E6EAEE; --paper:#FFFFFF; --ink:#1C2733; --muted:#5B6773; --rule:#2B3640; --line:#C9D1D8;
-  --accent:#1F5F8B; --accent-ink:#FFFFFF; --accent-soft:#DCE8F1; --warn:#9A5B00; --warn-soft:#FBEFD9; --ok:#2E6E48;
+  --accent:#1F5F8B; --accent-ink:#FFFFFF; --accent-soft:#DCE8F1; --warn:#9A5B00; --warn-soft:#FBEFD9; --ok:#2E6E48; --ok-soft:#DCF0E3;
   --fix:#A3341F; --fix-soft:#F8E1DB; --panel:#F7F9FA; --focus:#1F5F8B; --mark:#FFF0A8;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -19,14 +19,14 @@
   :root:not([data-theme="light"]){
     color-scheme: dark;
     --desk:#141A20; --paper:#1E262E; --ink:#E4E9EE; --muted:#9AA6B2; --rule:#8B98A5; --line:#3A4651;
-    --accent:#6FA8D6; --accent-ink:#0F1A24; --accent-soft:#22384A; --warn:#E3B062; --warn-soft:#3A2E1A; --ok:#7CC496;
+    --accent:#6FA8D6; --accent-ink:#0F1A24; --accent-soft:#22384A; --warn:#E3B062; --warn-soft:#3A2E1A; --ok:#7CC496; --ok-soft:#1E3628;
     --fix:#F08C76; --fix-soft:#3D2420; --panel:#19212A; --focus:#8EC0E8; --mark:#5A4E12;
   }
 }
 :root[data-theme="dark"]{
   color-scheme: dark;
   --desk:#141A20; --paper:#1E262E; --ink:#E4E9EE; --muted:#9AA6B2; --rule:#8B98A5; --line:#3A4651;
-  --accent:#6FA8D6; --accent-ink:#0F1A24; --accent-soft:#22384A; --warn:#E3B062; --warn-soft:#3A2E1A; --ok:#7CC496;
+  --accent:#6FA8D6; --accent-ink:#0F1A24; --accent-soft:#22384A; --warn:#E3B062; --warn-soft:#3A2E1A; --ok:#7CC496; --ok-soft:#1E3628;
   --fix:#F08C76; --fix-soft:#3D2420; --panel:#19212A; --focus:#8EC0E8; --mark:#5A4E12;
 }
 *{box-sizing:border-box}
@@ -118,7 +118,52 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
 .foot{max-width:1240px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:var(--muted)}
 .iss .lv{grid-column:1;grid-row:1}.iss .msg{grid-column:2;grid-row:1}.iss .pick{grid-column:3;grid-row:1}.iss .src{grid-row:2}
 @media (max-width:600px){.iss{grid-template-columns:minmax(0,1fr) auto}.iss .lv{justify-self:start}.iss .pick{grid-column:2}.iss .msg{grid-column:1 / 3;grid-row:2}.iss .src{grid-column:1 / 3;grid-row:3}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* 문서 미리보기: 넓은 화면은 오른쪽에 같이, 좁은 화면은 「문서 보기」로 바꿔 봄 */
+.preview{display:none;position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:start;height:calc(100vh - 32px);flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.pv-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel);font-size:13px}
+.pv-head b{font-weight:600;overflow-wrap:anywhere}
+.pv-leg{display:flex;align-items:center;gap:4px 8px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-left:auto}
+.pv-leg i{display:inline-block;width:12px;height:12px;border-radius:2px;border:1px solid var(--line);vertical-align:-2px;margin-right:-4px}
+.c-fix{background:var(--fix-soft)}.c-check{background:var(--warn-soft)}.c-typo{background:var(--accent-soft)}.c-auto{background:var(--ok-soft)}
+.pv-tabs{display:flex;gap:2px;overflow-x:auto;padding:6px 10px 0;border-bottom:1px solid var(--line);flex:none}
+.pv-tabs:empty{display:none}
+.pv-tabs button{border:1px solid var(--line);border-bottom:0;border-radius:4px 4px 0 0;background:var(--panel);padding:5px 12px;font-size:13px;cursor:pointer;white-space:nowrap;color:var(--muted)}
+.pv-tabs button[aria-selected="true"]{background:var(--paper);color:var(--ink);font-weight:600}
+.pv-tabs em{font-style:normal;font-size:11px;color:var(--fix);margin-left:4px}
+.pv-body{flex:1;overflow:auto;padding:0 14px 14px 0}
+.pv-sheet{padding:0}.pv-doc{padding:14px}
+.pv-body table{border-collapse:collapse;font-size:12px}
+.pv-body th{position:sticky;background:var(--panel);color:var(--muted);font-weight:500;border:1px solid var(--line);padding:2px 6px;z-index:1}
+.pv-body thead th{top:0}
+.pv-body tbody th{left:0;text-align:right}
+.pv-body td{border:1px solid var(--line);padding:4px 6px;vertical-align:top;white-space:pre-wrap;overflow-wrap:anywhere;min-width:48px;max-width:280px;line-height:1.45}
+.pv-doc{max-width:820px;margin:0 auto;font-size:14px}
+.pv-doc p{margin:0 0 6px;padding:2px 6px;border-radius:3px;white-space:pre-wrap;overflow-wrap:anywhere}
+.pv-doc table{margin:10px 0 14px;width:100%}
+.hit{cursor:pointer}
+.hit.fix{background:var(--fix-soft)}.hit.check{background:var(--warn-soft)}.hit.typo{background:var(--accent-soft)}.hit.auto{background:var(--ok-soft)}
+.hit:hover{outline:2px solid var(--focus);outline-offset:-2px}
+.pv-body mark{background:none;color:inherit;border-radius:2px;padding:0 1px;text-decoration:underline wavy;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.pv-body mark.fix{text-decoration-color:var(--fix);background:var(--fix-soft);box-shadow:inset 0 -2px 0 var(--fix)}
+.pv-body mark.check{text-decoration-color:var(--warn);box-shadow:inset 0 -2px 0 var(--warn)}
+.pv-body mark.typo{text-decoration-color:var(--fix)}
+del{color:var(--fix);text-decoration-thickness:2px;text-decoration-color:var(--fix)}
+ins{color:var(--ok);text-decoration:none;font-weight:700;background:var(--ok-soft);border-radius:2px;padding:0 2px;margin-left:2px}
+.ws{color:var(--fix);background:var(--fix-soft);border-radius:2px;font-weight:700}
+.flash{animation:flash 1.4s ease-out}
+@keyframes flash{0%,40%{outline:3px solid var(--focus);outline-offset:1px}100%{outline:3px solid transparent;outline-offset:1px}}
+body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
+@media (min-width:1280px){
+  body.has-data .wrap{grid-template-columns:300px minmax(380px,460px) minmax(0,1fr);gap:20px}
+  body.has-data .preview{display:flex}
+  .pv-back,#docBtn{display:none}
+}
+@media (max-width:1279px){
+  body.doc .preview{display:flex}
+  body.doc #listPane{display:none}
+}
+@media (max-width:900px){.preview{position:static;height:80vh}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.flash{animation:none;outline:3px solid var(--focus)}}
 </style>
 </head>
 <body>
@@ -126,7 +171,7 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
   <div class="hero-in">
     <div>
       <p class="eyebrow">for 계명문화대학교 국제처</p>
-      <h1>신청자 명단 검수기 <span class="ver">MK1.3</span></h1>
+      <h1>신청자 명단 검수기 <span class="ver">MK1.4</span></h1>
       <p class="lead">유학원이 보낸 엑셀·워드 명단을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자 오류, 오탈자를 찾아 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
     <ol class="flow" aria-label="사용 순서">
@@ -196,11 +241,12 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
     </section>
   </aside>
 
-  <main>
+  <main id="listPane">
   <div class="tools" id="tools" hidden>
     <input type="search" class="t" id="q" placeholder="학생 이름·번호·내용 검색 (예: 환율, NGUYEN, 3번)" aria-label="결과 검색">
     <select id="catSel" class="t" aria-label="항목 종류"></select>
     <span class="note" id="visCount" style="margin:0"></span>
+    <button class="btn" id="docBtn">문서 보기 →</button>
   </div>
   <div class="results" id="results">
     <div class="empty">
@@ -216,6 +262,16 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
     </div>
   </div>
   </main>
+
+  <section class="preview" id="preview" aria-label="문서 미리보기">
+    <div class="pv-head">
+      <button class="btn pv-back" id="pvBack">← 목록</button>
+      <b id="pvName"></b>
+      <span class="pv-leg"><i class="c-fix"></i>수정 필요 <i class="c-check"></i>확인 요망 <i class="c-typo"></i>오탈자·형식 <i class="c-auto"></i>자동 수정 <del>틀린말</del><ins>맞는말</ins></span>
+    </div>
+    <div class="pv-tabs" id="pvTabs" role="tablist"></div>
+    <div class="pv-body" id="pvBody"></div>
+  </section>
 </div>
 <p class="foot">문맥으로만 알 수 있는 오류(예: 목록엔 형 서류가 있는데 가족정보엔 형이 없음)는 못 잡을 수 있어요. 마지막 확인은 사람이 해 주세요.</p>
 
@@ -768,11 +824,11 @@ async function load(file){
           const t = cellText(cell); if (t === '') return;
           cells.push({ r, c, addr: cell.address, text: t, runs: runsOf(cell.value) });
         }));
-        d.push({ name: ws.name, cells });
+        d.push({ name: ws.name, cells, merges: Object.values(ws._merges || {}).map(m => m.model) });
       });
     }
     fileBuf = buf; fileName = file.name; kind = isD ? 'docx' : 'xlsx'; data = d;
-    choice.clear(); closed.clear(); undoSnap = null; $('undoBtn').disabled = true; $('saveStatus').textContent = '';
+    choice.clear(); closed.clear(); undoSnap = null; pvSheet = null; $('undoBtn').disabled = true; $('saveStatus').textContent = '';
     run();
   } catch (e) {
     console.error(e);
@@ -802,7 +858,7 @@ function run(){
   const main = r.meta.filter(m => m.records).map(m => `「${m.name}」 ${m.records}명`).join(', ');
   setStatus('loadStatus', `${fileName} — ${main || '표 형태를 찾지 못해 칸별 점검만 했어요'}`, recs ? 'ok' : 'warn');
   ['allOn','allOff','xlsxBtn'].forEach(id => $(id).disabled = false);
-  $('tools').hidden = false;
+  $('tools').hidden = false; document.body.classList.add('has-data');
   const cur = $('catSel').value, cats = [...new Set(r.issues.map(i => i.cat))];
   $('catSel').innerHTML = '<option value="">모든 종류</option>' + cats.map(c => `<option${c === cur ? ' selected' : ''}>${esc(c)}</option>`).join('');
   render();
@@ -832,12 +888,16 @@ $('undoBtn').onclick = () => { if (!undoSnap) return; choice.clear(); undoSnap.f
 const locOf = i => kind !== 'docx' ? i.addr : i.sheet === '본문' ? `${i.r}번째 문단` : `${i.r}행 ${i.c}열`;
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function sourceOf(i){ const c = cellOf(i); return c ? c.text : ''; }
-function highlight(text, i){
-  let h = esc(text);
+function keysOf(text, i){
   const keys = [];
   const q = i.msg.match(/'([^']{2,})'/g) || [];
   q.forEach(x => { x = x.slice(1, -1).replace(/…$/, ''); if (x.length >= 2 && text.includes(x)) keys.push(x); });
   (i.msg.match(/\d{4}\.\d{2}\.\d{2}/g) || []).forEach(d => { if (text.includes(d)) keys.push(d); });
+  return keys;
+}
+function highlight(text, i){
+  let h = esc(text);
+  const keys = keysOf(text, i);
   keys.sort((a, b) => b.length - a.length).forEach(k => { h = h.split(esc(k)).join('<mark>' + esc(k) + '</mark>'); });
   return h;
 }
@@ -865,9 +925,9 @@ function render(){
     html += `<details class="rec"${closed.has(label) ? '' : ' open'} data-label="${esc(label)}"><summary class="rec-h"><h3>${esc(label)}</h3><span>${on}/${arr.length}개 포함</span></summary>`;
     for (const i of arr) {
       const src = sourceOf(i), ch = choice.get(i.id), ik = ignoreKey(i);
-      const acts = ((i.guess || i.cat === '띄어쓰기') ? '<button class="link" data-act="dict">사전에 추가</button>' : '') +
+      const acts = '<button class="link" data-act="show">문서에서 보기</button>' + ((i.guess || i.cat === '띄어쓰기') ? '<button class="link" data-act="dict">사전에 추가</button>' : '') +
         (ik && !(i.cat === '오탈자' && i.fix && !i.guess) ? '<button class="link" data-act="ignore">다음부터 무시</button>' : '');
-      html += `<div class="iss${ch === 'off' ? ' off' : ''}" data-id="${esc(i.id)}">
+      html += `<div class="iss${ch === 'off' ? ' off' : ''}" data-id="${esc(i.id)}" data-cell="${esc(cellKey(i))}">
         <span class="lv ${i.level}">${LVNAME[i.level]}</span>
         <div class="msg"><span class="loc">${esc(i.sheet)} ${esc(locOf(i))}${i.title ? ' · ' + esc(i.title) : ''} · ${esc(i.cat)}</span><span class="txt">${esc(i.msg)}</span>${ListCheck.fixable(i) && !i.can ? `<span class="cant">${CANT}</span>` : ''}${acts ? `<div class="acts">${acts}</div>` : ''}</div>
         <select class="pick${ch === 'fix' ? ' fix' : ''}" aria-label="내보낼 때 처리">${i.can ? opt('fix', '자동 수정', ch) : ''}${opt('mark', '표시만', ch)}${opt('off', '빼기', ch)}</select>
@@ -878,6 +938,7 @@ function render(){
   }
   box.innerHTML = html;
   countPicked();
+  renderPreview();
 }
 // 결과 목록 이벤트는 한 번만 연결(다시 그려도 유지)
 $('results').addEventListener('change', e => {
@@ -886,11 +947,12 @@ $('results').addEventListener('change', e => {
   row.classList.toggle('off', sel.value === 'off'); sel.classList.toggle('fix', sel.value === 'fix');
   const all = [...row.closest('.rec').querySelectorAll('.pick')];
   row.closest('.rec').querySelector('.rec-h span').textContent = `${all.filter(s => s.value !== 'off').length}/${all.length}개 포함`;
-  countPicked();
+  countPicked(); renderPreview();
 });
 $('results').addEventListener('click', e => {
   const b = e.target.closest('.link'); if (!b) return;
   const i = result.issues.find(x => x.id === b.closest('.iss').dataset.id); if (!i) return;
+  if (b.dataset.act === 'show') return showInDoc(i);
   const append = (el, line) => { el.value = (el.value.trim() ? el.value.replace(/\s*$/, '\n') : '') + line; };
   if (b.dataset.act === 'dict') { append($('dict'), `${i.fix[0]} → ${i.fix[1]}`); saveDict(`'${i.fix[0]} → ${i.fix[1]}'을(를) 사전에 넣었어요.`); }
   else { append($('ignore'), ignoreKey(i)); saveIgnore(); }
@@ -907,7 +969,140 @@ function countPicked(){
   result.issues.forEach(i => { if (choice.get(i.id) === 'off') o++; else if (willFix(i)) a++; else m++; });
   $('nAuto').textContent = a; $('nMark').textContent = m; $('nOff').textContent = o;
 }
-$('markOnly').onchange = () => { if (result) countPicked(); };
+$('markOnly').onchange = () => { if (result) { countPicked(); renderPreview(); } };
+
+// ---------- 문서 미리보기 ----------
+// 넣은 파일을 표 모양 그대로 그리고, 틀린 칸은 색칠·틀린 글자는 밑줄, 자동 수정될 글자는 틀린말→맞는말로 보여 줌
+let pvSheet = null;
+const cellKey = i => `${i.sheet}|${i.r}|${i.c}`;
+const narrow = () => matchMedia('(max-width:1279px)').matches;
+function activeByCell(){
+  const m = new Map();
+  result.issues.forEach(i => { if (choice.get(i.id) === 'off') return; const k = cellKey(i); if (!m.has(k)) m.set(k, []); m.get(k).push(i); });
+  return m;
+}
+function hitAttrs(key, arr){
+  if (!arr) return ` data-cell="${esc(key)}"`;
+  const left = arr.filter(i => !willFix(i));
+  const lv = left.length ? left.slice().sort((a, b) => RANK[a.level] - RANK[b.level])[0].level : 'auto';
+  const tip = arr.map(i => `[${willFix(i) ? '자동 수정' : LVNAME[i.level]}] ${i.msg}`).join('\n');
+  return ` class="hit ${lv}" data-cell="${esc(key)}" title="${esc(tip)}"`;
+}
+function cellHtml(text, arr){
+  const rg = [];
+  for (const i of arr) {
+    if (i.trim) {
+      const a = text.match(/^\s*/)[0].length, b = text.length - text.match(/\s*$/)[0].length;
+      if (a) rg.push({ s: 0, e: a, k: 'ws', i }); if (b < text.length && b >= a) rg.push({ s: b, e: text.length, k: 'ws', i });
+      continue;
+    }
+    const keys = i.fix ? [i.fix[0]] : keysOf(text, i), fx = i.fix && willFix(i);
+    for (const k of keys) for (let j = text.indexOf(k); j >= 0; j = text.indexOf(k, j + k.length)) {
+      // 이미 맞는말의 일부인 곳('아포스티유' 속 '아포스티')은 건드리지 않음 — 자동 수정과 같은 규칙
+      if (i.fix) { const [w, rgt] = i.fix; if (text.startsWith(rgt, j) || (rgt.endsWith(w) && text.slice(Math.max(0, j - (rgt.length - w.length)), j + w.length) === rgt)) continue; }
+      rg.push({ s: j, e: j + k.length, k: fx ? 'fix' : 'mark', i });
+    }
+  }
+  rg.sort((a, b) => a.s - b.s || b.e - a.e);
+  let out = '', pos = 0;
+  for (const g of rg) {
+    if (g.s < pos) continue;
+    const seg = text.slice(g.s, g.e);
+    out += esc(text.slice(pos, g.s)) + (g.k === 'ws' ? `<span class="ws">${'␣'.repeat(seg.length)}</span>`
+      : g.k === 'fix' ? `<del>${esc(seg)}</del><ins>${esc(g.i.fix[1])}</ins>`
+      : `<mark class="${g.i.level}">${esc(seg)}</mark>`);
+    pos = g.e;
+  }
+  return out + esc(text.slice(pos));
+}
+const MAXR = 1500, MAXC = 80; // ponytail: 아주 큰 시트는 앞부분만 그림
+function sheetHtml(sh, by){
+  if (!sh.cells.length) return '<p class="note" style="padding:14px">빈 시트예요.</p>';
+  let r0 = Infinity, r1 = 0, c0 = Infinity, c1 = 0;
+  sh.cells.forEach(c => { r0 = Math.min(r0, c.r); r1 = Math.max(r1, c.r); c0 = Math.min(c0, c.c); c1 = Math.max(c1, c.c); });
+  result.issues.forEach(i => { if (i.sheet === sh.name) { r1 = Math.max(r1, i.r); c1 = Math.max(c1, i.c); } });
+  r1 = Math.min(r1, r0 + MAXR - 1); c1 = Math.min(c1, c0 + MAXC - 1);
+  const at = new Map(sh.cells.map(c => [c.r + '|' + c.c, c])), span = new Map(), covered = new Set();
+  (sh.merges || []).forEach(m => {
+    if (m.bottom < r0 || m.right < c0) return;
+    const t = Math.max(m.top, r0), l = Math.max(m.left, c0);
+    span.set(t + '|' + l, { rs: Math.min(m.bottom, r1) - t + 1, cs: Math.min(m.right, c1) - l + 1 });
+    for (let r = t; r <= m.bottom; r++) for (let c = l; c <= m.right; c++) if (r !== t || c !== l) covered.add(r + '|' + c);
+  });
+  let h = '<table><thead><tr><th></th>';
+  for (let c = c0; c <= c1; c++) h += `<th>${ListCheck.colLetter(c)}</th>`;
+  h += '</tr></thead><tbody>';
+  for (let r = r0; r <= r1; r++) {
+    h += `<tr><th>${r}</th>`;
+    for (let c = c0; c <= c1; c++) {
+      const k = r + '|' + c; if (covered.has(k)) continue;
+      const sp = span.get(k), cell = at.get(k), key = `${sh.name}|${r}|${c}`, arr = by.get(key);
+      h += `<td${sp ? ` rowspan="${sp.rs}" colspan="${sp.cs}"` : ''}${hitAttrs(key, arr)}>${cell ? cellHtml(cell.text, arr || []) : ''}</td>`;
+    }
+    h += '</tr>';
+  }
+  return h + '</tbody></table>';
+}
+function docHtml(by){
+  const sheets = new Map(data.map(s => [s.name, s]));
+  const paras = new Map(((sheets.get('본문') || {}).cells || []).map(c => [c.r, c]));
+  let h = '<div class="pv-doc">';
+  for (const b of data.blocks || []) {
+    if (b.p) { const c = paras.get(b.p); if (!c) continue; const key = `본문|${c.r}|1`, arr = by.get(key); h += `<p${hitAttrs(key, arr)}>${cellHtml(c.text, arr || [])}</p>`; continue; }
+    const sh = sheets.get(b.t); const at = new Map(((sh || {}).cells || []).map(c => [c.r + '|' + c.c, c]));
+    h += `<div class="note">${esc(b.t)}</div><table><tbody>`;
+    for (let r = 1; r <= b.rows; r++) {
+      h += '<tr>';
+      for (let c = 1; c <= b.cols; c++) { const key = `${b.t}|${r}|${c}`, arr = by.get(key), cell = at.get(r + '|' + c); h += `<td${hitAttrs(key, arr)}>${cell ? cellHtml(cell.text, arr || []) : ''}</td>`; }
+      h += '</tr>';
+    }
+    h += '</tbody></table>';
+  }
+  return h + '</div>';
+}
+function renderPreview(){
+  if (!result) return;
+  const by = activeByCell(), body = $('pvBody'), keep = [body.scrollTop, body.scrollLeft];
+  $('pvName').textContent = fileName;
+  if (kind === 'docx') { $('pvTabs').innerHTML = ''; body.innerHTML = docHtml(by); }
+  else {
+    if (!data.some(s => s.name === pvSheet)) pvSheet = (data.find(s => result.issues.some(i => i.sheet === s.name)) || data[0] || {}).name;
+    $('pvTabs').innerHTML = data.map(s => {
+      const n = [...by.keys()].filter(k => k.startsWith(s.name + '|')).length;
+      return `<button role="tab" aria-selected="${s.name === pvSheet}" data-sheet="${esc(s.name)}">${esc(s.name)}${n ? `<em>${n}</em>` : ''}</button>`;
+    }).join('');
+    const sh = data.find(s => s.name === pvSheet);
+    body.innerHTML = sh ? `<div class="pv-sheet">${sheetHtml(sh, by)}</div>` : '';
+  }
+  body.scrollTop = keep[0]; body.scrollLeft = keep[1];
+}
+function flash(el){ el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+function showInDoc(i){
+  if (narrow()) document.body.classList.add('doc');
+  if (kind !== 'docx' && pvSheet !== i.sheet) { pvSheet = i.sheet; renderPreview(); }
+  const el = $('pvBody').querySelector(`[data-cell="${CSS.escape(cellKey(i))}"]`);
+  if (el) { el.scrollIntoView({ block:'center', inline:'center', behavior:'smooth' }); flash(el); }
+}
+$('pvTabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  pvSheet = b.dataset.sheet; $('pvBody').scrollTop = 0; $('pvBody').scrollLeft = 0; renderPreview();
+});
+$('pvBody').addEventListener('click', e => {
+  const el = e.target.closest('.hit'); if (!el) return;
+  const find = () => [...$('results').querySelectorAll('.iss')].find(x => x.dataset.cell === el.dataset.cell);
+  if (narrow()) document.body.classList.remove('doc');
+  let card = find();
+  if (!card) { // 검색·필터로 숨겨져 있으면 풀고 다시 찾음
+    $('q').value = ''; $('catSel').value = ''; hidden.clear();
+    document.querySelectorAll('.tal').forEach(b => b.setAttribute('aria-pressed', 'true'));
+    render(); card = find();
+  }
+  if (!card) return;
+  const d = card.closest('details.rec'); if (d && !d.open) d.open = true;
+  card.scrollIntoView({ block:'center', behavior:'smooth' }); flash(card);
+});
+$('docBtn').onclick = () => { document.body.classList.add('doc'); window.scrollTo(0, $('preview').getBoundingClientRect().top + scrollY - 16); };
+$('pvBack').onclick = () => document.body.classList.remove('doc');
 
 // ---------- 내보내기 공통 ----------
 const FILL = { fix:'FFF8CBAD', check:'FFFFE699', typo:'FFDDEBF7', auto:'FFC6EFCE' };
@@ -1011,15 +1206,18 @@ async function openDocx(buf){
   return { zip, doc };
 }
 async function readDocx(buf){
-  const { doc } = await openDocx(buf); const by = new Map();
+  const { doc } = await openDocx(buf); const by = new Map(), blocks = [];
   for (const u of docxUnits(doc)) {
+    // 미리보기용: 문서 순서대로 문단·표(크기 포함)를 기억
+    if (u.sheet === '본문') blocks.push({ p: u.r });
+    else { let b = blocks[blocks.length - 1]; if (!b || b.t !== u.sheet) blocks.push(b = { t: u.sheet, rows: 0, cols: 0 }); b.rows = Math.max(b.rows, u.r); b.cols = Math.max(b.cols, u.c); }
     let t = nodeText(u.node); if (u.sheet === '본문') t = t.trim(); // 문단 들여쓰기 공백은 오류로 안 봄
     if (t.trim() === '') continue;
     if (!by.has(u.sheet)) by.set(u.sheet, []);
     by.get(u.sheet).push({ r:u.r, c:u.c, addr: u.sheet === '본문' ? `${u.r}번째 문단` : `${u.r}행 ${u.c}열`, text:t,
       runs: [...u.node.getElementsByTagNameNS(W, 't')].map(x => x.textContent) });
   }
-  return [...by].map(([name, cells]) => ({ name, cells }));
+  return Object.assign([...by].map(([name, cells]) => ({ name, cells })), { blocks });
 }
 // 글자 조각(w:t)별로 고침. 한 단어가 여러 조각에 걸쳐 있으면 못 고치고 표시만 남김
 function editRuns(node, i){
