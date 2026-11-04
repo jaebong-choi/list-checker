@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK2.6</title>
+<title>오타 및 계산 수정기 MK2.7</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -13,7 +13,7 @@
   --fix:#DC2626; --fix-soft:#FEE2E2; --panel:#F3F4F6; --focus:#1EC95B; --mark:#FEF08A;
   --brand:#1EC95B; --brand-ink:#FFFFFF; --brand-strong:#12A84A; --brand-soft:#E8F8EE;
   --shadow:0 8px 28px rgba(17,19,24,.06); --hero:linear-gradient(115deg,#F2EEFF 0%,#EAF2FF 48%,#F4F0FF 100%);
-  --blob1:rgba(196,181,253,.65); --blob2:rgba(125,211,252,.45); --blob3:rgba(167,243,208,.6);
+  --deco1:rgba(124,92,255,.17); --deco2:rgba(30,201,91,.32); --deco3:rgba(0,107,200,.15); --deco-ink:rgba(17,19,24,.2);
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
@@ -24,7 +24,7 @@
     --fix:#F87171; --fix-soft:#3B1C1C; --panel:#21252D; --focus:#34D877; --mark:#5A4E12;
     --brand:#2FD872; --brand-ink:#06210F; --brand-strong:#22C55E; --brand-soft:#12301E;
     --shadow:0 8px 28px rgba(0,0,0,.35); --hero:linear-gradient(115deg,#1B1733 0%,#111B2E 48%,#1C1733 100%);
-    --blob1:rgba(139,92,246,.35); --blob2:rgba(56,189,248,.22); --blob3:rgba(52,211,153,.25);
+    --deco1:rgba(167,139,250,.2); --deco2:rgba(47,216,114,.26); --deco3:rgba(96,165,250,.2); --deco-ink:rgba(255,255,255,.16);
   }
 }
 :root[data-theme="dark"]{
@@ -34,7 +34,7 @@
   --fix:#F87171; --fix-soft:#3B1C1C; --panel:#21252D; --focus:#34D877; --mark:#5A4E12;
   --brand:#2FD872; --brand-ink:#06210F; --brand-strong:#22C55E; --brand-soft:#12301E;
   --shadow:0 8px 28px rgba(0,0,0,.35); --hero:linear-gradient(115deg,#1B1733 0%,#111B2E 48%,#1C1733 100%);
-  --blob1:rgba(139,92,246,.35); --blob2:rgba(56,189,248,.22); --blob3:rgba(52,211,153,.25);
+  --deco1:rgba(167,139,250,.2); --deco2:rgba(47,216,114,.26); --deco3:rgba(96,165,250,.2); --deco-ink:rgba(255,255,255,.16);
 }
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -42,11 +42,26 @@ body{margin:0;background:var(--desk);color:var(--ink);font-family:"Pretendard Va
 button,input,textarea,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .hero{position:relative;overflow:hidden;background:var(--hero)}
-.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
-.hero::before{width:380px;height:380px;right:-70px;top:-150px;background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95) 0 6%,var(--blob1) 34%,var(--blob2) 62%,transparent 71%)}
-.hero::after{width:200px;height:200px;left:46%;bottom:-120px;background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.9) 0 7%,var(--blob3) 40%,var(--blob1) 66%,transparent 72%)}
+/* 머리 장식: 훈민정음 자모·천지인(ㆍㅡㅣ)·옛 글자와 영어 알파벳(그림 파일 없이 글자로) */
+.hero-deco{position:absolute;inset:0;pointer-events:none;overflow:hidden;user-select:none;font-family:"Pretendard Variable","Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+.hero-deco span{position:absolute;line-height:1;font-weight:800}
+.hero-deco .serif{font-family:Georgia,"Times New Roman",serif;font-weight:700}
+.hero-deco .line{color:transparent!important;-webkit-text-stroke:2px currentColor}
+.d1{right:5%;top:-46px;font-size:230px;transform:rotate(-10deg);color:var(--deco1)}
+.d2{right:23%;top:6px;font-size:150px;color:var(--deco2)}
+.d2.line{-webkit-text-stroke-color:var(--deco2)}
+.d3{right:31%;bottom:8px;font-size:58px;letter-spacing:.2em;color:var(--deco3)}
+.d4{left:55%;top:-28px;font-size:118px;transform:rotate(12deg);color:var(--deco2)}
+.d5{right:1%;bottom:-34px;font-size:140px;font-style:italic;color:var(--deco3)}
+.d6{right:1.2%;top:20px;writing-mode:vertical-rl;font-size:20px;letter-spacing:.55em;font-weight:700;color:var(--deco-ink)}
+.d7{left:63%;bottom:-24px;font-size:96px;transform:rotate(-6deg);color:var(--deco1)}
+.d8{right:42%;top:22px;font-size:44px;font-style:italic;color:var(--deco-ink)}
+.d9{right:14%;bottom:10px;font-size:74px;-webkit-text-stroke-color:var(--deco1)}
+.d10{left:72%;top:34%;font-size:56px;transform:rotate(8deg);color:var(--deco3)}
+@media (max-width:1400px){.d4,.d10{display:none}}
+@media (max-width:900px){.d2,.d3,.d6,.d7,.d8,.d9{display:none}.d1{font-size:150px;right:-46px;top:-34px}.d5{font-size:90px;bottom:-20px}}
 .hero-in{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:52px 20px 44px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px 24px;flex-wrap:wrap}
-@media (max-width:900px){.hero-in{padding:30px 16px 26px}.hero::before{width:240px;height:240px;right:-90px;top:-110px}.hero::after{display:none}}
+@media (max-width:900px){.hero-in{padding:30px 16px 26px}}
 .eyebrow{margin:0 0 8px;font-size:14px;font-weight:700;color:var(--brand-strong);letter-spacing:0}
 .hero h1{font-size:clamp(28px,4.4vw,44px);line-height:1.15;margin:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-weight:800;letter-spacing:-0.03em}
 .ver{font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--brand-ink);background:var(--brand);border-radius:999px;padding:4px 11px}
@@ -224,9 +239,14 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 </head>
 <body>
 <header class="hero">
+  <div class="hero-deco" aria-hidden="true">
+    <span class="d1">ㅎ</span><span class="d2 line serif">A</span><span class="d3">ㆍㅡㅣ</span><span class="d4">ㄱ</span>
+    <span class="d5 serif">a</span><span class="d6">훈민정음</span><span class="d7">ㅿ</span><span class="d8 serif">Bb</span>
+    <span class="d9 line">ㅇ</span><span class="d10 serif">Z</span>
+  </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK2.6</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK2.7</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
