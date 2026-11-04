@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK1.8</title>
+<title>오타 및 계산 수정기 MK1.9</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -159,6 +159,18 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
 .pv-slide:first-child{margin-top:0;padding-top:0;border-top:0}
 .pv-doc p[data-box]{border:1px dashed var(--line);padding:6px 8px;margin-bottom:8px}
 .hit{cursor:pointer}
+.pv-pdf{display:flex;flex-direction:column;align-items:center;gap:18px;padding:16px;background:var(--panel);min-height:100%}
+.pg{position:relative;width:100%;max-width:920px;background:#fff;border-radius:6px;box-shadow:0 2px 14px rgba(0,0,0,.14);overflow:hidden}
+.pg canvas{display:block;width:100%;height:100%}
+.ov{position:absolute;inset:0}
+.pbox{position:absolute;border-radius:3px}
+.ov .pbox.fix{background:rgba(220,38,38,.2);box-shadow:inset 0 -2.5px 0 #DC2626}
+.ov .pbox.check{background:rgba(245,158,11,.26);box-shadow:inset 0 -2.5px 0 #D97706}
+.ov .pbox.typo{background:rgba(250,204,21,.42);box-shadow:inset 0 -2.5px 0 #DC2626}
+.ov .pbox.whole{background:rgba(245,158,11,.1);box-shadow:inset 3px 0 0 #D97706}
+.ov .pbox:hover{outline:2px solid #1EC95B;outline-offset:1px}
+.sug{position:absolute;left:0;bottom:100%;margin-bottom:2px;white-space:nowrap;font-size:12px;line-height:1.5;font-weight:700;color:#fff;background:#15803D;border-radius:6px;padding:0 6px;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.pg-no{position:absolute;right:8px;bottom:6px;font-size:11px;color:#6B7280;background:rgba(255,255,255,.85);padding:0 7px;border-radius:999px}
 .hit.fix{background:var(--fix-soft)}.hit.check{background:var(--warn-soft)}.hit.typo{background:var(--accent-soft)}.hit.auto{background:var(--ok-soft)}
 .hit:hover{outline:2px solid var(--focus);outline-offset:-2px}
 .pv-body mark{background:none;color:inherit;border-radius:2px;padding:0 1px;text-decoration:underline wavy;text-underline-offset:3px;text-decoration-thickness:1.5px}
@@ -188,9 +200,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <header class="hero">
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK1.8</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK1.9</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
-      <p class="lead">엑셀·워드·PPT 파일을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
+      <p class="lead">엑셀·워드·PPT·PDF 파일을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
     <ol class="flow" aria-label="사용 순서">
       <li><b>1</b>파일 넣기</li>
@@ -204,11 +216,11 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   <aside>
     <section class="step">
       <h2><b>1</b>파일 넣기</h2>
-      <div class="drop" id="drop" tabindex="0" role="button" aria-label="엑셀·워드·PPT 파일 선택">
-        <strong>엑셀·워드·PPT 파일을 여기에 끌어 놓기</strong>
-        또는 눌러서 선택 (.xlsx, .docx, .pptx)
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="엑셀·워드·PPT·PDF 파일 선택">
+        <strong>엑셀·워드·PPT·PDF 파일을 여기에 끌어 놓기</strong>
+        또는 눌러서 선택 (.xlsx, .docx, .pptx, .pdf)
       </div>
-      <input type="file" id="file" accept=".xlsx,.xlsm,.docx,.pptx" hidden>
+      <input type="file" id="file" accept=".xlsx,.xlsm,.docx,.pptx,.pdf" hidden>
       <div class="status" id="loadStatus" aria-live="polite"></div>
       <p class="note">사전·무시 목록·띄어쓰기 설정을 바꾸면 자동으로 다시 검사하고, 이미 고른 선택은 그대로 둬요.</p>
     </section>
@@ -271,7 +283,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="results" id="results">
     <div class="empty">
-      <h3>왼쪽에 엑셀·워드·PPT 파일을 넣어 주세요</h3>
+      <h3>왼쪽에 엑셀·워드·PPT·PDF 파일을 넣어 주세요</h3>
       <p style="margin:0">서식이 달라도 같은 파일 안에서 서로 비교해서 찾아요.</p>
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
@@ -282,6 +294,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         <li>영어 철자: 영어 사전에 없는 단어에 고칠 말 제안 (예: Universtiy → University)</li>
         <li>문서 보기: 오른쪽에 파일이 그대로 보이고, 틀린 곳이 색칠돼요</li>
         <li>내보내기: 고른 것만 자동으로 고치고, 나머지는 색칠·메모로 표시해요</li>
+        <li>PDF: 고칠 수는 없어서, 오른쪽 PDF 화면에 틀린 곳만 형광펜으로 표시해요</li>
       </ul>
       <p class="note">‘-’, ‘/’ 같은 「내용 없음」 표시와 ‘1)’, ‘가)’ 같은 번호는 오류로 보지 않아요.</p>
     </div>
@@ -303,6 +316,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <script src="lib/exceljs.min.js"></script>
 <script src="lib/jszip.min.js"></script>
 <script src="lib/typo.js"></script>
+<script src="lib/pdfjs/pdf.min.js"></script>
 <script>
 /* 명단 검수 엔진 — 서식에 기대지 않고 같은 파일 안에서 서로 비교해 찾는다 */
 (function (root) {
@@ -832,17 +846,18 @@ function cellText(cell){
 const runsOf = v => typeof v === 'string' ? [v] : v && v.richText ? v.richText.map(r => r.text) : null;
 
 async function load(file){
-  const k = /\.docx$/i.test(file.name) ? 'docx' : /\.pptx$/i.test(file.name) ? 'pptx' : /\.xls[xm]$/i.test(file.name) ? 'xlsx' : null;
+  const k = /\.docx$/i.test(file.name) ? 'docx' : /\.pptx$/i.test(file.name) ? 'pptx' : /\.pdf$/i.test(file.name) ? 'pdf' : /\.xls[xm]$/i.test(file.name) ? 'xlsx' : null;
   if (!k) {
     const n = file.name;
     setStatus('loadStatus', /\.xls$/i.test(n) ? '옛날 .xls 파일은 못 읽어요. 엑셀에서 「다른 이름으로 저장 → .xlsx」로 바꿔 주세요.'
       : /\.doc$/i.test(n) ? '옛날 .doc 파일은 못 읽어요. 워드에서 「다른 이름으로 저장 → .docx」로 바꿔 주세요.'
       : /\.ppt$/i.test(n) ? '옛날 .ppt 파일은 못 읽어요. 파워포인트에서 「다른 이름으로 저장 → .pptx」로 바꿔 주세요.'
       : /\.hwpx?$/i.test(n) ? '한글 파일은 아직 못 읽어요. 한컴에서 .docx로 저장해서 넣어 주세요.'
-      : '.xlsx 엑셀, .docx 워드, .pptx PPT 파일만 넣을 수 있어요.', 'warn');
+      : '.xlsx 엑셀, .docx 워드, .pptx PPT, .pdf 파일만 넣을 수 있어요.', 'warn');
     return;
   }
-  if (k !== 'xlsx' && typeof JSZip === 'undefined') { setStatus('loadStatus', '워드·PPT 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
+  if (k === 'pdf' && typeof pdfjsLib === 'undefined') { setStatus('loadStatus', 'PDF 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
+  if (/^(docx|pptx)$/.test(k) && typeof JSZip === 'undefined') { setStatus('loadStatus', '워드·PPT 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
   if (k === 'xlsx' && typeof ExcelJS === 'undefined') { setStatus('loadStatus', '엑셀 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
   setStatus('loadStatus', `${file.name} 읽는 중… (큰 파일은 몇 초 걸려요)`);
   try {
@@ -850,6 +865,7 @@ async function load(file){
     let d;
     if (k === 'docx') d = await readDocx(buf);
     else if (k === 'pptx') d = await readPptx(buf);
+    else if (k === 'pdf') d = await readPdf(buf);
     else {
       const wb = new ExcelJS.Workbook(); await wb.xlsx.load(buf.slice(0));
       d = [];
@@ -880,29 +896,36 @@ function canFix(i){
 }
 
 // 글자를 하나도 못 찾았을 때 안내(그림으로만 된 PPT, 스캔한 파일 등)
-const noTextHelp = () => kind === 'pptx' && data.pics
+const noTextHelp = () => kind === 'pdf'
+  ? '글자가 없는 PDF예요. 스캔했거나 글자를 그림으로 저장한 파일이에요. 원본(한글·워드·PPT)에서 PDF로 다시 저장하거나, 원본 파일을 그대로 넣어 주세요.'
+  : kind === 'pptx' && data.pics
   ? `슬라이드에 그림은 ${data.pics}개 있는데 글상자가 없어요. 글자까지 그림으로 들어 있는 PPT예요(미리캔버스·캔바에서 「이미지」 형식으로 내보낸 파일 등). 만든 프로그램에서 「텍스트 편집 가능」 PPTX로 다시 내보내서 넣어 주세요.`
   : '스캔한 파일이거나 글자가 그림으로 들어 있을 수 있어요. 글자를 고칠 수 있는 원본 파일로 넣어 주세요.';
 function run(){
   const useEng = eng && $('engOn').checked;
   if (useEng) { engBudget = ENG_MAX; engFreq = new Map(); data.forEach(sh => sh.cells.forEach(c => { for (const m of stripUrl(c.text).matchAll(EN_WORD)) engFreq.set(m[0], (engFreq.get(m[0]) || 0) + 1); })); }
   const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null, speller: useEng ? speller : null });
-  if (kind !== 'xlsx') r.issues.forEach(i => { if (!i.rec) i.recLabel = `${i.sheet} ${locOf(i)}`; });
+  if (kind === 'pdf') r.issues.forEach(i => { i.recLabel = `${pdfLines[i.r - 1].page}쪽`; });
+  else if (kind !== 'xlsx') r.issues.forEach(i => { if (!i.rec) i.recLabel = `${i.sheet} ${locOf(i)}`; });
   const ign = ignoreSet();
   r.ignored = r.issues.filter(i => ign.has(ignoreKey(i))).length;
   r.issues = r.issues.filter(i => !ign.has(ignoreKey(i)));
   r.issues.forEach(i => {
     i.can = canFix(i);
     // 처음 보는 항목만 기본값(띄어쓰기 제안은 빼기). 이미 고른 건 그대로
-    if (!choice.has(i.id) || (choice.get(i.id) === 'fix' && !i.can)) choice.set(i.id, i.optIn ? 'off' : i.can ? 'fix' : 'mark');
+    // PDF는 고칠 수 없으니 모두 「표시만」으로 시작
+    if (!choice.has(i.id) || (choice.get(i.id) === 'fix' && !i.can)) choice.set(i.id, kind === 'pdf' ? 'mark' : i.optIn ? 'off' : i.can ? 'fix' : 'mark');
   });
   result = r;
   const recs = r.meta.reduce((a, m) => a + m.records, 0);
   const main = r.meta.filter(m => m.records).map(m => `「${m.name}」 ${m.records}명`).join(', ');
   r.noText = !data.some(sh => sh.cells.length);
   if (r.noText) setStatus('loadStatus', `${fileName} — 읽을 수 있는 글자가 없어요(가운데 안내를 봐 주세요).`, 'warn');
+  else if (kind === 'pdf') setStatus('loadStatus', `${fileName} — ${pdfSizes.length}쪽, 글자 ${pdfLines.length}줄을 읽었어요`, 'ok');
   else setStatus('loadStatus', `${fileName} — ${main || '표 형태를 찾지 못해 칸별 점검만 했어요'}`, recs ? 'ok' : 'warn');
   ['allOn','allOff','xlsxBtn'].forEach(id => $(id).disabled = false);
+  $('xlsxBtn').disabled = $('markOnly').disabled = kind === 'pdf';
+  if (kind === 'pdf') setStatus('saveStatus', 'PDF는 고칠 수 없어서 내보내기 없이 화면에서만 표시해요.');
   $('tools').hidden = false; document.body.classList.add('has-data');
   const cur = $('catSel').value, cats = [...new Set(r.issues.map(i => i.cat))];
   $('catSel').innerHTML = '<option value="">모든 종류</option>' + cats.map(c => `<option${c === cur ? ' selected' : ''}>${esc(c)}</option>`).join('');
@@ -930,7 +953,7 @@ $('allOn').onclick = () => bulk(i => i.can ? 'fix' : 'mark');
 $('allOff').onclick = () => bulk(() => 'off');
 $('undoBtn').onclick = () => { if (!undoSnap) return; choice.clear(); undoSnap.forEach((v, k) => choice.set(k, v)); undoSnap = null; $('undoBtn').disabled = true; render(); };
 
-const locOf = i => kind === 'xlsx' ? i.addr : i.sheet === '본문' ? `${i.r}번째 문단` : /^슬라이드\d+$/.test(i.sheet) ? `${i.r}번째 글상자` : `${i.r}행 ${i.c}열`;
+const locOf = i => kind === 'pdf' ? `${pdfLines[i.r - 1].page}쪽 ${pdfLines[i.r - 1].n}번째 줄` : kind === 'xlsx' ? i.addr : i.sheet === '본문' ? `${i.r}번째 문단` : /^슬라이드\d+$/.test(i.sheet) ? `${i.r}번째 글상자` : `${i.r}행 ${i.c}열`;
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function sourceOf(i){ const c = cellOf(i); return c ? c.text : ''; }
 function keysOf(text, i){
@@ -958,7 +981,7 @@ function render(){
   const meta = result.meta.filter(m => m.records).map(m =>
     `<b>${esc(m.name)}</b>${kind === 'xlsx' ? ' 시트' : ''}에서 학생 <b>${m.records}명</b>을 찾았어요` +
     (m.nameCol ? ` · 성명 ${m.nameCol}열` : '') + (m.birthCol ? ` · 생년월일 ${m.birthCol}열` : '') + (m.noCol ? ` · 연번 ${m.noCol}열` : '')).join('<br>');
-  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : kind === 'pptx' ? '위치는 슬라이드 번호와 글상자 순서(표는 몇 행 몇 열)예요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
+  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : kind === 'pptx' ? '위치는 슬라이드 번호와 글상자 순서(표는 몇 행 몇 열)예요.' : kind === 'pdf' ? '위치는 PDF 쪽 번호와 그 쪽의 몇 번째 줄인지예요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
   const vis = visible();
   $('visCount').textContent = vis.length === iss.length ? `${iss.length}개` : `${iss.length}개 중 ${vis.length}개 보임`;
   if (result.noText) html += `<div class="empty"><h3>글자를 읽을 수 없는 파일이에요</h3><p style="margin:0">${esc(noTextHelp())}</p></div>`;
@@ -975,7 +998,7 @@ function render(){
         (ik && !(i.cat === '오탈자' && i.fix && !i.guess) ? '<button class="link" data-act="ignore">다음부터 무시</button>' : '');
       html += `<div class="iss${ch === 'off' ? ' off' : ''}" data-id="${esc(i.id)}" data-cell="${esc(cellKey(i))}">
         <span class="lv ${i.level}">${LVNAME[i.level]}</span>
-        <div class="msg"><span class="loc">${esc(i.sheet)} ${esc(locOf(i))}${i.title ? ' · ' + esc(i.title) : ''} · ${esc(i.cat)}</span><span class="txt">${esc(i.msg)}</span>${ListCheck.fixable(i) && !i.can ? `<span class="cant">${CANT}</span>` : ''}${acts ? `<div class="acts">${acts}</div>` : ''}</div>
+        <div class="msg"><span class="loc">${esc(i.sheet)} ${esc(locOf(i))}${i.title ? ' · ' + esc(i.title) : ''} · ${esc(i.cat)}</span><span class="txt">${esc(i.msg)}</span>${ListCheck.fixable(i) && !i.can && kind !== 'pdf' ? `<span class="cant">${CANT}</span>` : ''}${acts ? `<div class="acts">${acts}</div>` : ''}</div>
         <select class="pick${ch === 'fix' ? ' fix' : ''}" aria-label="내보낼 때 처리">${i.can ? opt('fix', '자동 수정', ch) : ''}${opt('mark', '표시만', ch)}${opt('off', '빼기', ch)}</select>
         ${src ? `<details class="src"${src.length <= SHORT ? ' open' : ''}><summary>원문${src.length <= SHORT ? '' : ' 보기 (긴 글)'}</summary><pre>${highlight(src, i)}</pre></details>` : ''}
       </div>`;
@@ -1111,6 +1134,7 @@ function renderPreview(){
   const by = activeByCell(), body = $('pvBody'), keep = [body.scrollTop, body.scrollLeft];
   $('pvName').textContent = fileName;
   if (result.noText) { $('pvTabs').innerHTML = ''; body.innerHTML = `<div class="pv-doc"><p class="note">${esc(noTextHelp())}</p></div>`; }
+  else if (kind === 'pdf') { renderPdf(by); return; }
   else if (kind !== 'xlsx') { $('pvTabs').innerHTML = ''; body.innerHTML = docHtml(by); }
   else {
     if (!data.some(s => s.name === pvSheet)) pvSheet = (data.find(s => result.issues.some(i => i.sheet === s.name)) || data[0] || {}).name;
@@ -1127,7 +1151,8 @@ function flash(el){ el.classList.remove('flash'); void el.offsetWidth; el.classL
 function showInDoc(i){
   if (narrow()) document.body.classList.add('doc');
   if (kind === 'xlsx' && pvSheet !== i.sheet) { pvSheet = i.sheet; renderPreview(); }
-  const el = $('pvBody').querySelector(`[data-cell="${CSS.escape(cellKey(i))}"]`);
+  const el = $('pvBody').querySelector(`[data-cell="${CSS.escape(cellKey(i))}"]`)
+    || (kind === 'pdf' && $('pvBody').querySelector(`.pg[data-page="${pdfLines[i.r - 1].page}"]`));
   if (el) { el.scrollIntoView({ block:'center', inline:'center', behavior:'smooth' }); flash(el); }
 }
 $('pvTabs').addEventListener('click', e => {
@@ -1166,6 +1191,7 @@ function saved(blob, name, list, nDone){
   el.innerHTML = `저장했어요 — 자동 수정 ${nDone}개, 표시만 ${list.length - nDone}개. <a href="${lastUrl}" download="${esc(name)}">안 받아졌으면 여기를 눌러 다시 받기</a>`;
 }
 $('xlsxBtn').onclick = () => {
+  if (kind === 'pdf') return;
   const list = picked();
   if (!list.length) { setStatus('saveStatus', '내보낼 항목이 없어요(모두 빼기). 원본 그대로 쓰면 돼요.', 'warn'); return; }
   setStatus('saveStatus', '파일 만드는 중…');
@@ -1507,6 +1533,89 @@ $('engOn').onchange = async () => {
   if ($('engOn').checked) await loadEng(); else setStatus('engStatus', '');
   if (data) run();
 };
+
+// ---------- PDF (PDF.js, 브라우저 안에서만) ----------
+// 글자를 줄 단위로 읽어 「PDF」 한 시트의 한 줄씩(r = 전체 줄 번호) 검사. 고칠 수는 없어서 화면에 원본 쪽을 그리고 틀린 곳에 상자를 얹음
+let pdfDoc = null, pdfLines = [], pdfSizes = [], pdfBuilt = null;
+async function readPdf(buf){
+  if (pdfDoc) { pdfDoc.destroy(); pdfDoc = null; }
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'lib/pdfjs/pdf.worker.min.js';
+  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(buf.slice(0)), cMapUrl: 'lib/pdfjs/cmaps/', cMapPacked: true, standardFontDataUrl: 'lib/pdfjs/standard_fonts/' }).promise;
+  const lines = [], sizes = [], cells = [];
+  for (let pn = 1; pn <= doc.numPages; pn++) {
+    const page = await doc.getPage(pn), vp = page.getViewport({ scale: 1 }), tc = await page.getTextContent();
+    sizes.push([vp.width, vp.height]);
+    const items = tc.items.filter(it => it.str && it.str.trim()).map(it => {
+      const t = pdfjsLib.Util.transform(vp.transform, it.transform);
+      return { str: it.str, x: t[4], y: t[5], w: it.width, h: Math.hypot(t[2], t[3]) || 10 };
+    }).sort((a, b) => a.y - b.y);
+    // 높이가 거의 같은 글자 조각을 한 줄로 묶고, 줄 안에서는 왼쪽부터
+    const rows = [];
+    for (const it of items) { const L = rows[rows.length - 1]; if (L && Math.abs(it.y - L.y) <= Math.max(L.h, it.h) * 0.5) L.its.push(it); else rows.push({ y: it.y, h: it.h, its: [it] }); }
+    let n = 0;
+    for (const L of rows) {
+      L.its.sort((a, b) => a.x - b.x);
+      let text = '', end = null;
+      for (const it of L.its) {
+        if (end != null && it.x - end > it.h * 0.2 && !/\s$/.test(text) && !/^\s/.test(it.str)) text += ' ';
+        it.start = text.length; it.len = it.str.length; text += it.str; end = it.x + it.w;
+      }
+      const lead = text.length - text.trimStart().length; text = text.trim();
+      if (!text) continue;
+      L.its.forEach(it => it.start -= lead);
+      lines.push({ page: pn, n: ++n, text, items: L.its, pw: vp.width, ph: vp.height });
+      cells.push({ r: lines.length, c: 1, addr: `${pn}쪽 ${n}번째 줄`, text, runs: null });
+    }
+  }
+  pdfDoc = doc; pdfLines = lines; pdfSizes = sizes; pdfBuilt = null;
+  return [{ name: 'PDF', cells }];
+}
+// 줄 글자 범위 → 화면 상자(글자 조각 안에서는 글자 수 비율로 나눔)
+function pdfBoxes(L, key, arr){
+  const tip = esc(arr.map(i => `[${LVNAME[i.level]}] ${i.msg}`).join('\n')), rg = [];
+  for (const i of arr) {
+    const keys = i.fix ? [i.fix[0]] : keysOf(L.text, i);
+    for (const k of keys) for (let j = L.text.indexOf(k); j >= 0; j = L.text.indexOf(k, j + k.length)) {
+      if (i.fix) { const [w, rgt] = i.fix; if (L.text.startsWith(rgt, j) || (rgt.endsWith(w) && L.text.slice(Math.max(0, j - (rgt.length - w.length)), j + w.length) === rgt)) continue; }
+      rg.push({ s: j, e: j + k.length, i });
+    }
+  }
+  if (!rg.length) rg.push({ s: 0, e: L.text.length, i: arr.slice().sort((a, b) => RANK[a.level] - RANK[b.level])[0], whole: true });
+  let h = '';
+  for (const g of rg) for (const it of L.items) {
+    const a = Math.max(g.s, it.start), b = Math.min(g.e, it.start + it.len); if (a >= b) continue;
+    const x0 = it.x + it.w * (a - it.start) / it.len, x1 = it.x + it.w * (b - it.start) / it.len;
+    const pct = (v, of) => (v / of * 100).toFixed(3) + '%';
+    h += `<div class="pbox hit ${g.whole ? 'whole ' : ''}${g.i.level}" data-cell="${esc(key)}" title="${tip}" style="left:${pct(x0, L.pw)};top:${pct(it.y - it.h * 0.95, L.ph)};width:${pct(Math.max(x1 - x0, 2), L.pw)};height:${pct(it.h * 1.2, L.ph)}">` +
+      (g.i.fix && !g.whole && !g.shown ? `<span class="sug">→ ${esc(g.i.fix[1])}</span>` : '') + '</div>';
+    g.shown = true;
+  }
+  return h;
+}
+function renderPdf(by){
+  const body = $('pvBody'); $('pvTabs').innerHTML = '';
+  if (pdfBuilt !== pdfDoc) { // 파일이 바뀌었을 때만 쪽을 새로 그림(선택을 바꿀 땐 상자만 다시)
+    pdfBuilt = pdfDoc;
+    body.innerHTML = '<div class="pv-pdf">' + pdfSizes.map(([w, hh], k) =>
+      `<div class="pg" data-page="${k + 1}" style="aspect-ratio:${w}/${hh}"><canvas></canvas><div class="ov"></div><span class="pg-no">${k + 1}쪽</span></div>`).join('') + '</div>';
+    drawPdfPages(pdfDoc);
+  }
+  body.querySelectorAll('.pg .ov').forEach(o => o.innerHTML = '');
+  for (const [key, arr] of by) {
+    const L = pdfLines[+key.split('|')[1] - 1]; if (!L) continue;
+    const ov = body.querySelector(`.pg[data-page="${L.page}"] .ov`); if (ov) ov.insertAdjacentHTML('beforeend', pdfBoxes(L, key, arr));
+  }
+}
+// ponytail: 모든 쪽을 차례로 그림. 수백 쪽짜리면 화면에 보이는 쪽만 그리도록 바꾸기
+async function drawPdfPages(doc){
+  const cvs = [...$('pvBody').querySelectorAll('.pg canvas')];
+  for (let k = 0; k < cvs.length; k++) {
+    if (pdfDoc !== doc) return; // 그리는 중에 다른 파일을 넣음
+    const page = await doc.getPage(k + 1), vp = page.getViewport({ scale: 1.6 }), c = cvs[k];
+    c.width = vp.width; c.height = vp.height;
+    await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+  }
+}
 
 // ---------- 띄어쓰기 (Kiwi, 브라우저 안에서만 실행) ----------
 // ponytail: 화면 스레드에서 실행(처음 1~2초 멈춤). 느리면 Web Worker로 옮기기
