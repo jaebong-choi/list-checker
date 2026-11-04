@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK2.1</title>
+<title>오타 및 계산 수정기 MK2.2</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -158,6 +158,16 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
 .pv-slide:first-child{margin-top:0;padding-top:0;border-top:0}
 .pv-doc p[data-box]{border:1px dashed var(--line);padding:6px 8px;margin-bottom:8px}
 .hit{cursor:pointer}
+.step.tip{background:linear-gradient(140deg,var(--brand-soft),var(--paper) 70%);border:1.5px solid var(--brand)}
+.step.tip h2 b{background:var(--warn);color:#fff}
+.tip-lead{font-size:13.5px;margin:0 0 8px;line-height:1.6}
+.tip-list{margin:0;padding-left:18px;font-size:13px;color:var(--muted);line-height:1.65}
+.tip-list b{color:var(--ink)}
+.ocr-warn{background:var(--warn-soft);color:var(--warn);border-radius:14px;padding:12px 16px;font-size:13px;font-weight:600;line-height:1.6}
+.ocr-warn b{color:var(--ink)}
+.ocr-box{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.pv-note{width:100%;max-width:920px;margin:0}
+.pg img.raster{display:block;width:100%;height:100%}
 .slv{padding:16px;background:var(--panel);min-height:100%}
 .slv .pv-slide{border-top:0;margin:0 0 8px;padding-top:0}
 .slv .note{margin:0 0 12px}
@@ -211,9 +221,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <header class="hero">
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK2.1</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK2.2</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
-      <p class="lead">엑셀·워드·PPT·PDF 파일을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
+      <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
     <ol class="flow" aria-label="사용 순서">
       <li><b>1</b>파일 넣기</li>
@@ -227,13 +237,24 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   <aside>
     <section class="step">
       <h2><b>1</b>파일 넣기</h2>
-      <div class="drop" id="drop" tabindex="0" role="button" aria-label="엑셀·워드·PPT·PDF 파일 선택">
-        <strong>엑셀·워드·PPT·PDF 파일을 여기에 끌어 놓기</strong>
-        또는 눌러서 선택 (.xlsx, .docx, .pptx, .pdf)
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="파일 선택">
+        <strong>파일을 여기에 끌어 놓기</strong>
+        또는 눌러서 선택<br>엑셀 · 워드 · PPT · PDF · 한글(HWP·HWPX) · 사진(JPG·PNG)
       </div>
-      <input type="file" id="file" accept=".xlsx,.xlsm,.docx,.pptx,.pdf" hidden>
+      <input type="file" id="file" accept=".xlsx,.xlsm,.docx,.pptx,.pdf,.hwpx,.hwp,.png,.jpg,.jpeg,.webp,.bmp" hidden>
       <div class="status" id="loadStatus" aria-live="polite"></div>
       <p class="note">사전·무시 목록·띄어쓰기 설정을 바꾸면 자동으로 다시 검사하고, 이미 고른 선택은 그대로 둬요.</p>
+    </section>
+
+    <section class="step tip" aria-labelledby="tipTitle">
+      <h2 id="tipTitle"><b>!</b>더 정확하게 하려면</h2>
+      <p class="tip-lead">지금 검사는 <b>이 PC 안에서 무료로</b> 돌아가는 대신 정확도에 한계가 있어요. 특히 <b>사진·스캔 파일</b>은 글자를 잘못 읽어서 엉뚱한 오타가 나올 수 있어요.</p>
+      <p class="tip-lead"><b>개인 API(Claude 같은 AI 서비스) 키를 연결하면</b> 사진 속 한글을 정확하게 읽고, 문맥까지 보고 맞춤법을 검사할 수 있어요.</p>
+      <ul class="tip-list">
+        <li>파일 내용이 <b>외부 서버로 전송</b>돼요 → 학생 개인정보 규정을 먼저 확인해 주세요</li>
+        <li>쓴 만큼 <b>요금</b>이 나와요(문서 한 건에 몇십~몇백 원 수준)</li>
+        <li>지금 버전에는 연결 기능이 없어요. 필요하면 만든 사람(국제처 최재봉)에게 요청해 주세요</li>
+      </ul>
     </section>
 
     <section class="step">
@@ -294,7 +315,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="results" id="results">
     <div class="empty">
-      <h3>왼쪽에 엑셀·워드·PPT·PDF 파일을 넣어 주세요</h3>
+      <h3>왼쪽에 파일을 넣어 주세요</h3>
       <p style="margin:0">서식이 달라도 같은 파일 안에서 서로 비교해서 찾아요.</p>
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
@@ -305,7 +326,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         <li>영어 철자: 영어 사전에 없는 단어에 고칠 말 제안 (예: Universtiy → University)</li>
         <li>문서 보기: 오른쪽에 파일이 그대로 보이고, 틀린 곳이 색칠돼요</li>
         <li>내보내기: 고른 것만 자동으로 고치고, 나머지는 색칠·메모로 표시해요</li>
-        <li>PDF: 고칠 수는 없어서, 오른쪽 PDF 화면에 틀린 곳만 형광펜으로 표시해요</li>
+        <li>PDF·한글(HWP·HWPX): 고칠 수는 없어서, 오른쪽 화면에 틀린 곳만 표시해요</li>
+        <li>사진·스캔 파일: 사진 속 글자를 읽어(OCR) 검사해요. 정확도에 한계가 있어요</li>
       </ul>
       <p class="note">‘-’, ‘/’ 같은 「내용 없음」 표시와 ‘1)’, ‘가)’ 같은 번호는 오류로 보지 않아요.</p>
     </div>
@@ -328,6 +350,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <script src="lib/jszip.min.js"></script>
 <script src="lib/typo.js"></script>
 <script src="lib/pdfjs/pdf.min.js"></script>
+<script src="lib/cfb/cfb.min.js"></script>
+<script src="lib/tesseract/tesseract.min.js"></script>
 <script>
 /* 명단 검수 엔진 — 서식에 기대지 않고 같은 파일 안에서 서로 비교해 찾는다 */
 (function (root) {
@@ -872,18 +896,20 @@ function cellText(cell){
 const runsOf = v => typeof v === 'string' ? [v] : v && v.richText ? v.richText.map(r => r.text) : null;
 
 async function load(file){
-  const k = /\.docx$/i.test(file.name) ? 'docx' : /\.pptx$/i.test(file.name) ? 'pptx' : /\.pdf$/i.test(file.name) ? 'pdf' : /\.xls[xm]$/i.test(file.name) ? 'xlsx' : null;
+  const k = /\.docx$/i.test(file.name) ? 'docx' : /\.pptx$/i.test(file.name) ? 'pptx' : /\.pdf$/i.test(file.name) ? 'pdf' : /\.xls[xm]$/i.test(file.name) ? 'xlsx'
+    : /\.hwpx$/i.test(file.name) ? 'hwpx' : /\.hwp$/i.test(file.name) ? 'hwp' : /\.(png|jpe?g|webp|bmp)$/i.test(file.name) ? 'img' : null;
   if (!k) {
     const n = file.name;
     setStatus('loadStatus', /\.xls$/i.test(n) ? '옛날 .xls 파일은 못 읽어요. 엑셀에서 「다른 이름으로 저장 → .xlsx」로 바꿔 주세요.'
       : /\.doc$/i.test(n) ? '옛날 .doc 파일은 못 읽어요. 워드에서 「다른 이름으로 저장 → .docx」로 바꿔 주세요.'
       : /\.ppt$/i.test(n) ? '옛날 .ppt 파일은 못 읽어요. 파워포인트에서 「다른 이름으로 저장 → .pptx」로 바꿔 주세요.'
-      : /\.hwpx?$/i.test(n) ? '한글 파일은 아직 못 읽어요. 한컴에서 .docx로 저장해서 넣어 주세요.'
-      : '.xlsx 엑셀, .docx 워드, .pptx PPT, .pdf 파일만 넣을 수 있어요.', 'warn');
+      : '엑셀(.xlsx)·워드(.docx)·PPT(.pptx)·PDF·한글(.hwp·.hwpx)·사진(.jpg·.png) 파일만 넣을 수 있어요.', 'warn');
     return;
   }
   if (k === 'pdf' && typeof pdfjsLib === 'undefined') { setStatus('loadStatus', 'PDF 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
-  if (/^(docx|pptx)$/.test(k) && typeof JSZip === 'undefined') { setStatus('loadStatus', '워드·PPT 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
+  if (k === 'hwp' && typeof CFB === 'undefined') { setStatus('loadStatus', '한글 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
+  if (k === 'img' && typeof Tesseract === 'undefined') { setStatus('loadStatus', '사진 글자 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
+  if (/^(docx|pptx|hwpx)$/.test(k) && typeof JSZip === 'undefined') { setStatus('loadStatus', '워드·PPT 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
   if (k === 'xlsx' && typeof ExcelJS === 'undefined') { setStatus('loadStatus', '엑셀 읽기 도구를 불러오지 못했어요. 새로고침해 주세요.', 'warn'); return; }
   setStatus('loadStatus', `${file.name} 읽는 중… (큰 파일은 몇 초 걸려요)`);
   try {
@@ -892,6 +918,9 @@ async function load(file){
     if (k === 'docx') d = await readDocx(buf);
     else if (k === 'pptx') d = await readPptx(buf);
     else if (k === 'pdf') d = await readPdf(buf);
+    else if (k === 'hwpx') d = await readHwpx(buf);
+    else if (k === 'hwp') d = await readHwp(buf);
+    else if (k === 'img') { fileName = file.name; d = await readImage(file); }
     else {
       const wb = new ExcelJS.Workbook(); await wb.xlsx.load(buf.slice(0));
       d = [];
@@ -922,7 +951,9 @@ function canFix(i){
 }
 
 // 글자를 하나도 못 찾았을 때 안내(그림으로만 된 PPT, 스캔한 파일 등)
-const noTextHelp = () => kind === 'pdf'
+const noTextHelp = () => kind === 'hwp' && data.locked ? '암호가 걸렸거나 배포용으로 저장된 한글 파일이라 읽을 수 없어요. 한컴에서 일반 문서(.hwpx)로 다시 저장해서 넣어 주세요.'
+  : kind === 'img' ? '사진에서 글자를 찾지 못했어요. 글자가 또렷한 사진으로 다시 넣어 주세요.'
+  : kind === 'pdf'
   ? '글자가 없는 PDF예요. 스캔했거나 글자를 그림으로 저장한 파일이에요. 원본(한글·워드·PPT)에서 PDF로 다시 저장하거나, 원본 파일을 그대로 넣어 주세요.'
   : kind === 'pptx' && data.pics
   ? `슬라이드에 그림은 ${data.pics}개 있는데 글상자가 없어요. 글자까지 그림으로 들어 있는 PPT예요(미리캔버스·캔바에서 「이미지」 형식으로 내보낸 파일 등). 만든 프로그램에서 「텍스트 편집 가능」 PPTX로 다시 내보내서 넣어 주세요.`
@@ -931,18 +962,19 @@ function run(){
   const useEng = eng && $('engOn').checked;
   if (useEng) { engBudget = ENG_MAX; engFreq = new Map(); data.forEach(sh => sh.cells.forEach(c => { for (const m of stripUrl(c.text).matchAll(EN_WORD)) engFreq.set(m[0], (engFreq.get(m[0]) || 0) + 1); })); }
   const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null, speller: useEng ? speller : null });
-  if (kind === 'pdf') {
-    // 표 칸 안에서 줄이 바뀌어 다음 줄(옆 칸 줄이 끼어 최대 4줄 뒤)에서 닫히는 괄호는 맞는 것으로 봄
-    const T = n => (pdfLines[n - 1] || {}).text || '';
+  if (kind !== 'xlsx') {
+    // PDF 줄·한글 문단처럼 한 줄씩 읽는 곳에서, 줄이 바뀌어 다음 줄(옆 칸 줄이 끼어 최대 4줄 뒤)에서 닫히는 괄호는 맞는 것으로 봄
+    const at = new Map(); data.forEach(sh => sh.cells.forEach(c => at.set(sh.name + '|' + c.r, c.text)));
+    const T = (sh, n) => at.get(sh + '|' + n) || '';
     const closesFirst = t => { t = t.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z])\)/, ''); const c = t.indexOf(')'), o = t.indexOf('('); return c >= 0 && (o < 0 || c < o); };
     const opensLast = t => t.lastIndexOf('(') > t.lastIndexOf(')');
     r.issues = r.issues.filter(i => {
-      if (!i.msg.startsWith('괄호 짝')) return true;
-      const b = ListCheck.parenBal(T(i.r)), near = [1, 2, 3, 4];
-      return b > 0 ? !near.some(k => closesFirst(T(i.r + k))) : b < 0 ? !near.some(k => opensLast(T(i.r - k))) : true;
+      if (!i.msg.startsWith('괄호 짝') || !/^(PDF|본문)$/.test(i.sheet)) return true;
+      const b = ListCheck.parenBal(T(i.sheet, i.r)), near = [1, 2, 3, 4];
+      return b > 0 ? !near.some(k => closesFirst(T(i.sheet, i.r + k))) : b < 0 ? !near.some(k => opensLast(T(i.sheet, i.r - k))) : true;
     });
-    r.issues.forEach(i => { i.recLabel = `${pdfLines[i.r - 1].page}쪽`; });
   }
+  if (kind === 'pdf' || kind === 'img') r.issues.forEach(i => { i.recLabel = lineOf(i).label; });
   else if (kind !== 'xlsx') r.issues.forEach(i => { if (!i.rec) i.recLabel = `${i.sheet} ${locOf(i)}`; });
   const ign = ignoreSet();
   r.ignored = r.issues.filter(i => ign.has(ignoreKey(i))).length;
@@ -951,18 +983,18 @@ function run(){
     i.can = canFix(i);
     // 처음 보는 항목만 기본값(띄어쓰기 제안은 빼기). 이미 고른 건 그대로
     // PDF는 고칠 수 없으니 모두 「표시만」으로 시작
-    if (!choice.has(i.id) || (choice.get(i.id) === 'fix' && !i.can)) choice.set(i.id, kind === 'pdf' ? 'mark' : i.optIn ? 'off' : i.can ? 'fix' : 'mark');
+    if (!choice.has(i.id) || (choice.get(i.id) === 'fix' && !i.can)) choice.set(i.id, RO.has(kind) ? 'mark' : i.optIn ? 'off' : i.can ? 'fix' : 'mark');
   });
   result = r;
   const recs = r.meta.reduce((a, m) => a + m.records, 0);
   const main = r.meta.filter(m => m.records).map(m => `「${m.name}」 ${m.records}명`).join(', ');
   r.noText = !data.some(sh => sh.cells.length);
   if (r.noText) setStatus('loadStatus', `${fileName} — 읽을 수 있는 글자가 없어요(가운데 안내를 봐 주세요).`, 'warn');
-  else if (kind === 'pdf') setStatus('loadStatus', `${fileName} — ${pdfSizes.length}쪽, 글자 ${pdfLines.length}줄을 읽었어요`, 'ok');
+  else if (kind === 'pdf' || kind === 'img') setStatus('loadStatus', `${fileName} — ${data.ocr ? '사진 글자 읽기(OCR)로 ' : ''}${pdfSizes.length}${kind === 'img' ? '장' : '쪽'}, 글자 ${pdfLines.length}줄을 읽었어요`, data.ocr ? 'warn' : 'ok');
   else setStatus('loadStatus', `${fileName} — ${main || '표 형태를 찾지 못해 칸별 점검만 했어요'}`, recs ? 'ok' : 'warn');
   ['allOn','allOff','xlsxBtn'].forEach(id => $(id).disabled = false);
-  $('xlsxBtn').disabled = $('markOnly').disabled = kind === 'pdf';
-  if (kind === 'pdf') setStatus('saveStatus', 'PDF는 고칠 수 없어서 내보내기 없이 화면에서만 표시해요.');
+  $('xlsxBtn').disabled = $('markOnly').disabled = RO.has(kind);
+  if (RO.has(kind)) setStatus('saveStatus', 'PDF·한글·사진 파일은 고칠 수 없어서 내보내기 없이 화면에서만 표시해요.');
   $('tools').hidden = false; document.body.classList.add('has-data');
   const cur = $('catSel').value, cats = [...new Set(r.issues.map(i => i.cat))];
   $('catSel').innerHTML = '<option value="">모든 종류</option>' + cats.map(c => `<option${c === cur ? ' selected' : ''}>${esc(c)}</option>`).join('');
@@ -990,7 +1022,9 @@ $('allOn').onclick = () => bulk(i => i.can ? 'fix' : 'mark');
 $('allOff').onclick = () => bulk(() => 'off');
 $('undoBtn').onclick = () => { if (!undoSnap) return; choice.clear(); undoSnap.forEach((v, k) => choice.set(k, v)); undoSnap = null; $('undoBtn').disabled = true; render(); };
 
-const locOf = i => kind === 'pdf' ? `${pdfLines[i.r - 1].page}쪽 ${pdfLines[i.r - 1].n}번째 줄` : kind === 'xlsx' ? i.addr : i.sheet === '본문' ? `${i.r}번째 문단` : /^슬라이드\d+$/.test(i.sheet) ? `${i.r}번째 글상자` : `${i.r}행 ${i.c}열`;
+const RO = new Set(['pdf', 'img', 'hwp', 'hwpx']); // 고칠 수 없어서 화면에만 표시
+const lineOf = i => pdfLines[i.r - 1] || { label: '', n: i.r };
+const locOf = i => (kind === 'pdf' || kind === 'img') ? `${lineOf(i).label} ${lineOf(i).n}번째 줄` : kind === 'xlsx' ? i.addr : i.sheet === '본문' ? `${i.r}번째 문단` : /^슬라이드\d+$/.test(i.sheet) ? `${i.r}번째 글상자` : `${i.r}행 ${i.c}열`;
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function sourceOf(i){ const c = cellOf(i); return c ? c.text : ''; }
 function keysOf(text, i){
@@ -1018,10 +1052,11 @@ function render(){
   const meta = result.meta.filter(m => m.records).map(m =>
     `<b>${esc(m.name)}</b>${kind === 'xlsx' ? ' 시트' : ''}에서 학생 <b>${m.records}명</b>을 찾았어요` +
     (m.nameCol ? ` · 성명 ${m.nameCol}열` : '') + (m.birthCol ? ` · 생년월일 ${m.birthCol}열` : '') + (m.noCol ? ` · 연번 ${m.noCol}열` : '')).join('<br>');
-  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : kind === 'pptx' ? '위치는 슬라이드 번호와 글상자 순서(표는 몇 행 몇 열)예요.' : kind === 'pdf' ? '위치는 PDF 쪽 번호와 그 쪽의 몇 번째 줄인지예요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
+  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : kind === 'pptx' ? '위치는 슬라이드 번호와 글상자 순서(표는 몇 행 몇 열)예요.' : kind === 'pdf' || kind === 'img' ? '위치는 쪽(장) 번호와 그 안의 몇 번째 줄인지예요.' : /^hwp/.test(kind) ? '위치는 한글 문서의 몇 번째 문단(표는 몇 행 몇 열)이에요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
   const vis = visible();
   $('visCount').textContent = vis.length === iss.length ? `${iss.length}개` : `${iss.length}개 중 ${vis.length}개 보임`;
-  if (result.noText) html += `<div class="empty"><h3>글자를 읽을 수 없는 파일이에요</h3><p style="margin:0">${esc(noTextHelp())}</p></div>`;
+  if (data.ocr) html += `<div class="ocr-warn">⚠ 사진 글자 읽기(OCR) 결과예요. 한글 인식률이 낮아서 <b>잘못 읽은 글자가 오타로 잡힐 수 있어요.</b> 원본 글자와 꼭 비교해 주세요. 더 정확하게 하려면 개인 API 연결이 필요해요(왼쪽 「더 정확하게 하려면」 안내).</div>`;
+  if (result.noText) html += `<div class="empty"><h3>글자를 읽을 수 없는 파일이에요</h3><p style="margin:0">${esc(noTextHelp())}</p>${canOcr() ? `<div class="ocr-box"><button class="btn primary" id="ocrBtn">그림 속 글자 읽기 (OCR)</button><span class="note">무료·이 PC 안에서 읽어요. 쪽마다 몇 초씩 걸리고, 한글은 잘못 읽는 글자가 많을 수 있어요.</span></div>` : ''}</div>`;
   else if (!iss.length) html += `<div class="empty"><h3>찾은 문제가 없어요</h3>그래도 문맥상 이상한 부분은 한 번 훑어봐 주세요.</div>`;
   else if (!vis.length) html += `<div class="empty"><h3>조건에 맞는 항목이 없어요</h3>검색어·종류를 바꾸거나 왼쪽 숫자 칸을 눌러 숨긴 구분을 다시 보이게 해 주세요.</div>`;
   const groups = new Map();
@@ -1035,7 +1070,7 @@ function render(){
         (ik && !(i.cat === '오탈자' && i.fix && !i.guess) ? '<button class="link" data-act="ignore">다음부터 무시</button>' : '');
       html += `<div class="iss${ch === 'off' ? ' off' : ''}" data-id="${esc(i.id)}" data-cell="${esc(cellKey(i))}">
         <span class="lv ${i.level}">${LVNAME[i.level]}</span>
-        <div class="msg"><span class="loc">${esc(i.sheet)} ${esc(locOf(i))}${i.title ? ' · ' + esc(i.title) : ''} · ${esc(i.cat)}</span><span class="txt">${esc(i.msg)}</span>${ListCheck.fixable(i) && !i.can && kind !== 'pdf' ? `<span class="cant">${CANT}</span>` : ''}${acts ? `<div class="acts">${acts}</div>` : ''}</div>
+        <div class="msg"><span class="loc">${kind === 'pdf' || kind === 'img' ? '' : esc(i.sheet) + ' '}${esc(locOf(i))}${i.title ? ' · ' + esc(i.title) : ''} · ${esc(i.cat)}</span><span class="txt">${esc(i.msg)}</span>${ListCheck.fixable(i) && !i.can && !RO.has(kind) ? `<span class="cant">${CANT}</span>` : ''}${acts ? `<div class="acts">${acts}</div>` : ''}</div>
         <select class="pick${ch === 'fix' ? ' fix' : ''}" aria-label="내보낼 때 처리">${i.can ? opt('fix', '자동 수정', ch) : ''}${opt('mark', '표시만', ch)}${opt('off', '빼기', ch)}</select>
         ${src ? `<details class="src"${src.length <= SHORT ? ' open' : ''}><summary>원문${src.length <= SHORT ? '' : ' 보기 (긴 글)'}</summary><pre>${highlight(src, i)}</pre></details>` : ''}
       </div>`;
@@ -1043,6 +1078,7 @@ function render(){
     html += `</details>`;
   }
   box.innerHTML = html;
+  if ($('ocrBtn')) $('ocrBtn').onclick = runOcr;
   countPicked();
   renderPreview();
 }
@@ -1171,8 +1207,9 @@ function renderPreview(){
   const by = activeByCell(), body = $('pvBody'), keep = [body.scrollTop, body.scrollLeft];
   $('pvName').textContent = fileName;
   if (kind === 'pptx' && data.view) { $('pvTabs').innerHTML = ''; body.innerHTML = slidesHtml(by); }
-  else if (result.noText) { $('pvTabs').innerHTML = ''; body.innerHTML = `<div class="pv-doc"><p class="note">${esc(noTextHelp())}</p></div>`; }
   else if (kind === 'pdf') { renderPdf(by); return; }
+  else if (kind === 'img') { renderRaster(by); return; }
+  else if (result.noText) { $('pvTabs').innerHTML = ''; body.innerHTML = `<div class="pv-doc"><p class="note">${esc(noTextHelp())}</p></div>`; }
   else if (kind !== 'xlsx') { $('pvTabs').innerHTML = ''; body.innerHTML = docHtml(by); }
   else {
     if (!data.some(s => s.name === pvSheet)) pvSheet = (data.find(s => result.issues.some(i => i.sheet === s.name)) || data[0] || {}).name;
@@ -1190,7 +1227,7 @@ function showInDoc(i){
   if (narrow()) document.body.classList.add('doc');
   if (kind === 'xlsx' && pvSheet !== i.sheet) { pvSheet = i.sheet; renderPreview(); }
   const el = $('pvBody').querySelector(`[data-cell="${CSS.escape(cellKey(i))}"]`)
-    || (kind === 'pdf' && $('pvBody').querySelector(`.pg[data-page="${pdfLines[i.r - 1].page}"]`));
+    || ((kind === 'pdf' || kind === 'img') && $('pvBody').querySelector(`.pg[data-page="${lineOf(i).page}"]`));
   if (el) { el.scrollIntoView({ block:'center', inline:'center', behavior:'smooth' }); flash(el); }
 }
 $('pvTabs').addEventListener('click', e => {
@@ -1229,7 +1266,7 @@ function saved(blob, name, list, nDone){
   el.innerHTML = `저장했어요 — 자동 수정 ${nDone}개, 표시만 ${list.length - nDone}개. <a href="${lastUrl}" download="${esc(name)}">안 받아졌으면 여기를 눌러 다시 받기</a>`;
 }
 $('xlsxBtn').onclick = () => {
-  if (kind === 'pdf') return;
+  if (RO.has(kind)) return;
   const list = picked();
   if (!list.length) { setStatus('saveStatus', '내보낼 항목이 없어요(모두 빼기). 원본 그대로 쓰면 돼요.', 'warn'); return; }
   setStatus('saveStatus', '파일 만드는 중…');
@@ -1738,6 +1775,7 @@ function speller(text){
     // 글자 뒤바뀜은 늘 알림. 그 밖의 제안은 짧은 말(4글자 이하)·파일에 3번 이상 나온 말(학교·회사 이름 등)이면 넘어감
     if (!f.swap && (w.length <= 4 || (engFreq.get(m[0]) || 0) >= 3)) continue;
     if (/^[A-Z]/.test(w) && (!f.swap || f.at === 0)) continue; // Oyu→You, Collab→Collar 같은 이름·용어
+    if (/re$/i.test(w) && /er$/i.test(f.to)) continue; // 영국식 철자(Centre, Theatre)
     out.push({ from: m[0], to: f.to });
   }
   return out;
@@ -1779,7 +1817,7 @@ async function readPdf(buf){
       const lead = text.length - text.trimStart().length; text = text.trim();
       if (!text) continue;
       L.its.forEach(it => it.start -= lead);
-      lines.push({ page: pn, n: ++n, text, items: L.its, pw: vp.width, ph: vp.height });
+      lines.push({ page: pn, label: `${pn}쪽`, n: ++n, text, items: L.its, pw: vp.width, ph: vp.height });
       cells.push({ r: lines.length, c: 1, addr: `${pn}쪽 ${n}번째 줄`, text, runs: null });
     }
   }
@@ -1812,15 +1850,30 @@ function renderPdf(by){
   const body = $('pvBody'); $('pvTabs').innerHTML = '';
   if (pdfBuilt !== pdfDoc) { // 파일이 바뀌었을 때만 쪽을 새로 그림(선택을 바꿀 땐 상자만 다시)
     pdfBuilt = pdfDoc;
-    body.innerHTML = '<div class="pv-pdf">' + pdfSizes.map(([w, hh], k) =>
+    body.innerHTML = '<div class="pv-pdf"><p class="note pv-note" id="pvNote"></p>' + pdfSizes.map(([w, hh], k) =>
       `<div class="pg" data-page="${k + 1}" style="aspect-ratio:${w}/${hh}"><canvas></canvas><div class="ov"></div><span class="pg-no">${k + 1}쪽</span></div>`).join('') + '</div>';
     drawPdfPages(pdfDoc);
   }
+  placeBoxes(body, by);
+}
+function placeBoxes(body, by){
+  const note = $('pvNote'); if (note) { note.textContent = result.noText ? noTextHelp() + (canOcr() ? ' 가운데 「그림 속 글자 읽기」를 누르면 사진 글자를 읽어요.' : '') : ''; note.hidden = !result.noText; }
   body.querySelectorAll('.pg .ov').forEach(o => o.innerHTML = '');
   for (const [key, arr] of by) {
     const L = pdfLines[+key.split('|')[1] - 1]; if (!L) continue;
     const ov = body.querySelector(`.pg[data-page="${L.page}"] .ov`); if (ov) ov.insertAdjacentHTML('beforeend', pdfBoxes(L, key, arr));
   }
+}
+// 사진(또는 사진처럼 그린 PPT 슬라이드)을 그대로 보여 주고 상자를 얹음
+let rasterPages = [], rasterBuilt = null;
+function renderRaster(by){
+  const body = $('pvBody'); $('pvTabs').innerHTML = '';
+  if (rasterBuilt !== rasterPages) {
+    rasterBuilt = rasterPages;
+    body.innerHTML = '<div class="pv-pdf"><p class="note pv-note" id="pvNote"></p>' + rasterPages.map((pg, k) =>
+      `<div class="pg" data-page="${k + 1}" style="aspect-ratio:${pg.w}/${pg.h}"><img class="raster" src="${pg.src}" alt=""><div class="ov"></div><span class="pg-no">${esc(pg.label)}</span></div>`).join('') + '</div>';
+  }
+  placeBoxes(body, by);
 }
 // ponytail: 모든 쪽을 차례로 그림. 수백 쪽짜리면 화면에 보이는 쪽만 그리도록 바꾸기
 async function drawPdfPages(doc){
@@ -1830,6 +1883,167 @@ async function drawPdfPages(doc){
     const page = await doc.getPage(k + 1), vp = page.getViewport({ scale: 1.6 }), c = cvs[k];
     c.width = vp.width; c.height = vp.height;
     await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+  }
+}
+
+// ---------- 한글(HWPX): 압축 파일 안의 XML ----------
+// 본문 문단 = 「본문」 한 줄씩, 표 = 「표N」(칸 주소 그대로). 고칠 수는 없어서 화면에만 표시
+const HP = 'http://www.hancom.co.kr/hwpml/2011/paragraph';
+const kidsH = (el, tag) => el ? [...el.children].filter(n => n.namespaceURI === HP && n.localName === tag) : [];
+function hpText(p){
+  let t = '';
+  for (const r of kidsH(p, 'run')) for (const n of r.children) {
+    if (n.localName !== 't') continue;
+    for (const c of n.childNodes) { if (c.nodeType === 3) t += c.nodeValue; else if (c.localName === 'tab') t += '\t'; else if (c.localName === 'lineBreak') t += '\n'; }
+  }
+  return t;
+}
+const upTo = (el, name, stop) => { for (let a = el.parentNode; a && a !== stop; a = a.parentNode) if (a.localName === name) return a; return null; };
+async function readHwpx(buf){
+  const zip = await JSZip.loadAsync(buf.slice(0));
+  const secs = Object.keys(zip.files).filter(n => /^Contents\/section\d+\.xml$/i.test(n)).sort((a, b) => +a.match(/(\d+)\.xml$/i)[1] - +b.match(/(\d+)\.xml$/i)[1]);
+  const body = [], sheets = [], blocks = []; let pi = 0, ti = 0;
+  for (const n of secs) {
+    const doc = new DOMParser().parseFromString(await zip.file(n).async('string'), 'application/xml');
+    for (const p of [...doc.documentElement.children].filter(e => e.localName === 'p')) {
+      pi++;
+      const t = hpText(p).trim(); if (t) { body.push({ r: pi, c: 1, addr: `${pi}번째 문단`, text: t, runs: null }); blocks.push({ p: pi }); }
+      for (const tbl of p.getElementsByTagNameNS(HP, 'tbl')) {
+        if (upTo(tbl, 'tc', p)) continue; // 표 안의 표는 바깥 칸 글자로 같이 읽힘
+        const name = '표' + (++ti), cells = [], b = { t: name, rows: 0, cols: 0 };
+        for (const tc of tbl.getElementsByTagNameNS(HP, 'tc')) {
+          if (upTo(tc, 'tbl', p) !== tbl) continue;
+          const ad = kidsH(tc, 'cellAddr')[0], sp = kidsH(tc, 'cellSpan')[0]; if (!ad) continue;
+          const r = +ad.getAttribute('rowAddr') + 1, c = +ad.getAttribute('colAddr') + 1;
+          b.rows = Math.max(b.rows, r + (sp ? +sp.getAttribute('rowSpan') - 1 : 0)); b.cols = Math.max(b.cols, c + (sp ? +sp.getAttribute('colSpan') - 1 : 0));
+          const text = [...tc.getElementsByTagNameNS(HP, 'p')].filter(q => upTo(q, 'tc', p) === tc).map(hpText).join('\n').trim();
+          if (text) cells.push({ r, c, addr: `${r}행 ${c}열`, text, runs: null });
+        }
+        sheets.push({ name, cells }); blocks.push(b);
+      }
+    }
+  }
+  return Object.assign([{ name: '본문', cells: body }, ...sheets], { blocks });
+}
+
+// ---------- 한글(HWP 5.0, 옛 형식): 묶음 파일(CFB) 안 BodyText/SectionN의 문단 글자 ----------
+// ponytail: 표의 칸 구조는 안 읽고 표 안 글자도 문단 한 줄씩으로 읽음
+// HWP는 압축 데이터 끝에 남는 바이트가 있어 브라우저가 오류를 내므로, 그때까지 푼 내용만 씀
+async function inflateRaw(u8){
+  const ds = new DecompressionStream('deflate-raw'), w = ds.writable.getWriter();
+  w.write(u8).catch(() => {}); w.close().catch(() => {});
+  const r = ds.readable.getReader(), parts = []; let n = 0;
+  try { for (;;) { const { value, done } = await r.read(); if (done) break; parts.push(value); n += value.length; } } catch (e) { /* 끝의 남는 바이트 */ }
+  const out = new Uint8Array(n); let o = 0; for (const q of parts) { out.set(q, o); o += q.length; }
+  return out;
+}
+function hwpParaText(u8, off, size){
+  let t = '';
+  for (let k = 0; k < size >> 1; k++) {
+    const c = u8[off + 2 * k] | (u8[off + 2 * k + 1] << 8);
+    if (c >= 32) { t += String.fromCharCode(c); continue; }
+    if (c === 9) t += '\t'; else if (c === 10) t += '\n';
+    if (![0, 10, 13, 24, 25, 26, 27, 28, 29, 30, 31].includes(c)) k += 7; // 그 밖의 제어 문자는 8글자(16바이트) 자리를 차지
+  }
+  return t;
+}
+function hwpParas(u8){
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength), out = [];
+  for (let i = 0; i + 4 <= u8.length;) {
+    const h = dv.getUint32(i, true); i += 4;
+    let size = h >>> 20; if (size === 0xfff) { size = dv.getUint32(i, true); i += 4; }
+    if ((h & 0x3ff) === 67) out.push(hwpParaText(u8, i, Math.min(size, u8.length - i))); // HWPTAG_PARA_TEXT
+    i += size;
+  }
+  return out;
+}
+async function readHwp(buf){
+  const cf = CFB.read(new Uint8Array(buf), { type: 'array' });
+  const fh = CFB.find(cf, 'FileHeader'), cells = [], blocks = [];
+  if (!fh) throw new Error('HWP 아님');
+  const fu = Uint8Array.from(fh.content), props = fu[36] | (fu[37] << 8);
+  if (props & 6) return Object.assign([{ name: '본문', cells }], { blocks, locked: true }); // 암호(2)·배포용(4)
+  const secs = [];
+  cf.FullPaths.forEach((path, k) => { const m = path.match(/BodyText\/Section(\d+)$/i); if (m) secs.push([+m[1], cf.FileIndex[k].content]); });
+  secs.sort((a, b) => a[0] - b[0]);
+  let pi = 0;
+  for (const [, content] of secs) {
+    const raw = Uint8Array.from(content), u8 = props & 1 ? await inflateRaw(raw) : raw;
+    for (const t0 of hwpParas(u8)) { pi++; const t = t0.trim(); if (t) { cells.push({ r: pi, c: 1, addr: `${pi}번째 문단`, text: t, runs: null }); blocks.push({ p: pi }); } }
+  }
+  return Object.assign([{ name: '본문', cells }], { blocks });
+}
+
+// ---------- 사진 글자 읽기 (Tesseract.js, 이 PC 안에서) ----------
+// ponytail: 무료·오프라인 대신 한글 인식률이 낮음. 더 정확하게 하려면 개인 API(AI) 연결 — 화면에 크게 안내함
+let ocrWorker = null, ocrLabel = '';
+async function ocrInit(){
+  if (ocrWorker) return ocrWorker;
+  const base = new URL('lib/tesseract/', location.href).href;
+  ocrWorker = await Tesseract.createWorker('kor+eng', 1, {
+    workerPath: base + 'worker.min.js', corePath: base + 'core/', langPath: base + 'lang', gzip: true,
+    logger: m => { if (m.status === 'recognizing text') setStatus('loadStatus', `사진 글자 읽는 중… ${ocrLabel} ${Math.round(m.progress * 100)}%`); }
+  });
+  return ocrWorker;
+}
+// 인식 결과 → 줄(글자 위치는 쪽 기준 좌표, scale = 그린 배율)
+function ocrLines(res, page, label, pw, ph, scale, lines, cells){
+  let n = 0;
+  for (const ln of res.lines || []) {
+    // 믿음도가 낮은 글자, 쪽 가장자리에서 잘못 읽힌 기호 한두 개('(' 등)는 뺌
+    const ws = (ln.words || []).filter(w => w.text.trim() && w.confidence >= 40 && !/^[^\p{L}\p{N}]{1,2}$/u.test(w.text.trim())); if (!ws.length) continue;
+    let text = '', prev = null; const items = [];
+    for (const w of ws) {
+      // 한글은 글자마다 낱말로 끊겨 나오므로, 바로 붙어 있는 글자는 띄우지 않음
+      if (prev && w.bbox.x0 - prev.bbox.x1 > (w.bbox.y1 - w.bbox.y0) * 0.28) text += ' ';
+      prev = w;
+      const b = w.bbox; items.push({ start: text.length, len: w.text.length, x: b.x0 / scale, y: b.y1 / scale, w: (b.x1 - b.x0) / scale, h: (b.y1 - b.y0) / scale });
+      text += w.text;
+    }
+    lines.push({ page, label, n: ++n, text, items, pw, ph }); cells.push({ r: lines.length, c: 1, addr: `${label} ${n}번째 줄`, text, runs: null });
+  }
+}
+const canOcr = () => typeof Tesseract !== 'undefined' && ((kind === 'pdf' && pdfDoc) || (kind === 'pptx' && data.view && data.pics));
+const loadImg = src => new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = no; im.src = src; });
+async function readImage(file){
+  const im = await loadImg(URL.createObjectURL(file)), k = Math.min(1, 2400 / Math.max(im.width, im.height));
+  const c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+  c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+  const w = await ocrInit(), lines = [], cells = []; ocrLabel = '';
+  ocrLines((await w.recognize(c)).data, 1, '사진', c.width, c.height, 1, lines, cells);
+  rasterPages = [{ src: im.src, w: c.width, h: c.height, label: '사진' }]; pdfLines = lines; pdfSizes = [[c.width, c.height]];
+  return Object.assign([{ name: 'PDF', cells }], { ocr: true });
+}
+async function runOcr(){
+  const btn = $('ocrBtn'); if (btn) { btn.disabled = true; btn.textContent = '읽는 중…'; }
+  try {
+    const w = await ocrInit(), lines = [], cells = [], sizes = [], pages = [];
+    if (kind === 'pdf') {
+      for (let pn = 1; pn <= pdfDoc.numPages; pn++) {
+        const page = await pdfDoc.getPage(pn), vp = page.getViewport({ scale: 2 }), c = document.createElement('canvas');
+        c.width = vp.width; c.height = vp.height; await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+        ocrLabel = `(${pn}/${pdfDoc.numPages}쪽)`;
+        ocrLines((await w.recognize(c)).data, pn, `${pn}쪽`, vp.width / 2, vp.height / 2, 2, lines, cells); sizes.push([vp.width / 2, vp.height / 2]);
+      }
+    } else { // 글자가 그림으로 된 PPT: 슬라이드 그림을 한 장으로 합쳐 읽음
+      const V = data.view, cw = 1600, ch = Math.round(1600 * V.H / V.W);
+      for (let k = 0; k < V.slides.length; k++) {
+        const S = V.slides[k], c = document.createElement('canvas'), g = c.getContext('2d'); c.width = cw; c.height = ch;
+        g.fillStyle = (S.bg && S.bg.color) || '#fff'; g.fillRect(0, 0, cw, ch);
+        if (S.bg && S.bg.img) g.drawImage(await loadImg(S.bg.img), 0, 0, cw, ch);
+        for (const e of S.els) if (e.t === 'pic') { try { g.drawImage(await loadImg(e.src), e.X / V.W * cw, e.Y / V.H * ch, e.W / V.W * cw, e.H / V.H * ch); } catch (er) {} }
+        ocrLabel = `(${k + 1}/${V.slides.length}장)`;
+        ocrLines((await w.recognize(c)).data, k + 1, `슬라이드${k + 1}`, cw, ch, 1, lines, cells); sizes.push([cw, ch]);
+        pages.push({ src: c.toDataURL('image/jpeg', 0.85), w: cw, h: ch, label: `슬라이드${k + 1}` });
+      }
+      kind = 'img'; rasterPages = pages;
+    }
+    pdfLines = lines; pdfSizes = sizes; pdfBuilt = null;
+    data = Object.assign([{ name: 'PDF', cells }], { ocr: true });
+    choice.clear(); closed.clear(); run();
+  } catch (e) {
+    console.error(e); setStatus('loadStatus', '사진 글자를 읽지 못했어요. 새로고침하고 다시 해 주세요.', 'warn');
+    if (btn) { btn.disabled = false; btn.textContent = '그림 속 글자 읽기 (OCR)'; }
   }
 }
 
