@@ -256,7 +256,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
         <li>같은 칸 비교: 남들은 다 있는데 빠진 항목, 빈 값, 중복 항목</li>
         <li>숫자: 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
-        <li>오탈자: 오타 사전, 파일 안에서 한 글자만 다른 말, 괄호·공백</li>
+        <li>오탈자: 오타 사전, 파일 안에서 한 글자만 다른 말, 괄호·공백 (‘-’, ‘/’, ‘×’처럼 내용 없음 표시만 있는 칸은 넘어가요)</li>
         <li>띄어쓰기: Kiwi 검사를 켜면 긴 글의 띄어쓰기 제안</li>
       </ul>
     </div>
@@ -356,6 +356,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     return out;
   }
 
+  const EMPTY_MARK = /^([-–—―−~·.\/×xX○])\1{0,2}$/u; // 내용 없음 표시: -, --, –, /, ·, ×, x 등
   const REL = new Set('아버지 어머니 부 모 형 누나 언니 오빠 남동생 여동생 동생 배우자 남편 아내 할아버지 할머니 FATHER MOTHER'.split(' '));
   // ---------- 오타 사전 ----------
   const DEFAULT_TYPOS = [
@@ -635,6 +636,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       const parenBad = new Map();
       for (const cell of allCells) {
         const t = cell.text, tr = t.trim();
+        // '-', '–', '/', '·', '×' 같은 표시만 있는 칸은 "내용 없음"을 일부러 적은 것으로 봄
+        if (EMPTY_MARK.test(tr)) continue;
         if (tr && /^[^\p{L}\p{N}]+$/u.test(tr)) { add(S, cell.r, cell.c, LV.TYPO, '형식', `의미 없는 문자만 들어 있습니다('${tr}'). 지워도 되는지 확인해 주세요.`); continue; }
         if (!t.includes('\n') && t.length <= 60 && t !== tr && tr && !(S.nameCol === cell.c && recSet.has(cell.r)))
           add(S, cell.r, cell.c, LV.TYPO, '형식', `앞뒤에 공백이 있습니다('${clip(tr, 24)}').`, { trim: true });
