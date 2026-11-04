@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK2.2</title>
+<title>오타 및 계산 수정기 MK2.3</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -158,6 +158,9 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
 .pv-slide:first-child{margin-top:0;padding-top:0;border-top:0}
 .pv-doc p[data-box]{border:1px dashed var(--line);padding:6px 8px;margin-bottom:8px}
 .hit{cursor:pointer}
+.btn.reset{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);font-weight:700}
+.btn.reset:hover{border-color:var(--brand);color:var(--brand-strong);filter:none}
+#resetBtn{margin-top:10px}
 .step.tip{background:linear-gradient(140deg,var(--brand-soft),var(--paper) 70%);border:1.5px solid var(--brand)}
 .step.tip h2 b{background:var(--warn);color:#fff}
 .tip-lead{font-size:13.5px;margin:0 0 8px;line-height:1.6}
@@ -221,7 +224,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 <header class="hero">
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK2.2</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK2.3</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -243,6 +246,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       </div>
       <input type="file" id="file" accept=".xlsx,.xlsm,.docx,.pptx,.pdf,.hwpx,.hwp,.png,.jpg,.jpeg,.webp,.bmp" hidden>
       <div class="status" id="loadStatus" aria-live="polite"></div>
+      <button class="btn reset wide" id="resetBtn" hidden>↺ 처음으로 (새 파일 올리기)</button>
       <p class="note">사전·무시 목록·띄어쓰기 설정을 바꾸면 자동으로 다시 검사하고, 이미 고른 선택은 그대로 둬요.</p>
     </section>
 
@@ -312,6 +316,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     <select id="catSel" class="t" aria-label="항목 종류"></select>
     <span class="note" id="visCount" style="margin:0"></span>
     <button class="btn" id="docBtn">문서 보기 →</button>
+    <button class="btn reset" id="resetBtn2" title="첫 화면으로 돌아가 새 파일을 올려요">↺ 처음으로</button>
   </div>
   <div class="results" id="results">
     <div class="empty">
@@ -877,6 +882,24 @@ drop.ondragleave = () => drop.classList.remove('over');
 drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); };
 $('file').onchange = e => { if (e.target.files[0]) load(e.target.files[0]); e.target.value = ''; };
 
+// ---------- 처음으로: 파일·결과를 비우고 첫 화면으로(오타 사전·무시 목록·설정은 그대로) ----------
+const EMPTY_HTML = $('results').innerHTML;
+function resetAll(){
+  if (pdfDoc) { pdfDoc.destroy(); pdfDoc = null; }
+  pptUrls.forEach(u => URL.revokeObjectURL(u)); pptUrls = [];
+  fileBuf = null; fileName = ''; kind = 'xlsx'; data = null; result = null;
+  choice.clear(); closed.clear(); undoSnap = null; pvSheet = null;
+  pdfLines = []; pdfSizes = []; pdfBuilt = null; rasterPages = []; rasterBuilt = null;
+  document.body.classList.remove('has-data', 'doc');
+  $('tools').hidden = true; $('q').value = ''; $('catSel').innerHTML = ''; $('resetBtn').hidden = true;
+  $('results').innerHTML = EMPTY_HTML; $('pvBody').innerHTML = ''; $('pvTabs').innerHTML = ''; $('pvName').textContent = '';
+  ['nFix', 'nCheck', 'nTypo', 'nAuto', 'nMark', 'nOff'].forEach(id => $(id).textContent = '0');
+  ['allOn', 'allOff', 'undoBtn', 'xlsxBtn'].forEach(id => $(id).disabled = true); $('markOnly').disabled = false;
+  ['loadStatus', 'saveStatus'].forEach(id => setStatus(id, ''));
+  window.scrollTo({ top: 0, behavior: 'smooth' }); $('drop').focus({ preventScroll: true });
+}
+setTimeout(() => { $('resetBtn').onclick = $('resetBtn2').onclick = resetAll; }); // 아래쪽 변수(pptUrls 등)가 정해진 뒤 연결
+
 function setStatus(id, msg, cls){ const el = $(id); el.textContent = msg; el.className = 'status' + (cls ? ' ' + cls : ''); }
 
 function fmtDate(d){ const p = n => String(n).padStart(2,'0'); return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())}`; }
@@ -995,7 +1018,7 @@ function run(){
   ['allOn','allOff','xlsxBtn'].forEach(id => $(id).disabled = false);
   $('xlsxBtn').disabled = $('markOnly').disabled = RO.has(kind);
   if (RO.has(kind)) setStatus('saveStatus', 'PDF·한글·사진 파일은 고칠 수 없어서 내보내기 없이 화면에서만 표시해요.');
-  $('tools').hidden = false; document.body.classList.add('has-data');
+  $('tools').hidden = false; $('resetBtn').hidden = false; document.body.classList.add('has-data');
   const cur = $('catSel').value, cats = [...new Set(r.issues.map(i => i.cat))];
   $('catSel').innerHTML = '<option value="">모든 종류</option>' + cats.map(c => `<option${c === cur ? ' selected' : ''}>${esc(c)}</option>`).join('');
   render();
