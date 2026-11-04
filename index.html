@@ -336,8 +336,14 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
       return bs >= Math.max(2, records.length * 0.6) ? best : null;
     };
     const nameCol = findCol(/성명|이름|name/i, t => { const n = namesIn(t); return n.length === 1 && n[0].name === t.replace(/\s+/g, ' '); });
-    const noCol = findCol(/연번|번호|^no\.?$/i, t => /^\d{1,4}$/.test(t));
-    const birthCol = findCol(/생년월일|birth/i, t => { const d = datesIn(t); return d.length === 1 && t.length <= 14; });
+    let noCol = findCol(/연번|번호|^no\.?$/i, t => /^\d{1,4}$/.test(t));
+    if (noCol) { // 연번은 줄마다 달라야 함(파견기간 '16'처럼 같은 숫자가 반복되는 열 제외)
+      const v = records.map(r => rows.get(r).get(noCol)).filter(Boolean).map(x => x.text.trim());
+      if (new Set(v).size < v.length) noCol = null;
+    }
+    // 머리글에 '생년월일'이 없을 때만 내용으로 추측. 출국일·귀국일 같은 날짜 열을 잡지 않게 태어난 해로 그럴듯한(10~80년 전) 날짜만 인정
+    const thisY = new Date().getFullYear();
+    const birthCol = findCol(/생년월일|birth/i, t => { const d = datesIn(t); return d.length === 1 && t.length <= 14 && d[0].y <= thisY - 10 && d[0].y >= thisY - 80; });
     const ageCol = findCol(/나이|age/i, null);
     return { name: sh.name, rows, rowNums, header, records, titles, cols: [...cols].sort((a, b) => a - b), nameCol, noCol, birthCol, ageCol };
   }
