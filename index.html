@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK3.2</title>
+<title>오타 및 계산 수정기 MK3.3</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -246,7 +246,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK3.2</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK3.3</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -484,6 +484,13 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
 
   // 동사·형용사로 보이는 말(읽었다/있었다, 했습니다, 먹고…)은 활용이 많아 '한 글자 다른 말'로 비교하면 오탐이 많음 → 오타 의심에서 뺌
   const VERBISH = w => /[었았였겠했됐셨갔왔봤줬렸]/.test(w) || /[다요고서며니지게음함됨기죠네까]$/.test(w);
+  // 국제처·학교 문서에 자주 나오는 말(3글자 이상). 이 말과 자모 하나만 다르면 오타 의심. 비슷한 다른 맞는 말(기획서·연구생 등)도 넣어 둬야 그 말을 오타로 안 봄
+  const COMMON_ARR = ('설명회 간담회 협의회 위원회 발표회 박람회 보고회 평가회 환영회 송별회 세미나 오리엔테이션 프로그램 글로벌 인터뷰 '
+    + '보고서 결과보고서 계획서 기획서 신청서 지원서 추천서 증명서 확인서 협약서 정산서 공문서 수료증 수료식 입학식 졸업식 '
+    + '국제처 국제교류 국제협력 업무협약 교환학생 유학생 외국인 외국인등록 어학연수 해외연수 해외파견 파견학생 현장학습 현장체험 문화체험 '
+    + '참가자 담당자 관계자 장학금 등록금 기숙사 출입국 한국어 한국문화 대학교 대학원 '
+    + '시청각실 강의실 회의실 세미나실 대강당 도서관 학생회관 교육과정 산학협력 인력양성 산업체 기업체 모집요강 파란사다리').split(' ');
+  const COMMON = new Set(COMMON_ARR);
   // 조사·어미에 자주 쓰이는 글자
   const PARTICLE = '은는이가을를에의와과도로으만서야여요다께며고면인게데라랑';
   // 괄호 짝: 여는 괄호보다 닫는 괄호가 먼저 나왔는데 바로 앞이 '1)'·'가)'·'a)'·'ex)' 같은 번호·예시 표시면 괄호가 아닌 표시로 봄.
@@ -915,15 +922,49 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           let reported = false;
           for (let i = 0; i + 3 <= w.length && !reported; i++) {
             const k = w.slice(i, i + 3); if (tri.get(k) !== 1) continue;
-            const cand = triArr.find(o => { let d = 0, pos = -1; for (let j = 0; j < 3; j++) if (o[j] !== k[j]) { d++; pos = j; } return d === 1 && jamoDiff(o[pos], k[pos]) === 1; });
+            const near1 = o => { let d = 0, pos = -1; for (let j = 0; j < 3; j++) if (o[j] !== k[j]) { d++; pos = j; } return d === 1 && jamoDiff(o[pos], k[pos]) === 1; };
+            let cand = triArr.find(near1);
+            if (!cand) { // 파일에 한 번만 나온 말이라도 바로 근처(3줄 안)에 있으면 후보로
+              const loc = new Set();
+              for (const o of allCells) if (Math.abs(o.r - cell.r) <= 3) for (const ww of o.text.match(/[가-힣]{3,}/g) || []) for (let q = 0; q + 3 <= ww.length; q++) loc.add(ww.slice(q, q + 3));
+              cand = [...loc].find(near1);
+            }
             const fixed = cand ? w.slice(0, i) + cand + w.slice(i + 3) : '';
             // 끝 글자나 조사·어미 글자만 다른 건 둘 다 맞는 말(대학에/대학의, 명으로/명의로, 관리가/관리자)
             const dp = cand ? [...w].findIndex((ch, j) => ch !== fixed[j]) : -1;
             const josa = dp >= 0 && (dp === w.length - 1 || (PARTICLE.includes(w[dp]) && PARTICLE.includes(fixed[dp])));
             // 3글자 이하 짧은 말은 서로 다른 맞는 말끼리 겹치기 쉬워(질문을/지문을) 비교할 말이 3번 이상 나올 때만
-            if (cand && !josa && !VERBISH(w) && !VERBISH(fixed) && (words.get(fixed) || 0) >= (w.length <= 3 ? 3 : 2) && ![...dictWrong].some(dw => w.includes(dw) || fixed.includes(dw))) {
+            // 단, 맞는 말이 같은 칸이나 바로 근처(3줄 안)에 있고 첫 글자가 아닌 가운데 글자만 다르면 1번만 나와도 의심(설망회 ↔ 바로 아래 설명회)
+            const ok = cand && !josa && !VERBISH(w) && !VERBISH(fixed) && ![...dictWrong].some(dw => w.includes(dw) || fixed.includes(dw));
+            const nW = words.get(w) || 0, nF = words.get(fixed) || 0;
+            if (ok && nF >= (w.length <= 3 ? 3 : 2) && nF > nW) {
               add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w}' → '${fixed}'? (파일 안에서 '${cand}'가 여러 번 쓰임)`, { fix: [w, fixed], guess: true });
               reported = true;
+            } else if (ok && dp > 0 && !COMMON.has(w) && !COMMON.has(fixed) && allCells.some(o => Math.abs(o.r - cell.r) <= 3 && o.text.includes(fixed))) {
+              // 바로 근처(3줄 안)에 한 글자 다른 말이 있음. 둘 다 한 번씩이면 어느 쪽이 맞는지 몰라 한 곳에만 안내(자주 쓰는 말이면 아래 검사가 맡음)
+              if (nF > nW) add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w}' → '${fixed}'? (바로 근처에 '${fixed}'가 있음)`, { fix: [w, fixed], guess: true });
+              else if (nF === nW && w < fixed) add(S, cell.r, cell.c, LV.TYPO, '오탈자', `한 글자만 다른 말이 가까이 있습니다: '${w}' ↔ '${fixed}' — 같은 말이면 하나로 맞춰 주세요.`);
+              reported = true;
+            }
+          }
+        }
+      }
+      // 자주 쓰는 말(설명회·보고서·교환학생…)과 가운데·첫 글자의 자모 하나만 다른 말 — 파일에 맞는 말이 없어도 의심
+      // 끝 글자만 다른 건 뺌(담당자 ↔ 담당지역처럼 다른 맞는 말이 많음)
+      for (const cell of allCells) {
+        const runs = cell.text.match(/[가-힣]{3,}/g) || [];
+        for (const w of runs) {
+          if (COMMON.has(w)) continue;
+          hit: for (const K of COMMON_ARR) {
+            if (K.length > w.length) continue;
+            for (let i = 0; i + K.length <= w.length; i++) {
+              const sub = w.slice(i, i + K.length); if (sub === K || COMMON.has(sub)) continue;
+              let d = 0, pos = -1; for (let j = 0; j < K.length; j++) if (sub[j] !== K[j]) { d++; pos = j; }
+              if (d !== 1 || pos === K.length - 1 || jamoDiff(sub[pos], K[pos]) !== 1) continue;
+              const fixed = w.slice(0, i) + K + w.slice(i + K.length);
+              if ([...dictWrong].some(dw => w.includes(dw))) break hit;
+              add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w}' → '${fixed}'? (자주 쓰는 말 '${K}'와 한 글자 다름)`, { fix: [w, fixed], guess: true });
+              break hit;
             }
           }
         }
