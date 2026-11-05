@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK3.5</title>
+<title>오타 및 계산 수정기 MK3.6</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -255,7 +255,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK3.5</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK3.6</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -381,8 +381,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
         <li>같은 칸 비교: 다른 줄엔 다 있는데 빠진 항목, 빈 값, 중복 항목</li>
-        <li>숫자·계산: 표의 합계·소계·총계 줄과 칸(엑셀 수식 범위 포함), 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
-        <li>오탈자·형식: 오타 사전, 한 글자만 다른 말, 괄호 짝, 앞뒤 공백</li>
+        <li>숫자·계산: 요일(9.30.(금) → 그해 9월 30일은 수요일), 표의 합계·소계·총계 줄과 칸(엑셀 수식 범위 포함), 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
+        <li>오탈자·형식: 오타 사전, 한 글자만 다른 말, 율/률(가입율 → 가입률), 영어 약자 뒤바뀜(RIES → RISE), 날짜 표기 통일(9.16(수) → 9.16.(수)), 11:00시, 괄호 짝, 앞뒤 공백</li>
         <li>띄어쓰기: Kiwi 검사를 켜면 띄어쓰기 제안</li>
         <li>영어 철자: 영어 사전에 없는 단어에 고칠 말 제안 (예: Universtiy → University)</li>
         <li>문서 보기: 오른쪽에 파일이 그대로 보이고, 틀린 곳이 색칠돼요</li>
@@ -501,6 +501,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     + '참가자 담당자 관계자 장학금 등록금 기숙사 출입국 한국어 한국문화 대학교 대학원 '
     + '시청각실 강의실 회의실 세미나실 대강당 도서관 학생회관 교육과정 산학협력 인력양성 산업체 기업체 모집요강 파란사다리').split(' ');
   const COMMON = new Set(COMMON_ARR);
+  // 위 말과 한 글자 차이지만 맞는 말(낱말 첫머리 3글자 기준)
+  const COMMON_OK = new Set('휴학생 여학생 남학생 재학생 복학생 졸업생 편입생 신입생 입학생 수학생 참고자 기술사 기숙사생 대학가 대학로 보고사 연구원 연수원 설명서 협약식 위원장 위원들 국제적 국제법 담당관 유학원 장학사 장학회 기숙형 출입구 회의록 세미나실'.split(' '));
   // 두 글자 말은 자판 바로 옆 글쇠를 잘못 누른 것만 봄(싱청→신청: ㄴ↔ㅇ, 움영→운영: ㄴ↔ㅁ)
   const COMMON2 = new Set(('신청 접수 운영 모집 제출 계획 진행 완료 결과 보고 대상 일정 회의 행사 참가 참여 선발 면접 평가 교육 국제 협력 지원 협약 교류 방문 연수 파견 등록 기간 장소 인원 예산 '
     + '안내 공지 요청 협조 검토 승인 결재 담당 문의 연락 학생 교수 직원 학과 학년 학기 전공 수업 강의 시험 성적 출석 졸업 입학 장학 비자 체류 유학 개최 실시 추진 준비 확인 관련 '
@@ -509,7 +511,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   const REAL2 = new Set(('심청 산청 신천 신창 점수 잡수 군영 운용 윤영 은영 운연 운경 지출 재출 제철 관료 경과 열과 부고 보도 보조 대강 대성 대항 대산 대승 대생 일종 일전 일절 일장 일적 일중 '
     + '생사 찬가 첨가 참사 손발 선박 선방 면적 숙제 국지 자원 재원 제원 교유 반문 연구 영수 염수 온수 연소 연서 연후 파경 등속 시간 기안 기강 기단 기산 기근 개간 이간 장수 장로 장서 장고 정소 '
     + '임원 인권 계산 예상 예선 인내 안대 단내 간내 암내 동지 송지 경지 곤지 궁지 공제 공자 공비 요철 협주 성인 상인 결제 경재 감당 담장 영락 항생 고수 교구 직권 학연 정공 전동 전경 전송 '
-    + '수첩 상의 선적 승적 성정 종업 입항 방학 정학 성명 통영 숙고 상공 개관 청장 통장 충장 차장 추장 처방 무관 수원 전산 정상 정신 예약 비교 가업 업주 구내 구미 애용 비지').split(' '));
+    + '수첩 상의 선적 승적 성정 종업 입항 방학 정학 성명 통영 숙고 상공 개관 청장 통장 충장 차장 추장 처방 무관 수원 전산 정상 정신 예약 비교 가업 업주 구내 구미 애용 비지 '
+    + '상단 하단 정한 안나').split(' '));
   const KB_ROWS = ['ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔ', 'ㅁㄴㅇㄹㅎㅗㅓㅏㅣ', 'ㅋㅌㅊㅍㅠㅜㅡ'], KB_POS = {};
   KB_ROWS.forEach((row, r) => [...row].forEach((ch, c) => KB_POS[ch] = [r, c]));
   const keyAdj = (a, b) => { const p = KB_POS[a], q = KB_POS[b]; if (!p || !q) return false; if (p[0] === q[0]) return Math.abs(p[1] - q[1]) === 1; const [hi, lo] = p[0] < q[0] ? [p, q] : [q, p]; return lo[0] - hi[0] === 1 && (lo[1] === hi[1] || lo[1] === hi[1] - 1); };
@@ -535,7 +538,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       if (line[i] === '(') open++;
       else if (line[i] === ')') {
         if (open) open--;
-        else if (!/(^|[\s:：,·•\-])(\d{1,3}|[가-힣]|[a-zA-Z]{1,3}|[ivxIVX]{2,4})$/.test(line.slice(0, i))) stray++;
+        // 각주 표시 '운영주1)'·'주2)'도 괄호가 아닌 표시로 봄
+        // '예시)'·'1안)'·'예금주)' 같은 표시와 ':)' 웃음 표시도 괄호로 안 봄
+        else if (!/(^|[\s:：,·•\-])(\d{1,3}[가-힣]?|[가-힣]{1,3}|[a-zA-Z]{1,3}|[ivxIVX]{2,4})$/.test(line.slice(0, i)) && !/주\s?\d{1,2}$|:$/.test(line.slice(0, i))) stray++;
       }
     }
     return open - stray;
@@ -547,7 +552,17 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     ['특히사항', '특이사항'], ['사압자', '사업자'], ['대하교', '대학교'], ['아포스티', '아포스티유'],
     ['몇일', '며칠'], ['되요', '돼요'], ['안되요', '안 돼요'], ['할께요', '할게요'], ['금새', '금세'],
     ['웬지', '왠지'], ['왠만', '웬만'], ['바램', '바람'], ['역활', '역할'], ['어의없', '어이없'],
-    ['증명서서', '증명서'], ['확인서서', '확인서'], ['재학중', '재학 중'], ['졸업예정증명서', '졸업 예정 증명서']
+    ['증명서서', '증명서'], ['확인서서', '확인서'], ['재학중', '재학 중'], ['졸업예정증명서', '졸업 예정 증명서'],
+    // 이번 검증(학사운영계획·주간업무·글로벌 현장학습 서류)에서 실제로 나온 것
+    ['레크레이션', '레크리에이션'], ['퍼스널블랜딩', '퍼스널브랜딩'], ['역랑강화', '역량강화'], ['심위위원회', '심의위원회'], ['보함가입', '보험가입'],
+    ['홈텍스', '홈택스'], ['한국장학제단', '한국장학재단'], ['컨텐츠', '콘텐츠'], ['당해년도', '당해 연도'], ['리플렛', '리플릿'],
+    // 행정 문서에서 자주 틀리는 말
+    ['오랫만', '오랜만'], ['일일히', '일일이'], ['틈틈히', '틈틈이'], ['깨끗히', '깨끗이'], ['곰곰히', '곰곰이'], ['일찌기', '일찍이'], ['더우기', '더욱이'],
+    ['왠일', '웬일'], ['설겆이', '설거지'], ['희안하', '희한하'], ['뵈요', '봬요'], ['할려고', '하려고'], ['내노라', '내로라'],
+    ['리더쉽', '리더십'], ['멤버쉽', '멤버십'], ['인턴쉽', '인턴십'], ['파트너쉽', '파트너십'], ['워크샵', '워크숍'], ['메세지', '메시지'], ['스케쥴', '스케줄'],
+    ['악세사리', '액세서리'], ['화이팅', '파이팅'], ['데이타', '데이터'], ['팜플렛', '팸플릿'], ['카달로그', '카탈로그'], ['셋팅', '세팅'], ['바베큐', '바비큐'],
+    ['렌트카', '렌터카'], ['디지탈', '디지털'], ['런닝', '러닝'], ['플랭카드', '플래카드'], ['플랜카드', '플래카드'], ['라이센스', '라이선스'], ['메뉴얼', '매뉴얼'],
+    ['비지니스', '비즈니스'], ['네비게이션', '내비게이션'], ['심포지움', '심포지엄'], ['페스티발', '페스티벌'], ['리모콘', '리모컨'], ['타겟', '타깃'], ['써비스', '서비스']
   ];
 
   // ---------- 셀·표 구조 ----------
@@ -566,6 +581,16 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       const t = cell.text.split('\n').map(s => s.trim()).filter(Boolean).join(' ')
         .replace(/^[\d]+\s*[.)]\s*/, '').replace(/^[*※○\-·]+\s*/, '').replace(/\(.*?\)/g, '').trim();
       titles.set(c, clip(t, 18));
+    }
+    // 두 줄짜리 머리글: 아래 줄들은 숫자인 열에서 글자만 있는 첫 줄은 머리글(둘째 줄)로 봄
+    for (let k = 0; k < 2 && qual.length >= 4; k++) {
+      const r0 = qual[0], rest = qual.slice(1), isNum = x => x && /^[-+₩$]?[\d,.]+\s*[%원명개]?$/.test(x.text.trim());
+      const numCols = [...rows.get(r0).keys()].filter(c => rest.filter(r => isNum(rows.get(r).get(c))).length >= rest.length * 0.6);
+      const r0txt = [...rows.get(r0).values()].filter(x => x.text.trim());
+      if (numCols.length >= 2 && numCols.filter(c => !isNum(rows.get(r0).get(c))).length >= numCols.length * 0.6 && r0txt.every(x => !/\d{2,}/.test(x.text))) {
+        if (header == null) header = r0;
+        qual = rest;
+      } else break;
     }
     // 합계·소계·총계 줄은 학생(한 줄 기록)으로 보지 않음
     const isTotRow = r => [...rows.get(r).values()].some(c => /^\s*(총\s*합\s*계|총\s*계|합\s*계|소\s*계|계|total|subtotal|grand\s*total)\s*$/i.test(c.text));
@@ -598,6 +623,31 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     const typoList = (opts.typos || DEFAULT_TYPOS).filter(t => t[0] && t[1] && t[0] !== t[1]);
     const issues = [];
     const sheets = workbook.map(buildSheet);
+    // 파일 전체 글(오타 의심을 거를 때 씀)
+    const allText = workbook.map(sh => sh.cells.map(c => c.text).join('\n')).join('\n');
+    const cntAll = k => k ? allText.split(k).length - 1 : 0;
+    // 오타로 의심한 말 w의 p번째 글자가 바뀐 글자. 그 글자를 앞뒤 글자와 묶은 두 글자가 파일 다른 곳에도 나오면
+    // 일부러 쓴 맞는 말일 가능성이 큼(봉사에↔공사에: '봉사'가 다른 곳에도 있음 / 등륵금: '등륵'·'륵금'은 어디에도 없음)
+    // 요일 검사용: 「10.16.(금)」「2027. 1. 8.(금)」「6월 26일(금)」. 해가 안 적힌 날짜는 파일 안 날짜 대부분과 맞는 해(기준 해)로 봄
+    const WDS = '일월화수목금토';
+    // 해는 4자리(2027.)나 두 자리('28. 2.17.)도 읽음
+    // (두 자리 해는 20~40에 점이 바로 붙은 것만: '14:00 / 10. 7.'의 '00 /'를 해로 읽지 않게)
+    const WD_RE = /(?:(?<![\d.:])((?:19|20)\d{2}|[234]\d(?=\.))\s*[.\-\/년]\s*)?(?<![\d.])(\d{1,2})\s*(?:[.\-\/]|월)\s*(\d{1,2})\s*(?:\.|일)?\s*\(\s*([월화수목금토일])\s*\)/g;
+    const fullY = s => s ? (s.length === 2 ? 2000 + +s : +s) : null;
+    const wdOf = (y, m, d) => { const t = new Date(y, m - 1, d); return t.getMonth() === m - 1 ? WDS[t.getDay()] : null; };
+    const wdHits = [...allText.matchAll(WD_RE)].map(m => ({ y: fullY(m[1]), m: +m[2], d: +m[3], w: m[4] })).filter(x => x.m >= 1 && x.m <= 12 && x.d >= 1 && x.d <= 31);
+    let baseY = null;
+    { const ty = today.getFullYear(); let best = 0;
+      for (let y = ty - 4; y <= ty + 2; y++) { const s = wdHits.filter(x => !x.y && wdOf(y, x.m, x.d) === x.w).length; if (s > best) { best = s; baseY = y; } }
+      const free = wdHits.filter(x => !x.y).length;
+      if (best < 3 || best < free * 0.6) baseY = null; } // 날짜 대부분이 한 해와 맞을 때만 그 해로 봄
+    // 날짜 끝 점: '9.16.(수)'가 5번 이상이고 '9.16(수)'보다 4배 넘게 많으면 점 빠진 쪽을 알림
+    const dotStyle = (() => { const a = (allText.match(/(?<![\d.])\d{1,2}\.\s?\d{1,2}\.\([월화수목금토일]\)/g) || []).length, b = (allText.match(/(?<![\d.])\d{1,2}\.\s?\d{1,2}\([월화수목금토일]\)/g) || []).length; return b > 0 && a >= 5 && a >= b * 4; })();
+    // 날짜 앞 0: 0 없이 쓴 한 자리 월·일('9. 9.(수)')이 0 붙인 것보다 5배 넘게 많으면 0 붙인 쪽을 알림
+    const padStyle = (() => { const p = (allText.match(/(?<![\d.])(0\d\.\s?\d{1,2}|\d{1,2}\.0\d)\.?\s*\([월화수목금토일]\)/g) || []).length, u = (allText.match(/(?<![\d.])([1-9]\.\s?\d{1,2}|\d{1,2}\.\s[1-9])\.?\s*\([월화수목금토일]\)/g) || []).length; return p > 0 && u >= 5 && u >= p * 5; })();
+    // 영어 약자(대문자 3~6자) 횟수
+    const acro = new Map(); for (const m of allText.matchAll(/\b[A-Z]{3,6}\b/g)) acro.set(m[0], (acro.get(m[0]) || 0) + 1);
+    const looksReal = (w, p) => cntAll(w) >= 2 || [p > 0 ? w.slice(p - 1, p + 1) : '', p + 1 < w.length ? w.slice(p, p + 2) : ''].some(b => b && cntAll(b) >= 2);
     const recInfo = new Map();
     for (const S of sheets) for (const r of S.records) {
       const row = S.rows.get(r);
@@ -678,14 +728,15 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       }
 
       // ===== 2. 열 비교 =====
+      const blankBy = new Map(); // 줄 → 비어 있는 열들(다른 줄은 85% 넘게 채운 열만)
       for (const c of S.cols) {
         const recs = S.records.map(r => ({ r, cell: S.rows.get(r).get(c) }));
         if (recs.length < 4) continue;
         const nonEmpty = recs.filter(x => x.cell && x.cell.text.trim());
         // 빈칸
-        if (nonEmpty.length / recs.length >= 0.7) {
-          for (const x of recs) if (!x.cell || !x.cell.text.trim())
-            add(S, x.r, c, LV.CHECK, '열 비교', `${S.titles.get(c) ? `'${S.titles.get(c)}' 칸이` : '칸이'} 비어 있습니다(다른 학생은 대부분 작성됨).`);
+        // 빈칸은 열마다 모아 두었다가 아래에서 줄 단위로 알림
+        if (nonEmpty.length / recs.length >= 0.85 && recs.length >= 5) {
+          for (const x of recs) if (!x.cell || !x.cell.text.trim()) { if (!blankBy.has(x.r)) blankBy.set(x.r, []); blankBy.get(x.r).push(c); }
         }
         // 항목명(라벨 : 값)
         const lab = new Map(); // label -> {recs:Set, filled:Set}
@@ -751,6 +802,13 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         }
       }
 
+      // 빈칸 알림: 한 줄에 1~2칸이면 칸마다, 3칸 이상이면 아직 안 채운 줄일 가능성이 커서 줄에 한 번만
+      for (const [r, cs] of blankBy) {
+        const nm = c => S.titles.get(c) ? `'${S.titles.get(c)}'` : colLetter(c) + '열';
+        if (cs.length <= 2) cs.forEach(c => add(S, r, c, LV.CHECK, '열 비교', `${S.titles.get(c) ? `'${S.titles.get(c)}' 칸이` : '칸이'} 비어 있습니다(다른 학생은 대부분 작성됨).`));
+        else add(S, r, cs[0], LV.CHECK, '열 비교', `이 줄에 빈칸이 ${cs.length}개 있습니다: ${cs.slice(0, 5).map(nm).join(', ')}${cs.length > 5 ? ' 등' : ''}. 아직 안 채운 줄인지 확인해 주세요.`);
+      }
+
       // ===== 3. 숫자 =====
       const rateGroups = new Map();
       for (const cell of allCells) {
@@ -804,6 +862,22 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           const a = datesIn(rm[1])[0], b = datesIn(rm[2])[0];
           if (a && b && dkey(b) < dkey(a)) add(S, cell.r, cell.c, LV.FIX, '숫자', `기간의 끝이 시작보다 빠릅니다: ${fmtD(a)} ~ ${fmtD(b)}`);
         }
+        // 요일: 「9.30.(금)」인데 그해 9월 30일이 수요일이면 알림(작년 자료를 고쳐 쓰다 요일을 안 바꾼 경우가 많음)
+        // 이 칸과 바로 앞 칸들에 '2027년'·'2027학년도'처럼 다른 해가 적혀 있으면 그 해의 일정일 수 있음
+        const hasWd = /\(\s*[월화수목금토일]\s*\)/.test(t);
+        if (hasWd && !S._idx) S._idx = new Map(allCells.map((c, i) => [c, i]));
+        const ci = hasWd ? S._idx.get(cell) : 0, nearY = new Set();
+        if (hasWd) for (const o of allCells.slice(Math.max(0, ci - 40), ci + 1)) for (const ym of o.text.matchAll(/(20\d{2})\s*(?:년|학년도|회계연도|학기|-[12]학기)/g)) nearY.add(+ym[1]);
+        if (hasWd) for (const m of t.matchAll(WD_RE)) {
+          const y0 = fullY(m[1]), mo = +m[2], da = +m[3], w = m[4];
+          if (mo < 1 || mo > 12 || da < 1 || da > 31) continue;
+          const base = baseY ? [baseY, ...nearY] : [...nearY];
+          const ys = y0 ? [y0] : base.length ? [...base, ...(mo <= 2 ? base.map(y => y + 1) : []), ...(mo >= 11 ? base.map(y => y - 1) : [])] : [];
+          if (!ys.length || ys.some(y => wdOf(y, mo, da) === w)) continue;
+          const y = ys[0], real = wdOf(y, mo, da); if (!real) continue;
+          const raw = m[0].trim(), into = raw.replace(/\(\s*[월화수목금토일]\s*\)$/, `(${real})`);
+          add(S, cell.r, cell.c, LV.FIX, '숫자', `요일이 맞지 않습니다: '${raw}' — ${y}년 ${mo}월 ${da}일은 ${real}요일이에요. 요일이 틀렸는지 날짜가 틀렸는지 확인해 주세요.`, { fix: [raw, into], calc: true });
+        }
       }
       for (const [, arr] of rateGroups) {
         if (arr.length < 4) continue;
@@ -840,8 +914,24 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       for (const [r, row] of S.rows) for (const [c, cell] of row) { const k = TOT_RANK(cell.text); if (k) rankAt.set(r + '|' + c, k); }
       const rowRank = r => Math.max(0, ...[...S.rows.get(r).keys()].map(c => rankAt.get(r + '|' + c) || 0));
       const sumCheck = (T, parts, where) => {
-        if (parts.length < 2 || yearish(parts)) return;
+        if (parts.length < 2 || yearish(parts) || T.v === 0) return; // 합계 칸이 0이면 아직 안 채운 서식
+        // 엑셀 수식 칸: 엑셀이 계산한 값이라 틀릴 일은 드묾. 단순 SUM(범위)인데 바로 붙은 숫자가 범위에서 빠졌을 때만 알림
+        if (T.cell.f) {
+          const fm = String(T.cell.f).replace(/^=/, '').match(/^SUM\(\s*\$?([A-Z]{1,3})\$?(\d+)\s*:\s*\$?([A-Z]{1,3})\$?(\d+)\s*\)$/i);
+          if (!fm) return; // 가중치·조건·평균·반올림 같은 수식은 따지지 않음
+          const ci = s => [...s.toUpperCase()].reduce((a, ch) => a * 26 + ch.charCodeAt(0) - 64, 0);
+          const [c1, c2] = [ci(fm[1]), ci(fm[3])].sort((a, b) => a - b), [r1, r2] = [+fm[2], +fm[4]].sort((a, b) => a - b);
+          const inside = p => p.cell.c >= c1 && p.cell.c <= c2 && p.cell.r >= r1 && p.cell.r <= r2;
+          const miss = parts.filter(p => !inside(p)), inSum = parts.filter(inside).reduce((a, p) => a + p.v, 0);
+          if (!miss.length || Math.abs(inSum - T.v) > 0.01 * Math.max(1, Math.abs(T.v))) return;
+          // 빠진 칸이 범위 끝과 합계 칸 '사이'에 있을 때만(=SUM(C2:C9)인데 바로 위 C10이 빠짐). 범위 앞쪽 칸은 일부러 뺀 경우가 많음
+          const gap = p => where === 'row' ? (p.cell.c === T.cell.c && p.cell.r > r2 && p.cell.r < T.cell.r) : (p.cell.r === T.cell.r && p.cell.c > c2 && p.cell.c < T.cell.c);
+          if (!miss.every(gap)) return;
+          add(S, T.cell.r, T.cell.c, LV.CHECK, '숫자', `합계 수식 범위에 빠진 칸이 있습니다 — ${T.cell.addr} =${String(T.cell.f).replace(/^=/, '')} 에 ${miss.map(p => p.cell.addr).join(', ')}이(가) 빠져 있어요(넣으면 ${fmtN(parts.reduce((a, p) => a + p.v, 0))}).`);
+          return;
+        }
         const sum = parts.reduce((a, p) => a + p.v, 0);
+        if (Math.abs(sum - 2 * T.v) < 1e-6) return; // 소계 줄까지 한 번 더 더한 경우(합계 = 위 숫자 합의 절반)
         const d = Math.max(decs(T.s), ...parts.map(p => decs(p.s)));
         const tol = d && d <= 6 ? parts.length * 0.5 * Math.pow(10, -d) : 1e-6; // 소수는 반올림 차이만큼 봐줌
         if (Math.abs(sum - T.v) <= tol) return;
@@ -894,7 +984,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         const t = cell.text, tr = t.trim();
         // '-', '–', '/', '·', '×' 같은 표시만 있는 칸은 "내용 없음"을 일부러 적은 것으로 봄
         if (EMPTY_MARK.test(tr)) continue;
-        if (tr && /^[^\p{L}\p{N}]+$/u.test(tr) && !/\p{Extended_Pictographic}/u.test(tr)) { add(S, cell.r, cell.c, LV.TYPO, '형식', `의미 없는 문자만 들어 있습니다('${tr}'). 지워도 되는지 확인해 주세요.`); continue; }
+        // 실수로 남은 것만: 문장부호(. , ; ! ? 등)만 있거나 홀자모(ㅁ, ㅇㅇ)만 있는 칸. ◎·⇨·▼·※·□·○○○ 같은 기호·빈칸 표시는 일부러 쓴 것
+        if (tr && (/^[.,;'"`~!?^_]+$/.test(tr.replace(/\s+/g, '')) || /^[ㄱ-ㅎㅏ-ㅣ]+$/.test(tr))) { add(S, cell.r, cell.c, LV.TYPO, '형식', `의미 없는 문자만 들어 있습니다('${tr}'). 지워도 되는지 확인해 주세요.`); continue; }
         if (!t.includes('\n') && t.length <= 60 && t !== tr && tr && !(S.nameCol === cell.c && recSet.has(cell.r)))
           add(S, cell.r, cell.c, LV.TYPO, '형식', `앞뒤에 공백이 있습니다('${clip(tr, 24)}').`, { trim: true });
         // 괄호 짝 (같은 열에서 절반 이상이 똑같이 틀리면 그 파일의 서식으로 보고 넘어감)
@@ -902,7 +993,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         const lns = t.split('\n');
         const closesFirst = s => { s = s.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z]{1,3})\)/, ''); const c = s.indexOf(')'), o = s.indexOf('('); return c >= 0 && (o < 0 || c < o); };
         const opensLast = s => s.lastIndexOf('(') > s.lastIndexOf(')');
-        lns.forEach((line, li) => {
+        if (!/^[()]$/.test(tr)) lns.forEach((line, li) => { // 괄호 하나만 있는 표 칸('(', ')')은 서식
           const o2 = (line.match(/\[/g) || []).length, c2 = (line.match(/\]/g) || []).length;
           let pb = parenBal(line);
           if (pb > 0 && lns.slice(li + 1, li + 4).some(closesFirst)) pb = 0;
@@ -932,6 +1023,38 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         // 같은 단어 연속
         const rep = t.match(/(?:^|\s)([\p{L}]{2,})\s+\1(?=\s|$)/u);
         if (rep) add(S, cell.r, cell.c, LV.TYPO, '오탈자', `같은 단어가 두 번 이어집니다: '${rep[1]} ${rep[1]}'`);
+        // -율/-률: 받침 없는 글자·ㄴ 받침 뒤는 '율'(비율, 할인율), 그 밖의 받침 뒤는 '률'(합격률, 가입률)
+        for (const m of t.matchAll(/([가-힣]*)([가-힣])(율|률)/g)) {
+          const j = jamo(m[2]); if (!j) continue;
+          const want = (j[2] === 0 || j[2] === 4) ? '율' : '률';
+          if (m[3] === want) continue;
+          const word = (m[1] + m[2] + m[3] + (t.slice(m.index + m[0].length).match(/^[가-힣]*/) || [''])[0]);
+          add(S, cell.r, cell.c, LV.TYPO, '오탈자', `'${m[2]}${m[3]}' → '${m[2]}${want}' ('${word}': ${want === '률' ? 'ㄴ 아닌 받침 뒤에는 률' : '받침 없는 글자나 ㄴ 받침 뒤에는 율'})`, { fix: [m[2] + m[3], m[2] + want] });
+        }
+        // '11:00시'처럼 시각과 '시'를 겹쳐 씀
+        for (const m of t.matchAll(/(?<!\d)(\d{1,2}:\d{2})\s*시(?![간작장청설험민정각계도선의설])/g))
+          add(S, cell.r, cell.c, LV.TYPO, '형식', `시각 표기가 겹칩니다: '${m[0]}' → '${m[1]}' ('11:00' 또는 '11시' 중 하나로)`, { fix: [m[0], m[1]] });
+        // 날짜 표기 통일: 파일 대부분이 '9.16.(수)'인데 '9.16(수)'처럼 끝 점이 빠짐
+        if (dotStyle) for (const m of t.matchAll(/(?<![\d.])(\d{1,2}\.\s?\d{1,2})(\([월화수목금토일]\))/g))
+          add(S, cell.r, cell.c, LV.TYPO, '형식', `날짜 표기가 다릅니다: '${m[0]}' → '${m[1]}.${m[2]}' (이 파일은 대부분 '9.16.(수)'처럼 씀)`, { fix: [m[0], m[1] + '.' + m[2]] });
+        // 날짜 앞 0: 파일 대부분이 '9. 9.(수)'인데 '09.09.(수)'·'10.07.(수)'처럼 0을 붙임
+        if (padStyle) for (const m of t.matchAll(/(?<![\d.])(0?)(\d{1,2})\.(\s?)(0?)(\d{1,2})(\.?\s*\([월화수목금토일]\))/g)) {
+          if (!m[1] && !m[4]) continue;
+          const mo = +m[2], da = +m[5]; if (mo > 12 || da > 31) continue;
+          const want = `${mo}.${da < 10 ? ' ' : ''}${da}${m[6]}`;
+          add(S, cell.r, cell.c, LV.TYPO, '형식', `날짜 표기가 다릅니다: '${m[0]}' → '${want}' (이 파일은 대부분 '9. 9.'처럼 0 없이 씀)`, { fix: [m[0], want] });
+        }
+        // 영어 약자 글자 순서 뒤바뀜: 파일에 3번 이상 나온 'RISE'와 'RIES'
+        for (const m of t.matchAll(/\b[A-Z]{3,6}\b/g)) {
+          const a = m[0]; if ((acro.get(a) || 0) !== 1 || (opts.isWord && opts.isWord(a.toLowerCase()))) continue; // ECO처럼 영어 낱말이면 뺌
+          for (const [b, n] of acro) {
+            if (n < 3 || b.length !== a.length || b === a) continue;
+            const k = [...a].findIndex((ch, i) => ch !== b[i]);
+            if (k >= 1 && k + 1 < a.length && a[k] === b[k + 1] && a[k + 1] === b[k] && a.slice(k + 2) === b.slice(k + 2)) {
+              add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${a}' → '${b}'? (파일 안에서 '${b}'가 ${n}번 쓰임)`, { fix: [a, b], guess: true }); break;
+            }
+          }
+        }
       }
       const recCount = Math.max(1, S.records.length);
       for (const [, arr] of parenBad) {
@@ -969,9 +1092,10 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
             const josa = dp >= 0 && (dp === w.length - 1 || (PARTICLE.includes(w[dp]) && PARTICLE.includes(fixed[dp])));
             // 3글자 이하 짧은 말은 서로 다른 맞는 말끼리 겹치기 쉬워(질문을/지문을) 비교할 말이 3번 이상 나올 때만
             // 단, 맞는 말이 같은 칸이나 바로 근처(3줄 안)에 있고 첫 글자가 아닌 가운데 글자만 다르면 1번만 나와도 의심(설망회 ↔ 바로 아래 설명회)
-            const ok = cand && !josa && !VERBISH(w) && !VERBISH(fixed) && ![...dictWrong].some(dw => w.includes(dw) || fixed.includes(dw));
+            const ok = cand && !josa && !VERBISH(w) && !VERBISH(fixed) && !looksReal(w, dp) && ![...dictWrong].some(dw => w.includes(dw) || fixed.includes(dw));
             const nW = words.get(w) || 0, nF = words.get(fixed) || 0;
-            if (ok && nF >= (w.length <= 3 ? 3 : 2) && nF > nW) {
+            // 첫 글자가 바뀐 것(미공개↔비공개, 부스운영↔부서운영)은 맞는 말끼리인 경우가 많아 뺌(자주 쓰는 말이면 아래 검사가 맡음)
+            if (ok && dp > 0 && nF >= (w.length <= 3 ? 3 : 2) && nF > nW) {
               add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w}' → '${fixed}'? (파일 안에서 '${cand}'가 여러 번 쓰임)`, { fix: [w, fixed], guess: true });
               reported = true;
             } else if (ok && dp > 0 && !COMMON.has(w) && !COMMON.has(fixed) && allCells.some(o => Math.abs(o.r - cell.r) <= 3 && o.text.includes(fixed))) {
@@ -991,12 +1115,14 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           if (COMMON.has(w)) continue;
           hit: for (const K of COMMON_ARR) {
             if (K.length > w.length) continue;
-            for (let i = 0; i + K.length <= w.length; i++) {
-              const sub = w.slice(i, i + K.length); if (sub === K || COMMON.has(sub)) continue;
+            // 낱말 첫머리만 비교(장애학생의 '애학생'↔유학생, 대의원회의 '의원회'↔위원회처럼 낱말 속 일부를 비교하면 오탐)
+            for (let i = 0; i === 0 && i + K.length <= w.length; i++) {
+              const sub = w.slice(i, i + K.length); if (sub === K || COMMON.has(sub) || COMMON_OK.has(sub) || COMMON_OK.has(w.slice(0, 3))) continue;
               let d = 0, pos = -1; for (let j = 0; j < K.length; j++) if (sub[j] !== K[j]) { d++; pos = j; }
-              if (d !== 1 || pos === K.length - 1 || jamoDiff(sub[pos], K[pos]) !== 1) continue;
+              if (d !== 1 || pos === K.length - 1 || jamoDiff(sub[pos], K[pos]) !== 1 || looksReal(w, pos)) continue;
               const fixed = w.slice(0, i) + K + w.slice(i + K.length);
               if ([...dictWrong].some(dw => w.includes(dw))) break hit;
+              if (issues.some(x => x.sheet === S.name && x.r === cell.r && x.c === cell.c && x.fix && x.fix[0] === w)) break hit; // 위 검사가 이미 잡음
               add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w}' → '${fixed}'? (자주 쓰는 말 '${K}'와 한 글자 다름)`, { fix: [w, fixed], guess: true });
               break hit;
             }
@@ -1008,13 +1134,13 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       const cnt = (s, k) => s.split(k).length - 1;
       for (const cell of allCells) {
         for (const run of cell.text.match(/[가-힣]+/g) || []) {
-          const w2 = run.length === 2 ? run : (run.length === 3 && PARTICLE.includes(run[2]) ? run.slice(0, 2) : null);
+          const w2 = run.length === 2 ? run : (run.length === 3 && '은는이가을를에의와과도로만'.includes(run[2]) ? run.slice(0, 2) : null); // 비도서를 '비도+서'로 나누지 않게
           if (!w2 || COMMON2.has(w2) || REAL2.has(w2) || COMMON.has(run) || [...dictWrong].some(dw => run.includes(dw))) continue;
-          const nW = cnt(sheetText, w2);
+          if (cntAll(w2) > 1) continue; // 틀린 말은 파일 전체에서 한 번만 나와야 함(여러 번이면 일부러 쓴 말)
           for (const K of [0, 1].flatMap(p => keySlips(w2[p]).map(s => p ? w2[0] + s : s + w2[1]))) {
-            if (REAL2.has(K)) continue;
+            // 맞는 말은 자주 쓰는 두 글자 말만(같은 곳에 있는 아무 말과 비교하면 정부↔정보, 재난↔재단처럼 맞는 말끼리 걸림)
+            if (REAL2.has(K) || !COMMON2.has(K)) continue;
             const nK = cnt(sheetText, K);
-            if (nW > 1 || !((nK >= 2) || (COMMON2.has(K) && (words.get(w2) || 0) <= 1))) continue; // 틀린 말은 한 번만 나와야 함
             add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w2}' → '${K}'? (자판에서 옆 글쇠를 누른 것 같아요${nK ? `. 같은 곳에 '${K}'도 있어요` : ''})`, { fix: [w2, K], guess: true });
             break;
           }
@@ -1082,6 +1208,14 @@ function saveDict(msg){
   if (data) run();
 }
 $('dict').value = store.get('dict') || dictText(ListCheck.DEFAULT_TYPOS);
+// 사전을 고쳐 저장해 둔 사람에게도 새로 늘어난 기본 항목은 한 번 넣어 줌(지운 항목은 다시 넣지 않음)
+{ let given = []; try { given = JSON.parse(store.get('dictGiven') || '[]'); } catch (e) {}
+  if (store.get('dict')) {
+    const have = new Set(parseDict().ok.map(t => t[0]));
+    const add = ListCheck.DEFAULT_TYPOS.filter(t => !have.has(t[0]) && !given.includes(t[0]));
+    if (add.length) { $('dict').value = $('dict').value.replace(/\s*$/, '\n') + dictText(add); store.set('dict', $('dict').value); }
+  }
+  store.set('dictGiven', JSON.stringify(ListCheck.DEFAULT_TYPOS.map(t => t[0]))); }
 $('dictSave').onclick = () => saveDict();
 $('dictReset').onclick = () => { $('dict').value = dictText(ListCheck.DEFAULT_TYPOS); saveDict('기본 사전으로 되돌렸어요.'); };
 
@@ -1205,7 +1339,7 @@ const noTextHelp = () => kind === 'hwp' && data.locked ? '암호가 걸렸거나
 function run(){
   const useEng = eng && $('engOn').checked;
   if (useEng) { engBudget = ENG_MAX; engFreq = new Map(); data.forEach(sh => sh.cells.forEach(c => { for (const m of stripUrl(c.text).matchAll(EN_WORD)) engFreq.set(m[0], (engFreq.get(m[0]) || 0) + 1); })); }
-  const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null, speller: useEng ? speller : null });
+  const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null, speller: useEng ? speller : null, isWord: useEng && eng ? w => eng.check(w) : null });
   // AI가 찾은 것 합치기(같은 칸·같은 고침이 이미 있으면 뺌), 파일 순서대로 다시 정렬
   for (const a of [...aiIssues, ...nkIssues]) {
     if (r.issues.some(i => i.sheet === a.sheet && i.r === a.r && i.c === a.c && i.fix && a.fix && i.fix[0] === a.fix[0] && i.fix[1] === a.fix[1])) continue;
@@ -1221,7 +1355,7 @@ function run(){
     const opensLast = t => t.lastIndexOf('(') > t.lastIndexOf(')');
     r.issues = r.issues.filter(i => {
       if (!i.msg.startsWith('괄호 짝') || !/^(PDF|본문)$/.test(i.sheet)) return true;
-      const b = ListCheck.parenBal(T(i.sheet, i.r)), near = [1, 2, 3, 4];
+      const b = ListCheck.parenBal(T(i.sheet, i.r)), near = [1, 2, 3, 4, 5, 6];
       return b > 0 ? !near.some(k => closesFirst(T(i.sheet, i.r + k))) : b < 0 ? !near.some(k => opensLast(T(i.sheet, i.r - k))) : true;
     });
   }
@@ -1997,7 +2131,7 @@ function loadEng(){
   return engLoading;
 }
 // 업무에서 자주 쓰지만 사전에 없는 말
-const ENG_OK = new Set('sri lanka lankan apostille apostilled visa visas homestay orientation internship interns kakaotalk email emails online offline'.split(' '));
+const ENG_OK = new Set('sri lanka lankan apostille apostilled visa visas homestay orientation internship interns kakaotalk email emails online offline syllabi ramen'.split(' '));
 // Typo.js의 suggest()는 단어당 0.6초쯤 걸려서, 한 글자 바꾼 후보만 직접 만들어 사전에 있는지 봄
 const AZ = 'abcdefghijklmnopqrstuvwxyz';
 function bestFix(w){
@@ -2016,9 +2150,20 @@ function bestFix(w){
   if (/^[A-Z]/.test(w)) to = to[0].toUpperCase() + to.slice(1);
   return { to, swap: !!swap, at };
 }
+// 영국식 철자(colour, enrolment, authorise, programme, analyse, catalogue, licence, travelled)를 미국식으로 바꿔 사전에 있으면 맞는 말
+function britishOk(w){
+  const l = w.toLowerCase();
+  const vs = [l.replace(/our(s|ed|ing)?$/, 'or$1'), l.replace(/is(e|es|ed|ing|ation|ations)$/, 'iz$1'), l.replace(/ys(e|es|ed|ing)$/, 'yz$1'),
+    l.replace(/lment(s)?$/, 'llment$1'), l.replace(/mme(s)?$/, 'm$1'), l.replace(/ogue(s)?$/, 'og$1'), l.replace(/ence$/, 'ense'),
+    l.replace(/ll(ed|ing|er|ers)$/, 'l$1'), l.replace(/^(.*)our/, '$1or')];
+  return vs.some(v => v !== l && eng.check(v));
+}
 function speller(text){
   const out = [], seen = new Set();
   const src = stripUrl(text);
+  // 영어가 아닌 글(말레이어·인도네시아어·베트남어 등): 사전에 없는 말이 40% 넘으면 이 칸은 건너뜀
+  const all = [...src.matchAll(EN_WORD)].map(m => m[0]).filter(w => w.length >= 3);
+  if (all.length >= 3 && all.filter(w => !(ENG_OK.has(w.toLowerCase()) || eng.check(w) || eng.check(w.toLowerCase()) || /^[A-Z]/.test(w))).length / all.length > 0.4) return out;
   for (const m of src.matchAll(EN_WORD)) {
     const w = m[0].replace(/’/g, "'");
     if (seen.has(w)) continue; seen.add(w);
@@ -2035,6 +2180,9 @@ function speller(text){
     if (!f.swap && (w.length <= 4 || (engFreq.get(m[0]) || 0) >= 3)) continue;
     if (/^[A-Z]/.test(w) && (!f.swap || f.at === 0)) continue; // Oyu→You, Collab→Collar 같은 이름·용어
     if (/re$/i.test(w) && /er$/i.test(f.to)) continue; // 영국식 철자(Centre, Theatre)
+    if (britishOk(w)) continue;
+    // 첫 글자를 바꾸거나 빼는 제안은 거의 틀림(ramen→amen, naver→aver, orang→rang). 실제 오타는 첫 글자는 맞게 침
+    if (f.to[0].toLowerCase() !== w[0].toLowerCase()) continue;
     out.push({ from: m[0], to: f.to });
   }
   return out;
@@ -2511,8 +2659,7 @@ async function runNk(auto){
     setStatus('nkStatus', e instanceof TypeError ? '중계 서버에 연결하지 못했어요. 주소와 인터넷 연결을 확인해 주세요.' : (e.message || '국어사전 확인에 실패했어요.'), 'warn');
   } finally { $('nkRun').disabled = !data; }
 }
-$('nkRun').onclick = () => runNk(false);
-// 시작할지 묻는 창. auto = 파일을 넣자마자 뜬 것(이때만 「다시 묻지 않기」를 보여 줌)
+$('nkRun').onclick = () => runNk(false);// 시작할지 묻는 창. auto = 파일을 넣자마자 뜬 것(이때만 「다시 묻지 않기」를 보여 줌)
 $('nkAskOn').checked = store.get('nkAsk') !== 'off';
 $('nkAskOn').onchange = () => store.set('nkAsk', $('nkAskOn').checked ? 'on' : 'off');
 function askNk(auto){
