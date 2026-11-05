@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK3.1</title>
+<title>오타 및 계산 수정기 MK3.2</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -246,7 +246,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK3.1</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK3.2</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -371,7 +371,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
         <li>같은 칸 비교: 다른 줄엔 다 있는데 빠진 항목, 빈 값, 중복 항목</li>
-        <li>숫자·계산: 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
+        <li>숫자·계산: 표의 합계·소계·총계 줄과 칸(엑셀 수식 범위 포함), 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
         <li>오탈자·형식: 오타 사전, 한 글자만 다른 말, 괄호 짝, 앞뒤 공백</li>
         <li>띄어쓰기: Kiwi 검사를 켜면 띄어쓰기 제안</li>
         <li>영어 철자: 영어 사전에 없는 단어에 고칠 말 제안 (예: Universtiy → University)</li>
@@ -526,6 +526,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         .replace(/^[\d]+\s*[.)]\s*/, '').replace(/^[*※○\-·]+\s*/, '').replace(/\(.*?\)/g, '').trim();
       titles.set(c, clip(t, 18));
     }
+    // 합계·소계·총계 줄은 학생(한 줄 기록)으로 보지 않음
+    const isTotRow = r => [...rows.get(r).values()].some(c => /^\s*(총\s*합\s*계|총\s*계|합\s*계|소\s*계|계|total|subtotal|grand\s*total)\s*$/i.test(c.text));
+    qual = qual.filter(r => !isTotRow(r));
     const records = qual.length >= 2 ? qual : [];
     const cols = new Set(); records.forEach(r => rows.get(r).forEach((_, c) => cols.add(c)));
     const findCol = (re, test) => {
@@ -775,6 +778,75 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         }
       }
 
+      // ===== 3-2. 표의 합계 행·열 =====
+      // '합계·소계·총계' 칸을 찾아 위쪽(합계 행) 또는 왼쪽(합계 열) 숫자를 더한 값과 비교
+      // 순위: 소계 1 < 합계 2 < 총계 3. 위로 올라가다 같거나 높은 합계 줄을 만나면 멈추고, 낮은 합계 줄(소계)은 빼고 더함
+      const TOT_RANK = t => {
+        if (t.trim().length > 16) return 0;
+        const k = t.replace(/\(.*?\)|\[.*?\]/g, '').replace(/[\s:：]/g, '').toLowerCase();
+        if (/^(총합계|총계|총합|grandtotal)$/.test(k)) return 3;
+        if (/^(합계|합|계|총액|합산|total|sum)$/.test(k)) return 2;
+        if (/^(소계|subtotal)$/.test(k)) return 1;
+        return 0;
+      };
+      const NUM_CELL = /^[₩$€¥£]?\s*([-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?)\s*(?:원|천원|만원|명|개|회|건|권|대|장|점|시간|일|%|달러|엔|위안|usd|krw)?$/i;
+      const numOf = cell => { if (!cell) return null; const m = cell.text.trim().match(NUM_CELL); return m ? { v: num(m[1]), s: m[1], cell } : null; };
+      const NO_SUM = /번호|연번|순번|^no\.?$|연도|년도|학번|학년|기수|코드|전화|연락처|우편|생년|나이|평균|비율|[율률]$|%|단가|환율|순위|등급/i;
+      const decs = s => (String(s).split('.')[1] || '').length;
+      const yearish = ps => ps.filter(p => /^(19|20)\d{2}$/.test(p.s)).length >= ps.length / 2;
+      const fmtLike = (v, s) => { let o = v.toFixed(Math.min(decs(s), 6)); if (s.includes(',')) { const [a, b] = o.split('.'); o = a.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (b ? '.' + b : ''); } return o; };
+      const rankAt = new Map();
+      for (const [r, row] of S.rows) for (const [c, cell] of row) { const k = TOT_RANK(cell.text); if (k) rankAt.set(r + '|' + c, k); }
+      const rowRank = r => Math.max(0, ...[...S.rows.get(r).keys()].map(c => rankAt.get(r + '|' + c) || 0));
+      const sumCheck = (T, parts, where) => {
+        if (parts.length < 2 || yearish(parts)) return;
+        const sum = parts.reduce((a, p) => a + p.v, 0);
+        const d = Math.max(decs(T.s), ...parts.map(p => decs(p.s)));
+        const tol = d && d <= 6 ? parts.length * 0.5 * Math.pow(10, -d) : 1e-6; // 소수는 반올림 차이만큼 봐줌
+        if (Math.abs(sum - T.v) <= tol) return;
+        const first = parts[parts.length - 1].cell.addr, last = parts[0].cell.addr;
+        const into = fmtLike(sum, T.s);
+        add(S, T.cell.r, T.cell.c, LV.FIX, '숫자', `합계가 맞지 않습니다 — ${T.cell.addr} 적힌 값 ${fmtN(T.v)} ↔ ${where === 'row' ? '위' : '왼쪽'} ${parts.length}칸(${first}~${last}) 합 ${fmtN(sum)}`
+          + (T.cell.f ? ' — 수식 칸이에요. 더하는 범위가 빠지거나 넘치지 않았는지 확인해 주세요.' : ' — 합계가 틀렸는지, 더하는 숫자 중 하나가 틀렸는지 확인해 주세요.'),
+          T.cell.f ? {} : { fix: [T.s, into], calc: true });
+      };
+      const rowsDesc = [...S.rowNums].sort((a, b) => b - a);
+      for (const [key, rank] of rankAt) {
+        const [r0, c0] = key.split('|').map(Number);
+        const row0 = S.rows.get(r0);
+        // (가) 합계 행: 같은 줄 오른쪽 숫자 = 그 열 위쪽 숫자들의 합
+        for (const [c, cell] of row0) {
+          if (c <= c0) continue;
+          const T = numOf(cell); if (!T) continue;
+          const parts = []; let head = S.titles.get(c) || '';
+          for (const r of rowsDesc) {
+            if (r >= r0) continue;
+            const rr = rowRank(r);
+            if (rr) { if (rr >= rank) break; continue; }
+            const x = S.rows.get(r).get(c); if (!x || !x.text.trim()) continue;
+            const n = numOf(x); if (!n) { head = x.text; break; }
+            parts.push(n);
+          }
+          if (!NO_SUM.test(head.trim())) sumCheck(T, parts, 'row');
+        }
+        // (나) 합계 열: 아래 칸 숫자 = 같은 줄 왼쪽 숫자들의 합
+        for (const r of S.rowNums) {
+          if (r <= r0) continue;
+          const cell = S.rows.get(r).get(c0); if (!cell || !cell.text.trim()) continue;
+          const T = numOf(cell); if (!T) break; // 표가 끝남
+          const parts = [];
+          for (const c of [...S.rows.get(r).keys()].filter(c => c < c0).sort((a, b) => b - a)) {
+            const hk = rankAt.get(r0 + '|' + c);
+            if (hk) { if (hk >= rank) break; continue; }
+            const ht = (row0.get(c) || { text: '' }).text.trim();
+            const n = numOf(S.rows.get(r).get(c)); if (!n) break;
+            if (NO_SUM.test(ht)) continue;
+            parts.push(n);
+          }
+          sumCheck(T, parts, 'col');
+        }
+      }
+
       // ===== 4. 오탈자·형식 =====
       const parenBad = new Map();
       for (const cell of allCells) {
@@ -1008,7 +1080,8 @@ async function load(file){
         ws.eachRow({ includeEmpty:false }, (row, r) => row.eachCell({ includeEmpty:false }, (cell, c) => {
           if (cell.isMerged && cell.master.address !== cell.address) return;
           const t = cellText(cell); if (t === '') return;
-          cells.push({ r, c, addr: cell.address, text: t, runs: runsOf(cell.value) });
+          let f = null; try { f = cell.formula || null; } catch (e) {} // 수식 칸이면 합계 안내를 다르게 함
+          cells.push({ r, c, addr: cell.address, text: t, runs: runsOf(cell.value), f });
         }));
         d.push({ name: ws.name, cells, merges: Object.values(ws._merges || {}).map(m => m.model) });
       });
@@ -1069,7 +1142,7 @@ function run(){
     i.can = canFix(i);
     // 처음 보는 항목만 기본값(띄어쓰기 제안은 빼기). 이미 고른 건 그대로
     // PDF는 고칠 수 없으니 모두 「표시만」으로 시작
-    if (!choice.has(i.id) || (choice.get(i.id) === 'fix' && !i.can)) choice.set(i.id, RO.has(kind) ? 'mark' : i.optIn ? 'off' : i.guess ? 'mark' : i.can ? 'fix' : 'mark'); // 오타 의심은 맞는 말일 때가 많아 표시만으로 시작
+    if (!choice.has(i.id) || (choice.get(i.id) === 'fix' && !i.can)) choice.set(i.id, RO.has(kind) ? 'mark' : i.optIn ? 'off' : (i.guess || i.calc) ? 'mark' : i.can ? 'fix' : 'mark'); // 오타 의심은 맞는 말일 때가 많아 표시만으로 시작
   });
   result = r;
   const recs = r.meta.reduce((a, m) => a + m.records, 0);
