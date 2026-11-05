@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK3.7</title>
+<title>오타 및 계산 수정기 MK3.8</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -255,7 +255,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK3.7</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK3.8</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -506,13 +506,13 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   // 두 글자 말은 자판 바로 옆 글쇠를 잘못 누른 것만 봄(싱청→신청: ㄴ↔ㅇ, 움영→운영: ㄴ↔ㅁ)
   const COMMON2 = new Set(('신청 접수 운영 모집 제출 계획 진행 완료 결과 보고 대상 일정 회의 행사 참가 참여 선발 면접 평가 교육 국제 협력 지원 협약 교류 방문 연수 파견 등록 기간 장소 인원 예산 '
     + '안내 공지 요청 협조 검토 승인 결재 담당 문의 연락 학생 교수 직원 학과 학년 학기 전공 수업 강의 시험 성적 출석 졸업 입학 장학 비자 체류 유학 개최 실시 추진 준비 확인 관련 '
-    + '사업 업무 활동 홍보 설명 상담 통역 숙소 항공 출국 입국 귀국 기관 협회 총장 처장 팀장 주관 주최 후원 정산 집행 구매 계약 일시 내용 비고 합계 소계').split(' '));
+    + '사업 업무 활동 홍보 설명 상담 통역 공유 숙소 항공 출국 입국 귀국 기관 협회 총장 처장 팀장 주관 주최 후원 정산 집행 구매 계약 일시 내용 비고 합계 소계').split(' '));
   // 위 말과 옆 글쇠 하나 차이지만 실제로 쓰는 말(오타로 보지 않음)
   const REAL2 = new Set(('심청 산청 신천 신창 점수 잡수 군영 운용 윤영 은영 운연 운경 지출 재출 제철 관료 경과 열과 부고 보도 보조 대강 대성 대항 대산 대승 대생 일종 일전 일절 일장 일적 일중 '
     + '생사 찬가 첨가 참사 손발 선박 선방 면적 숙제 국지 자원 재원 제원 교유 반문 연구 영수 염수 온수 연소 연서 연후 파경 등속 시간 기안 기강 기단 기산 기근 개간 이간 장수 장로 장서 장고 정소 '
     + '임원 인권 계산 예상 예선 인내 안대 단내 간내 암내 동지 송지 경지 곤지 궁지 공제 공자 공비 요철 협주 성인 상인 결제 경재 감당 담장 영락 항생 고수 교구 직권 학연 정공 전동 전경 전송 '
     + '수첩 상의 선적 승적 성정 종업 입항 방학 정학 성명 통영 숙고 상공 개관 청장 통장 충장 차장 추장 처방 무관 수원 전산 정상 정신 예약 비교 가업 업주 구내 구미 애용 비지 '
-    + '상단 하단 정한 안나').split(' '));
+    + '상단 하단 정한 안나 경유 송유 동유').split(' '));
   const KB_ROWS = ['ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔ', 'ㅁㄴㅇㄹㅎㅗㅓㅏㅣ', 'ㅋㅌㅊㅍㅠㅜㅡ'], KB_POS = {};
   KB_ROWS.forEach((row, r) => [...row].forEach((ch, c) => KB_POS[ch] = [r, c]));
   const keyAdj = (a, b) => { const p = KB_POS[a], q = KB_POS[b]; if (!p || !q) return false; if (p[0] === q[0]) return Math.abs(p[1] - q[1]) === 1; const [hi, lo] = p[0] < q[0] ? [p, q] : [q, p]; return lo[0] - hi[0] === 1 && (lo[1] === hi[1] || lo[1] === hi[1] - 1); };
@@ -565,7 +565,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     // 이번 검증(학사운영계획·주간업무·글로벌 현장학습 서류)에서 실제로 나온 것
     ['레크레이션', '레크리에이션'], ['퍼스널블랜딩', '퍼스널브랜딩'], ['역랑강화', '역량강화'], ['심위위원회', '심의위원회'], ['보함가입', '보험가입'],
     ['홈텍스', '홈택스'], ['한국장학제단', '한국장학재단'], ['컨텐츠', '콘텐츠'], ['당해년도', '당해 연도'], ['리플렛', '리플릿'],
-    ['엑스베너', '엑스배너'], ['철제베너', '철제배너'], ['계시물', '게시물'], ['계시판', '게시판'],
+    ['엑스베너', '엑스배너'], ['철제베너', '철제배너'], ['계시물', '게시물'], ['계시판', '게시판'], ['콘텐트', '콘텐츠'],
     // 행정 문서에서 자주 틀리는 말
     ['오랫만', '오랜만'], ['일일히', '일일이'], ['틈틈히', '틈틈이'], ['깨끗히', '깨끗이'], ['곰곰히', '곰곰이'], ['일찌기', '일찍이'], ['더우기', '더욱이'],
     ['왠일', '웬일'], ['설겆이', '설거지'], ['희안하', '희한하'], ['뵈요', '봬요'], ['할려고', '하려고'], ['내노라', '내로라'],
@@ -655,6 +655,17 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     const dotStyle = (() => { const a = (allText.match(/(?<![\d.])\d{1,2}\.\s?\d{1,2}\.\([월화수목금토일]\)/g) || []).length, b = (allText.match(/(?<![\d.])\d{1,2}\.\s?\d{1,2}\([월화수목금토일]\)/g) || []).length; return b > 0 && a >= 5 && a >= b * 4; })();
     // 날짜 앞 0: 0 없이 쓴 한 자리 월·일('9. 9.(수)')이 0 붙인 것보다 5배 넘게 많으면 0 붙인 쪽을 알림
     const padStyle = (() => { const p = (allText.match(/(?<![\d.])(0\d\.\s?\d{1,2}|\d{1,2}\.0\d)\.?\s*\([월화수목금토일]\)/g) || []).length, u = (allText.match(/(?<![\d.])([1-9]\.\s?\d{1,2}|\d{1,2}\.\s[1-9])\.?\s*\([월화수목금토일]\)/g) || []).length; return p > 0 && u >= 5 && u >= p * 5; })();
+    // 대소문자만 다른 영어 말(하이픈 말 'Pre-VET', 짧은 약자 'KMCU'). 첫 글자만 다른 것(The/the)은 문장 첫머리라 뺌
+    const EN_CASE = /(?<![A-Za-z])[A-Za-z]+(?:-[A-Za-z]+)+(?![A-Za-z])|(?<![A-Za-z])[A-Za-z]{3,5}(?![A-Za-z-])/g;
+    const caseForms = new Map(), caseSaid = new Set();
+    for (const m of allText.matchAll(EN_CASE)) { const l = m[0].toLowerCase(); if (!caseForms.has(l)) caseForms.set(l, new Map()); const g = caseForms.get(l); g.set(m[0], (g.get(m[0]) || 0) + 1); }
+    for (const [l, g] of caseForms) {
+      const fs = [...g.keys()];
+      const hy = l.includes('-'), acro = fs.some(f => /^[A-Z]{3,5}$/.test(f));
+      // 하이픈 말이거나 대문자 약자가 있을 때만, 그리고 첫 글자 말고 다른 곳의 대소문자가 다를 때만
+      // 모든 꼴이 둘째 글자 뒤에도 대문자를 가질 때만(Pre-VET/PRE-VET). Visa/VISA, 주소 속 kmcu/KMCU는 뺌
+      if (fs.length < 2 || !(hy || acro) || new Set(fs.map(f => f.slice(1))).size < 2 || !fs.every(f => /[A-Z]/.test(f.slice(1)))) caseForms.delete(l);
+    }
     // 영어 약자(대문자 3~6자) 횟수
     const acro = new Map(); for (const m of allText.matchAll(/\b[A-Z]{3,6}\b/g)) acro.set(m[0], (acro.get(m[0]) || 0) + 1);
     const looksReal = (w, p) => cntAll(w) >= 2 || [p > 0 ? w.slice(p - 1, p + 1) : '', p + 1 < w.length ? w.slice(p, p + 2) : ''].some(b => b && cntAll(b) >= 2);
@@ -1054,6 +1065,17 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           const days = Math.round((b - a) / 86400000) + 1;
           if (days > 0 && days !== +m[6]) add(S, cell.r, cell.c, LV.CHECK, '숫자', `기간 일수가 다릅니다: '${m[0].replace(/\s+/g, ' ')}' — 날짜로 세면 ${days}일(${days - 1}박 ${days}일)이에요.`);
         }
+        // '담당하는1 대표'처럼 조사·어미 바로 뒤에 숫자 하나가 붙음(지우다 남은 글자)
+        for (const m of t.matchAll(/([가-힣]{2,}[는을를의에])(\d)(?=\s|$)/g))
+          add(S, cell.r, cell.c, LV.TYPO, '오탈자', `글자 뒤에 숫자가 붙어 있습니다: '${m[0]}' → '${m[1]}'?`, { fix: [m[0], m[1]], guess: true });
+        // 같은 영어 말을 대소문자 섞어 씀: 'PRE-VET'과 'Pre-VET'
+        for (const m of t.matchAll(EN_CASE)) {
+          const f = m[0], g = caseForms.get(f.toLowerCase()); if (!g || g.size < 2 || caseSaid.has(f)) continue;
+          const [top, topN] = [...g].sort((a, b) => b[1] - a[1])[0];
+          if (f === top || g.get(f) >= topN) continue;
+          caseSaid.add(f);
+          add(S, cell.r, cell.c, LV.TYPO, '형식', `같은 말을 다르게 썼습니다: '${f}'(${g.get(f)}번) ↔ '${top}'(${topN}번) — 하나로 맞춰 주세요.`, { fix: [f, top], guess: true });
+        }
         // '11:00시'처럼 시각과 '시'를 겹쳐 씀
         for (const m of t.matchAll(/(?<!\d)(\d{1,2}:\d{2})\s*시(?![간작장청설험민정각계도선의설])/g))
           add(S, cell.r, cell.c, LV.TYPO, '형식', `시각 표기가 겹칩니다: '${m[0]}' → '${m[1]}' ('11:00' 또는 '11시' 중 하나로)`, { fix: [m[0], m[1]] });
@@ -1379,8 +1401,12 @@ function run(){
     const opensLast = t => { let b = 0; for (const ch of t) { if (ch === '(') b++; else if (ch === ')' && b > 0) b--; } return b > 0; };
     r.issues = r.issues.filter(i => {
       if (!i.msg.startsWith('괄호 짝') || !/^(PDF|본문)$/.test(i.sheet)) return true;
-      const b = ListCheck.parenBal(T(i.sheet, i.r)), near = [1, 2, 3, 4, 5, 6, 7, 8];
-      return b > 0 ? !near.some(k => closesFirst(T(i.sheet, i.r + k))) : b < 0 ? !near.some(k => opensLast(T(i.sheet, i.r - k))) : true;
+      const line = T(i.sheet, i.r), b = ListCheck.parenBal(line), near = [1, 2, 3, 4, 5, 6, 7, 8];
+      // 대괄호도 같은 식으로: '[지면부족시' 다음 줄 '별지사용]'
+      const bq = s => (s.match(/\[/g) || []).length - (s.match(/\]/g) || []).length, q = bq(line);
+      const pOk = b > 0 ? near.some(k => closesFirst(T(i.sheet, i.r + k))) : b < 0 ? near.some(k => opensLast(T(i.sheet, i.r - k))) : true;
+      const qOk = q > 0 ? near.some(k => bq(T(i.sheet, i.r + k)) < 0) : q < 0 ? near.some(k => bq(T(i.sheet, i.r - k)) > 0) : true;
+      return !(pOk && qOk);
     });
   }
   if (kind === 'pdf' || kind === 'img') r.issues.forEach(i => { i.recLabel = lineOf(i).label; });
