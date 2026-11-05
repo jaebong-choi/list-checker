@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK3.6</title>
+<title>오타 및 계산 수정기 MK3.7</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -255,7 +255,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK3.6</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK3.7</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -498,7 +498,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   const COMMON_ARR = ('설명회 간담회 협의회 위원회 발표회 박람회 보고회 평가회 환영회 송별회 세미나 오리엔테이션 프로그램 글로벌 인터뷰 '
     + '보고서 결과보고서 계획서 기획서 신청서 지원서 추천서 증명서 확인서 협약서 정산서 공문서 수료증 수료식 입학식 졸업식 '
     + '국제처 국제교류 국제협력 업무협약 교환학생 유학생 외국인 외국인등록 어학연수 해외연수 해외파견 파견학생 현장학습 현장체험 문화체험 '
-    + '참가자 담당자 관계자 장학금 등록금 기숙사 출입국 한국어 한국문화 대학교 대학원 '
+    + '참가자 담당자 관계자 체재비 장학금 등록금 기숙사 출입국 한국어 한국문화 대학교 대학원 '
     + '시청각실 강의실 회의실 세미나실 대강당 도서관 학생회관 교육과정 산학협력 인력양성 산업체 기업체 모집요강 파란사다리').split(' ');
   const COMMON = new Set(COMMON_ARR);
   // 위 말과 한 글자 차이지만 맞는 말(낱말 첫머리 3글자 기준)
@@ -517,6 +517,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   KB_ROWS.forEach((row, r) => [...row].forEach((ch, c) => KB_POS[ch] = [r, c]));
   const keyAdj = (a, b) => { const p = KB_POS[a], q = KB_POS[b]; if (!p || !q) return false; if (p[0] === q[0]) return Math.abs(p[1] - q[1]) === 1; const [hi, lo] = p[0] < q[0] ? [p, q] : [q, p]; return lo[0] - hi[0] === 1 && (lo[1] === hi[1] || lo[1] === hi[1] - 1); };
   const J_CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ', J_JUNG = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ', J_JONG = ' ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ';
+  const VOWEL2 = { 'ㅘ': 'ㅗㅏ', 'ㅙ': 'ㅗㅐ', 'ㅚ': 'ㅗㅣ', 'ㅝ': 'ㅜㅓ', 'ㅞ': 'ㅜㅔ', 'ㅟ': 'ㅜㅣ', 'ㅢ': 'ㅡㅣ' };
+  const VOWEL2_REV = Object.fromEntries(Object.entries(VOWEL2).map(([k, v]) => [v, k]));
   // 한 글자에서 자모 하나를 옆 글쇠로 바꾼 글자들
   function keySlips(ch) {
     const x = jamo(ch); if (!x) return [];
@@ -525,6 +527,13 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       if (keyAdj(J_CHO[c], k) && J_CHO.includes(k)) out.push(mk(J_CHO.indexOf(k), v, j));
       if (keyAdj(J_JUNG[v], k) && J_JUNG.includes(k)) out.push(mk(c, J_JUNG.indexOf(k), j));
       if (j && keyAdj(J_JONG[j], k) && J_JONG.indexOf(k) > 0) out.push(mk(c, v, J_JONG.indexOf(k)));
+    }
+    // 겹모음은 두 번 눌러 만듦(ㅘ = ㅗ+ㅏ). 그중 한 번을 옆 글쇠로 누른 것: 왼(ㅗ+ㅣ) ↔ 완(ㅗ+ㅏ)
+    const pair = VOWEL2[J_JUNG[v]];
+    if (pair) for (let p = 0; p < 2; p++) for (const k of Object.keys(KB_POS)) {
+      if (!keyAdj(pair[p], k)) continue;
+      const nv = VOWEL2_REV[p ? pair[0] + k : k + pair[1]];
+      if (nv) out.push(mk(c, J_JUNG.indexOf(nv), j));
     }
     return out;
   }
@@ -556,6 +565,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     // 이번 검증(학사운영계획·주간업무·글로벌 현장학습 서류)에서 실제로 나온 것
     ['레크레이션', '레크리에이션'], ['퍼스널블랜딩', '퍼스널브랜딩'], ['역랑강화', '역량강화'], ['심위위원회', '심의위원회'], ['보함가입', '보험가입'],
     ['홈텍스', '홈택스'], ['한국장학제단', '한국장학재단'], ['컨텐츠', '콘텐츠'], ['당해년도', '당해 연도'], ['리플렛', '리플릿'],
+    ['엑스베너', '엑스배너'], ['철제베너', '철제배너'], ['계시물', '게시물'], ['계시판', '게시판'],
     // 행정 문서에서 자주 틀리는 말
     ['오랫만', '오랜만'], ['일일히', '일일이'], ['틈틈히', '틈틈이'], ['깨끗히', '깨끗이'], ['곰곰히', '곰곰이'], ['일찌기', '일찍이'], ['더우기', '더욱이'],
     ['왠일', '웬일'], ['설겆이', '설거지'], ['희안하', '희한하'], ['뵈요', '봬요'], ['할려고', '하려고'], ['내노라', '내로라'],
@@ -872,7 +882,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           const y0 = fullY(m[1]), mo = +m[2], da = +m[3], w = m[4];
           if (mo < 1 || mo > 12 || da < 1 || da > 31) continue;
           const base = baseY ? [baseY, ...nearY] : [...nearY];
-          const ys = y0 ? [y0] : base.length ? [...base, ...(mo <= 2 ? base.map(y => y + 1) : []), ...(mo >= 11 ? base.map(y => y - 1) : [])] : [];
+          // 1~2월은 다음 해 일정일 수 있음(2학기 자료의 1.29.(금)). 연말을 작년으로 봐주지는 않음(11.27.(목)을 2025년으로 맞다고 보면 놓침)
+          const ys = y0 ? [y0] : base.length ? [...base, ...(mo <= 2 ? base.map(y => y + 1) : [])] : [];
           if (!ys.length || ys.some(y => wdOf(y, mo, da) === w)) continue;
           const y = ys[0], real = wdOf(y, mo, da); if (!real) continue;
           const raw = m[0].trim(), into = raw.replace(/\(\s*[월화수목금토일]\s*\)$/, `(${real})`);
@@ -991,8 +1002,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         // 괄호 짝 (같은 열에서 절반 이상이 똑같이 틀리면 그 파일의 서식으로 보고 넘어감)
         // 칸 안에서 줄이 바뀌어 다음 줄(최대 3줄 뒤)에서 닫히는 괄호는 맞는 것으로 봄
         const lns = t.split('\n');
-        const closesFirst = s => { s = s.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z]{1,3})\)/, ''); const c = s.indexOf(')'), o = s.indexOf('('); return c >= 0 && (o < 0 || c < o); };
-        const opensLast = s => s.lastIndexOf('(') > s.lastIndexOf(')');
+        // 괄호 수로 따짐: 다음 줄에 짝 없는 ')'가 있으면 닫힘('…원))'·'명)'), 앞 줄에 짝 없는 '('가 있으면 열림
+        const closesFirst = s => { s = s.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z]{1,2})\)\s+(?=\S)/, ''); let b = 0; for (const ch of s) { if (ch === '(') b++; else if (ch === ')' && --b < 0) return true; } return false; };
+        const opensLast = s => { let b = 0; for (const ch of s) { if (ch === '(') b++; else if (ch === ')' && b > 0) b--; } return b > 0; };
         if (!/^[()]$/.test(tr)) lns.forEach((line, li) => { // 괄호 하나만 있는 표 칸('(', ')')은 서식
           const o2 = (line.match(/\[/g) || []).length, c2 = (line.match(/\]/g) || []).length;
           let pb = parenBal(line);
@@ -1030,6 +1042,17 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           if (m[3] === want) continue;
           const word = (m[1] + m[2] + m[3] + (t.slice(m.index + m[0].length).match(/^[가-힣]*/) || [''])[0]);
           add(S, cell.r, cell.c, LV.TYPO, '오탈자', `'${m[2]}${m[3]}' → '${m[2]}${want}' ('${word}': ${want === '률' ? 'ㄴ 아닌 받침 뒤에는 률' : '받침 없는 글자나 ㄴ 받침 뒤에는 율'})`, { fix: [m[2] + m[3], m[2] + want] });
+        }
+        // '027학년도'처럼 연도 숫자가 3자리(앞 '2'가 빠짐)
+        for (const m of t.matchAll(/(?<![\d.])(0\d{2})(학년도|년도|회계연도|년)/g))
+          add(S, cell.r, cell.c, LV.TYPO, '오탈자', `연도가 3자리입니다: '${m[0]}' → '2${m[0]}'?`, { fix: [m[0], '2' + m[0]], guess: true });
+        // 기간 일수: '11.25.(수) ~ 11.27.(금) / 2박 3일'에서 날짜로 센 날수와 'N일'이 다르면 알림
+        for (const m of t.matchAll(/(\d{1,2})\s*\.\s*(\d{1,2})\.?\s*(?:\([월화수목금토일]\))?\s*[~∼]\s*(?:(\d{1,2})\s*\.\s*)?(\d{1,2})\.?\s*(?:\([월화수목금토일]\))?[^\n\d]{0,12}?(\d{1,2})\s*박\s*(\d{1,2})\s*일/g)) {
+          const y = baseY || today.getFullYear(), m1 = +m[1], d1 = +m[2], m2 = m[3] ? +m[3] : m1, d2 = +m[4];
+          const a = new Date(y, m1 - 1, d1), b = new Date(m2 < m1 ? y + 1 : y, m2 - 1, d2);
+          if (a.getMonth() !== m1 - 1 || b.getMonth() !== (m2 - 1)) continue;
+          const days = Math.round((b - a) / 86400000) + 1;
+          if (days > 0 && days !== +m[6]) add(S, cell.r, cell.c, LV.CHECK, '숫자', `기간 일수가 다릅니다: '${m[0].replace(/\s+/g, ' ')}' — 날짜로 세면 ${days}일(${days - 1}박 ${days}일)이에요.`);
         }
         // '11:00시'처럼 시각과 '시'를 겹쳐 씀
         for (const m of t.matchAll(/(?<!\d)(\d{1,2}:\d{2})\s*시(?![간작장청설험민정각계도선의설])/g))
@@ -1351,11 +1374,12 @@ function run(){
     // PDF 줄·한글 문단처럼 한 줄씩 읽는 곳에서, 줄이 바뀌어 다음 줄(옆 칸 줄이 끼어 최대 4줄 뒤)에서 닫히는 괄호는 맞는 것으로 봄
     const at = new Map(); data.forEach(sh => sh.cells.forEach(c => at.set(sh.name + '|' + c.r, c.text)));
     const T = (sh, n) => at.get(sh + '|' + n) || '';
-    const closesFirst = t => { t = t.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z]{1,3})\)/, ''); const c = t.indexOf(')'), o = t.indexOf('('); return c >= 0 && (o < 0 || c < o); };
-    const opensLast = t => t.lastIndexOf('(') > t.lastIndexOf(')');
+    // 줄 맨 앞 번호 표시('2) 홍보물품')는 빼고 셈. 줄 끝에 홀로 남은 '명)'은 닫는 괄호
+    const closesFirst = t => { t = t.replace(/^\s*(\d{1,3}|[가-힣]|[a-zA-Z]{1,2})\)\s+(?=\S)/, ''); let b = 0; for (const ch of t) { if (ch === '(') b++; else if (ch === ')' && --b < 0) return true; } return false; };
+    const opensLast = t => { let b = 0; for (const ch of t) { if (ch === '(') b++; else if (ch === ')' && b > 0) b--; } return b > 0; };
     r.issues = r.issues.filter(i => {
       if (!i.msg.startsWith('괄호 짝') || !/^(PDF|본문)$/.test(i.sheet)) return true;
-      const b = ListCheck.parenBal(T(i.sheet, i.r)), near = [1, 2, 3, 4, 5, 6];
+      const b = ListCheck.parenBal(T(i.sheet, i.r)), near = [1, 2, 3, 4, 5, 6, 7, 8];
       return b > 0 ? !near.some(k => closesFirst(T(i.sheet, i.r + k))) : b < 0 ? !near.some(k => opensLast(T(i.sheet, i.r - k))) : true;
     });
   }
