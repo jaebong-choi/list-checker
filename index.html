@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK2.9</title>
+<title>오타 및 계산 수정기 MK3.0</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -246,7 +246,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK2.9</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK3.0</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -298,6 +298,13 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         </ol>
         <p class="note">키는 이 브라우저에만 있고 사이트 코드(GitHub)에는 들어가지 않아요. 공용 PC에서는 쓰고 나서 「키 지우기」를 눌러 주세요. 버튼을 누를 때만 그 파일의 글(사진은 그림)이 Anthropic으로 전송돼요. 사진은 가리기를 할 수 없어요.</p>
       </details>
+      <hr style="border:0;border-top:1px solid var(--line);margin:16px 0 12px">
+      <h3 style="font-size:15px;margin:0 0 6px">국어사전 확인 (국립국어원, 무료)</h3>
+      <p class="note">문서 속 낱말의 원형(수첩을 → 수첩, 만들었다 → 만들다)을 표준국어대사전·우리말샘에서 찾아, <b>사전에 없는 말</b>을 「확인 요망」으로 보여 줘요. 문장은 보내지 않고 한글 낱말만 보내요(이름·숫자·영어 제외).</p>
+      <label class="f" for="nkUrl">중계 서버 주소</label>
+      <input class="t" id="nkUrl" placeholder="https://nikl-relay.….workers.dev" autocomplete="off" spellcheck="false">
+      <div class="row"><button class="btn primary" id="nkRun" disabled>사전에 없는 말 찾기</button></div>
+      <div class="status" id="nkStatus" aria-live="polite"></div>
     </section>
 
     <section class="step">
@@ -943,8 +950,8 @@ function resetAll(){
   $('tools').hidden = true; $('q').value = ''; $('catSel').innerHTML = ''; $('resetBtn').hidden = true;
   $('results').innerHTML = EMPTY_HTML; $('pvBody').innerHTML = ''; $('pvTabs').innerHTML = ''; $('pvName').textContent = '';
   ['nFix', 'nCheck', 'nTypo', 'nAuto', 'nMark', 'nOff'].forEach(id => $(id).textContent = '0');
-  ['allOn', 'allOff', 'undoBtn', 'xlsxBtn', 'aiRun'].forEach(id => $(id).disabled = true); aiIssues = []; $('markOnly').disabled = false;
-  ['loadStatus', 'saveStatus', 'aiStatus'].forEach(id => setStatus(id, ''));
+  ['allOn', 'allOff', 'undoBtn', 'xlsxBtn', 'aiRun', 'nkRun'].forEach(id => $(id).disabled = true); aiIssues = []; nkIssues = []; $('markOnly').disabled = false;
+  ['loadStatus', 'saveStatus', 'aiStatus', 'nkStatus'].forEach(id => setStatus(id, ''));
   window.scrollTo({ top: 0, behavior: 'smooth' }); $('drop').focus({ preventScroll: true });
 }
 setTimeout(() => { $('resetBtn').onclick = $('resetBtn2').onclick = resetAll; }); // 아래쪽 변수(pptUrls 등)가 정해진 뒤 연결
@@ -1007,7 +1014,7 @@ async function load(file){
       });
     }
     fileBuf = buf; fileName = file.name; kind = k; data = d;
-    choice.clear(); closed.clear(); undoSnap = null; pvSheet = null; aiIssues = []; setStatus('aiStatus', '');
+    choice.clear(); closed.clear(); undoSnap = null; pvSheet = null; aiIssues = []; nkIssues = []; setStatus('aiStatus', ''); setStatus('nkStatus', '');
     if ($('engOn').checked && !eng) await loadEng(); $('undoBtn').disabled = true; $('saveStatus').textContent = '';
     run();
   } catch (e) {
@@ -1035,12 +1042,12 @@ function run(){
   if (useEng) { engBudget = ENG_MAX; engFreq = new Map(); data.forEach(sh => sh.cells.forEach(c => { for (const m of stripUrl(c.text).matchAll(EN_WORD)) engFreq.set(m[0], (engFreq.get(m[0]) || 0) + 1); })); }
   const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null, speller: useEng ? speller : null });
   // AI가 찾은 것 합치기(같은 칸·같은 고침이 이미 있으면 뺌), 파일 순서대로 다시 정렬
-  for (const a of aiIssues) {
+  for (const a of [...aiIssues, ...nkIssues]) {
     if (r.issues.some(i => i.sheet === a.sheet && i.r === a.r && i.c === a.c && i.fix && a.fix && i.fix[0] === a.fix[0] && i.fix[1] === a.fix[1])) continue;
     const same = r.issues.find(i => i.sheet === a.sheet && i.r === a.r && i.rec);
     r.issues.push({ ...a, rec: same ? same.rec : null, recLabel: same ? same.recLabel : `${a.sheet} ${a.addr}` });
   }
-  if (aiIssues.length) { const so = new Map(data.map((sh, k) => [sh.name, k])); r.issues.sort((a, b) => (so.get(a.sheet) - so.get(b.sheet)) || (a.r - b.r) || (a.c - b.c)); }
+  if (aiIssues.length || nkIssues.length) { const so = new Map(data.map((sh, k) => [sh.name, k])); r.issues.sort((a, b) => (so.get(a.sheet) - so.get(b.sheet)) || (a.r - b.r) || (a.c - b.c)); }
   if (kind !== 'xlsx') {
     // PDF 줄·한글 문단처럼 한 줄씩 읽는 곳에서, 줄이 바뀌어 다음 줄(옆 칸 줄이 끼어 최대 4줄 뒤)에서 닫히는 괄호는 맞는 것으로 봄
     const at = new Map(); data.forEach(sh => sh.cells.forEach(c => at.set(sh.name + '|' + c.r, c.text)));
@@ -1071,7 +1078,7 @@ function run(){
   if (r.noText) setStatus('loadStatus', `${fileName} — 읽을 수 있는 글자가 없어요(가운데 안내를 봐 주세요).`, 'warn');
   else if (kind === 'pdf' || kind === 'img') setStatus('loadStatus', `${fileName} — ${data.ocr ? '사진 글자 읽기(OCR)로 ' : ''}${pdfSizes.length}${kind === 'img' ? '장' : '쪽'}, 글자 ${pdfLines.length}줄을 읽었어요`, data.ocr ? 'warn' : 'ok');
   else setStatus('loadStatus', `${fileName} — ${main || '표 형태를 찾지 못해 칸별 점검만 했어요'}`, recs ? 'ok' : 'warn');
-  ['allOn','allOff','xlsxBtn','aiRun'].forEach(id => $(id).disabled = false);
+  ['allOn','allOff','xlsxBtn','aiRun','nkRun'].forEach(id => $(id).disabled = false);
   $('xlsxBtn').disabled = $('markOnly').disabled = RO.has(kind);
   if (RO.has(kind)) setStatus('saveStatus', 'PDF·한글·사진 파일은 고칠 수 없어서 내보내기 없이 화면에서만 표시해요.');
   $('tools').hidden = false; $('resetBtn').hidden = false; document.body.classList.add('has-data');
@@ -2252,6 +2259,71 @@ async function runAi(){
   } finally { $('aiRun').disabled = !data; }
 }
 $('aiRun').onclick = runAi;
+
+// ---------- 국어사전 확인 (국립국어원 표준국어대사전·우리말샘, 중계 서버를 거쳐) ----------
+// 버튼을 누를 때만, 한글 낱말 원형만 보냄. 결과는 이 브라우저에 기억해 같은 낱말은 다시 묻지 않음
+const NK_URL = ''; // 중계 서버를 올린 뒤 주소를 넣으면 모든 사람에게 기본값이 됨
+let nkIssues = [];
+$('nkUrl').value = store.get('nkUrl') || NK_URL;
+$('nkUrl').oninput = () => store.set('nkUrl', $('nkUrl').value.trim());
+function nkLemma(t){
+  const w = t.str || '';
+  if (!/^[가-힣]+$/.test(w)) return null;
+  if (t.tag === 'NNG' && w.length >= 2) return w;          // 일반 명사(고유명사 NNP는 이름일 수 있어 보내지 않음)
+  if (/^V[VA]/.test(t.tag)) return w + '다';               // 동사·형용사 어간 → 원형
+  if (t.tag === 'MAG' && w.length >= 2) return w;          // 부사(일일이 등)
+  return null;
+}
+const eojeolAt = (line, pos) => { let a = pos, b = pos; while (a > 0 && !/\s/.test(line[a - 1])) a--; while (b < line.length && !/\s/.test(line[b])) b++; return line.slice(a, b).replace(/^[^가-힣A-Za-z0-9]+|[^가-힣A-Za-z0-9]+$/g, ''); };
+async function nkPost(base, words){
+  const res = await fetch(base + '/check', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ words }) });
+  let j = {}; try { j = await res.json(); } catch (e) {}
+  if (!res.ok) throw new Error(j.error || `중계 서버 오류(${res.status})`);
+  return j.results || {};
+}
+async function runNk(){
+  if (!data) { setStatus('nkStatus', '먼저 파일을 넣어 주세요.', 'warn'); return; }
+  const base = $('nkUrl').value.trim().replace(/\/+$/, '');
+  if (!/^https:\/\/|^http:\/\/localhost/.test(base)) { setStatus('nkStatus', '중계 서버 주소(https://…)를 넣어 주세요.', 'warn'); $('nkUrl').focus(); return; }
+  if (!confirm('문서 속 한글 낱말 목록(문장 전체가 아니라 낱말 원형만, 이름·숫자·영어 제외)이 중계 서버를 거쳐 국립국어원 사전으로 전송돼요. 계속할까요?')) return;
+  $('nkRun').disabled = true;
+  try {
+    if (!kiwi) { setStatus('nkStatus', '낱말 원형을 뽑는 도구(Kiwi) 불러오는 중… 처음엔 1~2분 걸려요'); await loadKiwi(); if (!kiwi) throw new Error('낱말 원형을 뽑는 도구를 불러오지 못했어요.'); }
+    setStatus('nkStatus', '낱말 모으는 중…');
+    const occ = new Map(); // 원형 → 나온 칸들
+    data.forEach(sh => sh.cells.forEach(c => {
+      for (const line of c.text.split('\n')) {
+        if (!/[가-힣]{2}/.test(line)) continue;
+        let toks; try { toks = kiwi.tokenize(line); } catch (e) { continue; }
+        for (const t of toks) {
+          const lem = nkLemma(t); if (!lem) continue;
+          if (!occ.has(lem)) occ.set(lem, []);
+          const L = occ.get(lem);
+          if (L.length < 30 && !L.some(o => o.sheet === sh.name && o.r === c.r && o.c === c.c)) L.push({ sheet: sh.name, r: c.r, c: c.c, addr: c.addr, eo: eojeolAt(line, t.position) });
+        }
+      }
+    }));
+    let cache = {}; try { cache = JSON.parse(store.get('nkCache') || '{}'); } catch (e) {}
+    if (Object.keys(cache).length > 30000) cache = {};
+    const ask = [...occ.keys()].filter(w => !(w in cache));
+    const batches = []; for (let k = 0; k < ask.length; k += 12) batches.push(ask.slice(k, k + 12));
+    let done = 0, errs = 0;
+    const worker = async () => { while (batches.length) { const b = batches.shift(); const r = await nkPost(base, b); for (const [w, v] of Object.entries(r)) { if (v === 'err') errs++; else cache[w] = v; } done += b.length; setStatus('nkStatus', `국어사전에서 찾는 중… (${done}/${ask.length}개)`); } };
+    await Promise.all([worker(), worker(), worker()]);
+    store.set('nkCache', JSON.stringify(cache));
+    const missing = [...occ.keys()].filter(w => cache[w] === 'none');
+    nkIssues = missing.flatMap(w => occ.get(w).map(o => ({ id: `nk|${o.sheet}|${o.r}|${o.c}|${w}`, sheet: o.sheet, r: o.r, c: o.c, addr: o.addr, level: 'check', cat: '국어사전',
+      msg: `국어사전에 없는 말: '${o.eo || w}' (원형 '${w}') — 표준국어대사전·우리말샘에서 찾지 못했어요. 오타인지 확인해 주세요.`, title: '' })));
+    run();
+    const added = result.issues.filter(i => i.cat === '국어사전').length;
+    setStatus('nkStatus', `낱말 ${occ.size}개를 확인했어요. ` + (added ? `사전에 없는 말 ${missing.length}개(${added}곳)를 「국어사전」 종류로 표시했어요.` : '모두 사전에 있는 말이에요.') + (errs ? ` (${errs}개는 사전 서버 오류로 확인하지 못했어요)` : ''), errs && !added ? 'warn' : 'ok');
+    if (added) { $('catSel').value = '국어사전'; render(); }
+  } catch (e) {
+    console.error(e);
+    setStatus('nkStatus', e instanceof TypeError ? '중계 서버에 연결하지 못했어요. 주소와 인터넷 연결을 확인해 주세요.' : (e.message || '국어사전 확인에 실패했어요.'), 'warn');
+  } finally { $('nkRun').disabled = !data; }
+}
+$('nkRun').onclick = runNk;
 
 // ---------- 띄어쓰기 (Kiwi, 브라우저 안에서만 실행) ----------
 // ponytail: 화면 스레드에서 실행(처음 1~2초 멈춤). 느리면 Web Worker로 옮기기

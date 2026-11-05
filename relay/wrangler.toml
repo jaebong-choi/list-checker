@@ -1,0 +1,5 @@
+# Cloudflare Workers 설정 (명령어로 올릴 때만 씀. 대시보드에 붙여 넣는 방법이면 필요 없음)
+# 인증키는 여기에 적지 말고: npx wrangler secret put STDICT_KEY  /  npx wrangler secret put OPENDICT_KEY
+name = "nikl-relay"
+main = "worker.js"
+compatibility_date = "2026-10-01"
