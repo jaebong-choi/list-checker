@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK3.0</title>
+<title>오타 및 계산 수정기 MK3.1</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -246,7 +246,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK3.0</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK3.1</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -2262,7 +2262,7 @@ $('aiRun').onclick = runAi;
 
 // ---------- 국어사전 확인 (국립국어원 표준국어대사전·우리말샘, 중계 서버를 거쳐) ----------
 // 버튼을 누를 때만, 한글 낱말 원형만 보냄. 결과는 이 브라우저에 기억해 같은 낱말은 다시 묻지 않음
-const NK_URL = ''; // 중계 서버를 올린 뒤 주소를 넣으면 모든 사람에게 기본값이 됨
+const NK_URL = 'https://nikl-relay.studyguidehub.workers.dev'; // 국제처 중계 서버(Cloudflare). 칸에 다른 주소를 넣으면 그걸 씀
 let nkIssues = [];
 $('nkUrl').value = store.get('nkUrl') || NK_URL;
 $('nkUrl').oninput = () => store.set('nkUrl', $('nkUrl').value.trim());
@@ -2290,33 +2290,56 @@ async function runNk(){
   try {
     if (!kiwi) { setStatus('nkStatus', '낱말 원형을 뽑는 도구(Kiwi) 불러오는 중… 처음엔 1~2분 걸려요'); await loadKiwi(); if (!kiwi) throw new Error('낱말 원형을 뽑는 도구를 불러오지 못했어요.'); }
     setStatus('nkStatus', '낱말 모으는 중…');
-    const occ = new Map(); // 원형 → 나온 칸들
+    const occ = new Map(), nouns = new Set(); // 원형 → 나온 칸들, 명사로 나온 원형
     data.forEach(sh => sh.cells.forEach(c => {
       for (const line of c.text.split('\n')) {
         if (!/[가-힣]{2}/.test(line)) continue;
         let toks; try { toks = kiwi.tokenize(line); } catch (e) { continue; }
         for (const t of toks) {
           const lem = nkLemma(t); if (!lem) continue;
+          if (t.tag === 'NNG') nouns.add(lem);
           if (!occ.has(lem)) occ.set(lem, []);
           const L = occ.get(lem);
           if (L.length < 30 && !L.some(o => o.sheet === sh.name && o.r === c.r && o.c === c.c)) L.push({ sheet: sh.name, r: c.r, c: c.c, addr: c.addr, eo: eojeolAt(line, t.position) });
         }
       }
     }));
-    let cache = {}; try { cache = JSON.parse(store.get('nkCache') || '{}'); } catch (e) {}
+    let cache = {}; try { cache = JSON.parse(store.get('nkCache2') || '{}'); } catch (e) {}
     if (Object.keys(cache).length > 30000) cache = {};
-    const ask = [...occ.keys()].filter(w => !(w in cache));
-    const batches = []; for (let k = 0; k < ask.length; k += 12) batches.push(ask.slice(k, k + 12));
-    let done = 0, errs = 0;
-    const worker = async () => { while (batches.length) { const b = batches.shift(); const r = await nkPost(base, b); for (const [w, v] of Object.entries(r)) { if (v === 'err') errs++; else cache[w] = v; } done += b.length; setStatus('nkStatus', `국어사전에서 찾는 중… (${done}/${ask.length}개)`); } };
-    await Promise.all([worker(), worker(), worker()]);
-    store.set('nkCache', JSON.stringify(cache));
+    let errs = 0;
+    const lookupAll = async (list, label) => {
+      const ask = [...new Set(list)].filter(w => !(w in cache));
+      const batches = []; for (let k = 0; k < ask.length; k += 10) batches.push(ask.slice(k, k + 10));
+      let done = 0;
+      const worker = async () => { while (batches.length) { const b = batches.shift(); const r = await nkPost(base, b); for (const [w, v] of Object.entries(r)) { if (v === 'err') errs++; else cache[w] = v; } done += b.length; setStatus('nkStatus', `${label} (${done}/${ask.length}개)`); } };
+      await Promise.all([worker(), worker(), worker()]);
+    };
+    await lookupAll([...occ.keys()], '국어사전에서 찾는 중…');
+    // 「설명회」처럼 붙여 만든 명사는 사전에 따로 없을 수 있어, 두 조각(설명+회)이 모두 사전에 있으면 맞는 말로 봄
+    const isOk = v => v === 'std' || v === 'open';
+    const splitsOf = w => { const out = []; for (let k = 2; k < w.length; k++) out.push([w.slice(0, k), w.slice(k)]); return out; };
+    const compounds = [...occ.keys()].filter(w => cache[w] === 'none' && nouns.has(w) && w.length >= 3);
+    await lookupAll(compounds.flatMap(w => splitsOf(w).flat()), '붙여 만든 말 나눠서 찾는 중…');
+    compounds.forEach(w => { if (splitsOf(w).some(([a, b]) => isOk(cache[a]) && isOk(cache[b]))) cache[w] = 'std'; });
+    store.set('nkCache2', JSON.stringify(cache));
     const missing = [...occ.keys()].filter(w => cache[w] === 'none');
+    const wrongs = [...occ.keys()].filter(w => String(cache[w]).startsWith('wrong:'));
+    const textOf = new Map(); data.forEach(sh => sh.cells.forEach(c => textOf.set(`${sh.name}|${c.r}|${c.c}`, c.text)));
     nkIssues = missing.flatMap(w => occ.get(w).map(o => ({ id: `nk|${o.sheet}|${o.r}|${o.c}|${w}`, sheet: o.sheet, r: o.r, c: o.c, addr: o.addr, level: 'check', cat: '국어사전',
       msg: `국어사전에 없는 말: '${o.eo || w}' (원형 '${w}') — 표준국어대사전·우리말샘에서 찾지 못했어요. 오타인지 확인해 주세요.`, title: '' })));
+    // 사전에 "'역할'의 잘못"처럼 실린 말은 맞는 말로 고치는 제안(동사·형용사는 '다'를 뺀 어간끼리 바꿈)
+    for (const w of wrongs) {
+      const to = cache[w].slice(6), verb = w.endsWith('다') && to.endsWith('다') && !nouns.has(w);
+      const from = verb ? w.slice(0, -1) : w, into = verb ? to.slice(0, -1) : to;
+      for (const o of occ.get(w)) {
+        const can = (textOf.get(`${o.sheet}|${o.r}|${o.c}`) || '').includes(from);
+        nkIssues.push({ id: `nkw|${o.sheet}|${o.r}|${o.c}|${w}`, sheet: o.sheet, r: o.r, c: o.c, addr: o.addr, level: 'typo', cat: '국어사전', title: '',
+          msg: `표준국어대사전: '${o.eo || w}' → '${to}' (사전에 「'${to}'의 잘못」으로 실려 있어요)`, ...(can ? { fix: [from, into] } : {}) });
+      }
+    }
     run();
     const added = result.issues.filter(i => i.cat === '국어사전').length;
-    setStatus('nkStatus', `낱말 ${occ.size}개를 확인했어요. ` + (added ? `사전에 없는 말 ${missing.length}개(${added}곳)를 「국어사전」 종류로 표시했어요.` : '모두 사전에 있는 말이에요.') + (errs ? ` (${errs}개는 사전 서버 오류로 확인하지 못했어요)` : ''), errs && !added ? 'warn' : 'ok');
+    setStatus('nkStatus', `낱말 ${occ.size}개를 확인했어요. ` + (added ? `틀린 말 ${wrongs.length}개, 사전에 없는 말 ${missing.length}개(모두 ${added}곳)를 「국어사전」 종류로 표시했어요.` : '모두 사전에 있는 말이에요.') + (errs ? ` (${errs}개는 사전 서버 오류로 확인하지 못했어요)` : ''), errs && !added ? 'warn' : 'ok');
     if (added) { $('catSel').value = '국어사전'; render(); }
   } catch (e) {
     console.error(e);

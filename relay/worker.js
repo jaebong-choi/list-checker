@@ -1,10 +1,12 @@
 // 오타 및 계산 수정기 — 국립국어원 사전 중계 서버 (Cloudflare Workers)
 // 검수기(브라우저)가 보낸 낱말 원형을 표준국어대사전·우리말샘 오픈 API에 대신 물어보고 결과만 돌려줌.
 // 인증키는 Cloudflare 「변수 및 비밀」(STDICT_KEY, OPENDICT_KEY)에만 두고 코드에는 넣지 않음.
+// 결과: 'std'(표준국어대사전에 있음) | 'open'(우리말샘에만 있음) | 'none'(없음) | 'wrong:맞는말'(사전에 "'맞는말'의 잘못"으로 실림) | 'err'
 
 const ALLOW = ['https://jaebong-choi.github.io', 'http://localhost:8765']; // 이 주소에서 온 요청만 받음
-const MAX_WORDS = 12;              // 한 번에 받는 낱말 수(무료 요금제의 요청당 외부 호출 50번 한도 안)
+const MAX_WORDS = 10;              // 한 번에 받는 낱말 수(무료 요금제의 요청당 외부 호출 50번 한도 안)
 const CACHE_DAYS = 30;             // 같은 낱말은 30일 동안 다시 묻지 않음
+const CACHE_VER = 'v3';           // 결과 형식이 바뀌면 올려서 예전 기억을 버림
 const WORD = /^[가-힣]{1,20}$/;    // 한글 낱말만(이름·숫자·영어는 받지 않음)
 
 const STD = (key, w) => `https://stdict.korean.go.kr/api/search.do?key=${key}&q=${encodeURIComponent(w)}&req_type=json&advanced=y&method=exact&num=10`;
@@ -21,29 +23,37 @@ function cors(origin){
 }
 const json = (obj, status, origin) => new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json; charset=utf-8', ...cors(origin) } });
 
-// 사전 한 곳에 묻기 → true(있음) | false(없음) | 'err'(키 오류·서버 오류)
+// 뜻풀이가 모두 "'역할'의 잘못"처럼 틀린 말 안내면 맞는 말을 돌려줌
+function wrongOf(t){
+  const defs = [...t.matchAll(/"definition"\s*:\s*"((?:[^"\\]|\\.)*)"|<definition>([\s\S]*?)<\/definition>/g)].map(m => (m[1] ?? m[2] ?? '').replace(/<[^>]+>|\\u[0-9a-f]{4}/gi, ''));
+  if (!defs.length) return null;
+  // 표준국어대사전은 틀린 말을 "→ 역할."(화살표)로, 우리말샘은 "'역할'의 잘못"으로 적음
+  const to = defs.map(d => (d.match(/^\s*→\s*([가-힣][가-힣^\- ]*)/) || d.match(/^\s*[‘'"「]?([가-힣 ]+?)[’'"」]?\s*의\s*(잘못|비표준어)/) || [])[1]);
+  return to.every(Boolean) ? to[0].replace(/\^/g, ' ').replace(/-/g, '').trim() : null; // 사전 표기: ^ = 띄어 쓸 수 있음, - = 낱말 경계
+}
+// 사전 한 곳에 묻기 → true(있음) | false(없음) | 'wrong:맞는말' | 'err'(키 오류·서버 오류)
 async function lookup(url){
   let res;
   try { res = await fetch(url, { headers: { 'accept': 'application/json' } }); } catch (e) { return 'err'; }
   if (!res.ok) return 'err';
   const t = (await res.text()).trim();
   if (!t) return false;                                   // 표준국어대사전은 결과가 없으면 빈 응답
-  if (t.startsWith('<')) return /<error/i.test(t) ? 'err' : /<total>\s*[1-9]/.test(t);
-  try {
-    const j = JSON.parse(t);
-    if (j.error) return 'err';
-    return Number((j.channel || {}).total || 0) > 0;
-  } catch (e) { return 'err'; }
+  let found;
+  if (t.startsWith('<')) { if (/<error/i.test(t)) return 'err'; found = /<total>\s*[1-9]/.test(t); }
+  else { try { const j = JSON.parse(t); if (j.error) return 'err'; found = Number((j.channel || {}).total || 0) > 0; } catch (e) { return 'err'; } }
+  if (!found) return false;
+  const w = wrongOf(t);
+  return w ? 'wrong:' + w : true;
 }
 
-// 낱말 하나 → 'std'(표준국어대사전에 있음) | 'open'(우리말샘에만 있음) | 'none'(둘 다 없음) | 'err'
 async function check(word, env, ctx){
-  const cache = caches.default, ck = new Request('https://nikl-cache.local/' + encodeURIComponent(word));
+  const cache = caches.default, ck = new Request(`https://nikl-cache.local/${CACHE_VER}/` + encodeURIComponent(word));
   const hit = await cache.match(ck);
   if (hit) return await hit.text();
   let out = 'none';
-  if (env.STDICT_KEY) { const r = await lookup(STD(env.STDICT_KEY, word)); if (r === 'err') out = 'err'; else if (r) out = 'std'; }
-  if (out !== 'std' && env.OPENDICT_KEY) { const r = await lookup(OPEN(env.OPENDICT_KEY, word)); if (r === true) out = 'open'; else if (r === 'err' && out === 'none' && !env.STDICT_KEY) out = 'err'; }
+  if (env.STDICT_KEY) { const r = await lookup(STD(env.STDICT_KEY, word)); if (r === 'err') out = 'err'; else if (r === true) out = 'std'; else if (r) out = r; }
+  if (out === 'none' && env.OPENDICT_KEY) { const r = await lookup(OPEN(env.OPENDICT_KEY, word)); if (r === true) out = 'open'; else if (typeof r === 'string' && r.startsWith('wrong:')) out = r; }
+  else if (out === 'err' && env.OPENDICT_KEY) { const r = await lookup(OPEN(env.OPENDICT_KEY, word)); if (r === true) out = 'open'; else if (r === false) out = 'none'; }
   if (out !== 'err') ctx.waitUntil(cache.put(ck, new Response(out, { headers: { 'Cache-Control': `max-age=${CACHE_DAYS * 86400}` } })));
   return out;
 }
@@ -60,7 +70,7 @@ export default {
     if (url.pathname === '/health') {
       const std = env.STDICT_KEY ? await lookup(STD(env.STDICT_KEY, '나무')) : 'nokey';
       const open = env.OPENDICT_KEY ? await lookup(OPEN(env.OPENDICT_KEY, '나무')) : 'nokey';
-      return json({ ok: std === true || open === true, std, open }, 200, origin);
+      return json({ ok: std === true || open === true, std, open, max: MAX_WORDS }, 200, origin);
     }
 
     if (url.pathname === '/check' && req.method === 'POST') {
