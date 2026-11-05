@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK3.4</title>
+<title>오타 및 계산 수정기 MK3.5</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -84,6 +84,15 @@ aside{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:s
 .btn:hover{filter:brightness(.96)}
 .btn.primary{background:var(--brand);color:var(--brand-ink);font-weight:700}
 .btn.primary:hover{background:var(--brand-strong);filter:none}
+dialog.ask{position:fixed;inset:0;margin:auto;height:fit-content;max-height:calc(100% - 32px);overflow:auto;box-sizing:border-box;border:0;border-radius:16px;padding:24px 24px 20px;max-width:440px;width:calc(100% - 32px);background:var(--paper);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog.ask::backdrop{background:rgba(17,19,24,.45)}
+dialog.ask h3{margin:0 0 10px;font-size:18px}
+dialog.ask p,dialog.ask li{font-size:14px;line-height:1.6;margin:0 0 6px}
+dialog.ask ul{margin:6px 0 14px;padding-left:18px;color:var(--muted)}
+.ask-skip{display:block;font-size:13px;color:var(--muted);margin:0 0 16px;cursor:pointer}
+.ask-skip[hidden]{display:none}
+.ask-skip span{display:block;margin:2px 0 0 22px;font-size:12px}
+.ask-row{display:flex;justify-content:flex-end;gap:8px}
 .btn:disabled{opacity:.45;cursor:default;filter:none}
 .btn.wide{width:100%;padding:14px;font-size:16px}
 label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
@@ -246,7 +255,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK3.4</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK3.5</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -304,6 +313,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       <label class="f" for="nkUrl">중계 서버 주소</label>
       <input class="t" id="nkUrl" placeholder="https://nikl-relay.….workers.dev" autocomplete="off" spellcheck="false">
       <div class="row"><button class="btn primary" id="nkRun" disabled>사전에 없는 말 찾기</button></div>
+      <label class="kw"><input type="checkbox" id="nkAskOn" checked> 파일을 넣을 때 할지 물어보기</label>
       <div class="status" id="nkStatus" aria-live="polite"></div>
     </section>
 
@@ -1171,7 +1181,7 @@ async function load(file){
     fileBuf = buf; fileName = file.name; kind = k; data = d;
     choice.clear(); closed.clear(); undoSnap = null; pvSheet = null; aiIssues = []; nkIssues = []; setStatus('aiStatus', ''); setStatus('nkStatus', '');
     if ($('engOn').checked && !eng) await loadEng(); $('undoBtn').disabled = true; $('saveStatus').textContent = '';
-    run();
+    run(); offerNk();
   } catch (e) {
     console.error(e);
     setStatus('loadStatus', '파일을 열지 못했어요. 암호가 걸려 있거나 손상된 파일인지 확인해 주세요.', 'warn');
@@ -2436,11 +2446,11 @@ async function nkPost(base, words){
   if (!res.ok) throw new Error(j.error || `중계 서버 오류(${res.status})`);
   return j.results || {};
 }
-async function runNk(){
+async function runNk(auto){
   if (!data) { setStatus('nkStatus', '먼저 파일을 넣어 주세요.', 'warn'); return; }
   const base = $('nkUrl').value.trim().replace(/\/+$/, '');
   if (!/^https:\/\/|^http:\/\/localhost/.test(base)) { setStatus('nkStatus', '중계 서버 주소(https://…)를 넣어 주세요.', 'warn'); $('nkUrl').focus(); return; }
-  if (!confirm('문서 속 한글 낱말 목록(문장 전체가 아니라 낱말 원형만, 이름·숫자·영어 제외)이 중계 서버를 거쳐 국립국어원 사전으로 전송돼요. 계속할까요?')) return;
+  if (!(await askNk(!!auto))) return;
   $('nkRun').disabled = true;
   try {
     if (!kiwi) { setStatus('nkStatus', '낱말 원형을 뽑는 도구(Kiwi) 불러오는 중… 처음엔 1~2분 걸려요'); await loadKiwi(); if (!kiwi) throw new Error('낱말 원형을 뽑는 도구를 불러오지 못했어요.'); }
@@ -2501,7 +2511,31 @@ async function runNk(){
     setStatus('nkStatus', e instanceof TypeError ? '중계 서버에 연결하지 못했어요. 주소와 인터넷 연결을 확인해 주세요.' : (e.message || '국어사전 확인에 실패했어요.'), 'warn');
   } finally { $('nkRun').disabled = !data; }
 }
-$('nkRun').onclick = runNk;
+$('nkRun').onclick = () => runNk(false);
+// 시작할지 묻는 창. auto = 파일을 넣자마자 뜬 것(이때만 「다시 묻지 않기」를 보여 줌)
+$('nkAskOn').checked = store.get('nkAsk') !== 'off';
+$('nkAskOn').onchange = () => store.set('nkAsk', $('nkAskOn').checked ? 'on' : 'off');
+function askNk(auto){
+  const d = $('nkAsk');
+  $('nkAskSkip').checked = false; d.querySelector('.ask-skip').hidden = !auto;
+  return new Promise(res => {
+    let done = false;
+    const finish = yes => {
+      if (done) return; done = true;
+      if (auto && $('nkAskSkip').checked) { store.set('nkAsk', 'off'); $('nkAskOn').checked = false; }
+      if (d.open) d.close();
+      res(yes);
+    };
+    d.querySelectorAll('button').forEach(b => b.onclick = e => { e.preventDefault(); finish(b.value === 'yes'); });
+    d.oncancel = e => { e.preventDefault(); finish(false); }; // Esc = 안 할래요
+    d.onclose = () => finish(false);
+    if (!d.open) d.showModal();
+  });
+}
+function offerNk(){
+  if (store.get('nkAsk') === 'off' || $('nkRun').disabled || !data || !data.some(sh => sh.cells.some(c => /[가-힣]{2}/.test(c.text)))) return;
+  setTimeout(() => runNk(true), 400); // 결과 화면이 먼저 그려진 뒤에 물어봄
+}
 
 // ---------- 띄어쓰기 (Kiwi, 브라우저 안에서만 실행) ----------
 // ponytail: 화면 스레드에서 실행(처음 1~2초 멈춤). 느리면 Web Worker로 옮기기
@@ -2561,5 +2595,20 @@ $('kiwiOn').onchange = async () => {
 };
 })();
 </script>
+<dialog id="nkAsk" class="ask" aria-labelledby="nkAskT">
+  <form method="dialog">
+    <h3 id="nkAskT">국어사전으로도 확인할까요?</h3>
+    <p>문서 속 낱말을 <b>국립국어원 표준국어대사전</b>에서 찾아 사전에 없는 말·틀린 말을 더 찾아 줘요.</p>
+    <ul>
+      <li>문장 전체가 아니라 <b>낱말 원형만</b> 보내요(이름·숫자·영어 제외).</li>
+      <li>처음 한 번은 준비하느라 <b>1~2분</b> 걸려요. 그동안 결과를 먼저 보고 있어도 돼요.</li>
+    </ul>
+    <label class="ask-skip"><input type="checkbox" id="nkAskSkip"> 파일을 넣을 때 다시 묻지 않기 <span>(왼쪽 「사전에 없는 말 찾기」 버튼으로는 언제든 할 수 있어요)</span></label>
+    <div class="ask-row">
+      <button class="btn" value="no">안 할래요</button>
+      <button class="btn primary" value="yes" autofocus>시작하기</button>
+    </div>
+  </form>
+</dialog>
 </body>
 </html>
