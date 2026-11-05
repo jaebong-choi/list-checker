@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK3.3</title>
+<title>오타 및 계산 수정기 MK3.4</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -246,7 +246,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK3.3</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK3.4</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -491,6 +491,30 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     + '참가자 담당자 관계자 장학금 등록금 기숙사 출입국 한국어 한국문화 대학교 대학원 '
     + '시청각실 강의실 회의실 세미나실 대강당 도서관 학생회관 교육과정 산학협력 인력양성 산업체 기업체 모집요강 파란사다리').split(' ');
   const COMMON = new Set(COMMON_ARR);
+  // 두 글자 말은 자판 바로 옆 글쇠를 잘못 누른 것만 봄(싱청→신청: ㄴ↔ㅇ, 움영→운영: ㄴ↔ㅁ)
+  const COMMON2 = new Set(('신청 접수 운영 모집 제출 계획 진행 완료 결과 보고 대상 일정 회의 행사 참가 참여 선발 면접 평가 교육 국제 협력 지원 협약 교류 방문 연수 파견 등록 기간 장소 인원 예산 '
+    + '안내 공지 요청 협조 검토 승인 결재 담당 문의 연락 학생 교수 직원 학과 학년 학기 전공 수업 강의 시험 성적 출석 졸업 입학 장학 비자 체류 유학 개최 실시 추진 준비 확인 관련 '
+    + '사업 업무 활동 홍보 설명 상담 통역 숙소 항공 출국 입국 귀국 기관 협회 총장 처장 팀장 주관 주최 후원 정산 집행 구매 계약 일시 내용 비고 합계 소계').split(' '));
+  // 위 말과 옆 글쇠 하나 차이지만 실제로 쓰는 말(오타로 보지 않음)
+  const REAL2 = new Set(('심청 산청 신천 신창 점수 잡수 군영 운용 윤영 은영 운연 운경 지출 재출 제철 관료 경과 열과 부고 보도 보조 대강 대성 대항 대산 대승 대생 일종 일전 일절 일장 일적 일중 '
+    + '생사 찬가 첨가 참사 손발 선박 선방 면적 숙제 국지 자원 재원 제원 교유 반문 연구 영수 염수 온수 연소 연서 연후 파경 등속 시간 기안 기강 기단 기산 기근 개간 이간 장수 장로 장서 장고 정소 '
+    + '임원 인권 계산 예상 예선 인내 안대 단내 간내 암내 동지 송지 경지 곤지 궁지 공제 공자 공비 요철 협주 성인 상인 결제 경재 감당 담장 영락 항생 고수 교구 직권 학연 정공 전동 전경 전송 '
+    + '수첩 상의 선적 승적 성정 종업 입항 방학 정학 성명 통영 숙고 상공 개관 청장 통장 충장 차장 추장 처방 무관 수원 전산 정상 정신 예약 비교 가업 업주 구내 구미 애용 비지').split(' '));
+  const KB_ROWS = ['ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔ', 'ㅁㄴㅇㄹㅎㅗㅓㅏㅣ', 'ㅋㅌㅊㅍㅠㅜㅡ'], KB_POS = {};
+  KB_ROWS.forEach((row, r) => [...row].forEach((ch, c) => KB_POS[ch] = [r, c]));
+  const keyAdj = (a, b) => { const p = KB_POS[a], q = KB_POS[b]; if (!p || !q) return false; if (p[0] === q[0]) return Math.abs(p[1] - q[1]) === 1; const [hi, lo] = p[0] < q[0] ? [p, q] : [q, p]; return lo[0] - hi[0] === 1 && (lo[1] === hi[1] || lo[1] === hi[1] - 1); };
+  const J_CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ', J_JUNG = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ', J_JONG = ' ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ';
+  // 한 글자에서 자모 하나를 옆 글쇠로 바꾼 글자들
+  function keySlips(ch) {
+    const x = jamo(ch); if (!x) return [];
+    const [c, v, j] = x, mk = (a, b, d) => String.fromCharCode(0xAC00 + a * 588 + b * 28 + d), out = [];
+    for (const k of Object.keys(KB_POS)) {
+      if (keyAdj(J_CHO[c], k) && J_CHO.includes(k)) out.push(mk(J_CHO.indexOf(k), v, j));
+      if (keyAdj(J_JUNG[v], k) && J_JUNG.includes(k)) out.push(mk(c, J_JUNG.indexOf(k), j));
+      if (j && keyAdj(J_JONG[j], k) && J_JONG.indexOf(k) > 0) out.push(mk(c, v, J_JONG.indexOf(k)));
+    }
+    return out;
+  }
   // 조사·어미에 자주 쓰이는 글자
   const PARTICLE = '은는이가을를에의와과도로으만서야여요다께며고면인게데라랑';
   // 괄호 짝: 여는 괄호보다 닫는 괄호가 먼저 나왔는데 바로 앞이 '1)'·'가)'·'a)'·'ex)' 같은 번호·예시 표시면 괄호가 아닌 표시로 봄.
@@ -966,6 +990,23 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
               add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w}' → '${fixed}'? (자주 쓰는 말 '${K}'와 한 글자 다름)`, { fix: [w, fixed], guess: true });
               break hit;
             }
+          }
+        }
+      }
+      // 두 글자 말(뒤에 조사 하나 붙은 것 포함): 옆 글쇠 하나를 잘못 누른 말 — 맞는 말이 같은 시트(슬라이드)에 더 많이 있거나 자주 쓰는 두 글자 말일 때
+      const sheetText = allCells.map(c => c.text).join('\n');
+      const cnt = (s, k) => s.split(k).length - 1;
+      for (const cell of allCells) {
+        for (const run of cell.text.match(/[가-힣]+/g) || []) {
+          const w2 = run.length === 2 ? run : (run.length === 3 && PARTICLE.includes(run[2]) ? run.slice(0, 2) : null);
+          if (!w2 || COMMON2.has(w2) || REAL2.has(w2) || COMMON.has(run) || [...dictWrong].some(dw => run.includes(dw))) continue;
+          const nW = cnt(sheetText, w2);
+          for (const K of [0, 1].flatMap(p => keySlips(w2[p]).map(s => p ? w2[0] + s : s + w2[1]))) {
+            if (REAL2.has(K)) continue;
+            const nK = cnt(sheetText, K);
+            if (nW > 1 || !((nK >= 2) || (COMMON2.has(K) && (words.get(w2) || 0) <= 1))) continue; // 틀린 말은 한 번만 나와야 함
+            add(S, cell.r, cell.c, LV.TYPO, '오탈자', `오타 의심: '${w2}' → '${K}'? (자판에서 옆 글쇠를 누른 것 같아요${nK ? `. 같은 곳에 '${K}'도 있어요` : ''})`, { fix: [w2, K], guess: true });
+            break;
           }
         }
       }
