@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK3.8</title>
+<title>오타 및 계산 수정기 MK4.0</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -78,6 +78,13 @@ aside{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:s
 .step h2 b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--brand);color:var(--brand-ink);font-size:13px;font-weight:800;flex:none}
 .drop{border:2px dashed var(--line);border-radius:16px;padding:24px 14px;text-align:center;cursor:pointer;color:var(--muted);font-size:14px;background:var(--panel);transition:border-color .15s,background .15s}
 .drop:hover,.drop.over{border-color:var(--brand);background:var(--brand-soft);color:var(--ink)}
+.mode{display:flex;gap:6px;background:var(--panel);border-radius:12px;padding:4px;margin:0 0 6px}
+.mode label{flex:1;cursor:pointer}
+.mode input{position:absolute;opacity:0;pointer-events:none}
+.mode span{display:block;text-align:center;padding:8px 6px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted)}
+.mode input:checked+span{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.mode input:focus-visible+span{outline:2px solid var(--focus);outline-offset:1px}
+.mode-note{margin:0 0 10px}
 .drop strong{display:block;color:var(--ink);font-weight:700;font-size:15px;margin-bottom:4px}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .btn{border:0;background:var(--panel);border-radius:10px;padding:9px 14px;cursor:pointer;font-size:14px;font-weight:600;transition:background .15s,filter .15s}
@@ -255,7 +262,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK3.8</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK4.0</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -271,6 +278,11 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   <aside>
     <section class="step">
       <h2><b>1</b>파일 넣기</h2>
+      <div class="mode" role="radiogroup" aria-label="검사 방식">
+        <label><input type="radio" name="mode" value="general" checked><span>일반 검사</span></label>
+        <label><input type="radio" name="mode" value="gov"><span>공문서 규칙 검사</span></label>
+      </div>
+      <p class="note mode-note" id="modeNote"></p>
       <div class="drop" id="drop" tabindex="0" role="button" aria-label="파일 선택">
         <strong>파일을 여기에 끌어 놓기</strong>
         또는 눌러서 선택<br>엑셀 · 워드 · PPT · PDF · 한글(HWP·HWPX) · 사진(JPG·PNG)
@@ -381,7 +393,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
         <li>같은 칸 비교: 다른 줄엔 다 있는데 빠진 항목, 빈 값, 중복 항목</li>
-        <li>숫자·계산: 요일(9.30.(금) → 그해 9월 30일은 수요일), 표의 합계·소계·총계 줄과 칸(엑셀 수식 범위 포함), 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
+        <li>공문서 규칙(「공문서 규칙 검사」를 골랐을 때): 항목기호 순서(1. → 가. → 1) → 가) → (1) → (가)), 연도 있는 날짜「2026. 11. 9.」·시각「14:00」 형식, 기안문의 「끝.」 표시</li>
+        <li>숫자·계산: 금액 숫자↔한글(금100,000원(금십만원)), 요일(9.30.(금) → 그해 9월 30일은 수요일),표의 합계·소계·총계 줄과 칸(엑셀 수식 범위 포함), 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
         <li>오탈자·형식: 오타 사전, 한 글자만 다른 말, 율/률(가입율 → 가입률), 영어 약자 뒤바뀜(RIES → RISE), 날짜 표기 통일(9.16(수) → 9.16.(수)), 11:00시, 괄호 짝, 앞뒤 공백</li>
         <li>띄어쓰기: Kiwi 검사를 켜면 띄어쓰기 제안</li>
         <li>영어 철자: 영어 사전에 없는 단어에 고칠 말 제안 (예: Universtiy → University)</li>
@@ -534,6 +547,119 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       if (!keyAdj(pair[p], k)) continue;
       const nv = VOWEL2_REV[p ? pair[0] + k : k + pair[1]];
       if (nv) out.push(mk(c, J_JUNG.indexOf(nv), j));
+    }
+    return out;
+  }
+  // ---------- 공문서 규칙(「행정업무의 운영 및 혁신에 관한 규정 시행규칙」 기준) ----------
+  // 경고가 쏟아지지 않게 확실한 것만: 항목기호 단계 건너뜀·번호 빠짐/겹침, 연도 있는 날짜·'N시 M분' 시각 형식, 기안문의 「끝.」
+  // 들여쓰기·쌍점 띄어쓰기는 문서마다 달라 보지 않음. ❍·▪·- 같은 특수기호 항목은 규정상 허용이라 보지 않음
+  const GA = '가나다라마바사아자차카타파하';
+  const ITEM_RE = [
+    [/^(\d{1,2})\.\s+(?![\d.])/, s => +s, s => s + '.'],
+    [/^([가-하])\.\s+/, s => GA.indexOf(s) + 1, s => s + '.'],
+    [/^(\d{1,2})\)\s*(?![\d.])/, s => +s, s => s + ')'],
+    [/^([가-하])\)\s*/, s => GA.indexOf(s) + 1, s => s + ')'],
+    [/^\((\d{1,2})\)\s*/, s => +s, s => '(' + s + ')'],
+    [/^\(([가-하])\)\s*/, s => GA.indexOf(s) + 1, s => '(' + s + ')'],
+    [/^([①-⑳])\s*/, s => s.charCodeAt(0) - 0x245F, s => s],
+    [/^([㉮-㉻])\s*/, s => s.charCodeAt(0) - 0x326D, s => s]
+  ];
+  const ITEM_NAME = ['1.', '가.', '1)', '가)', '(1)', '(가)', '①', '㉮'];
+  // v번째 다음 항목기호(1-기준): 숫자·가나다·①·㉮
+  const nextMark = (L, v) => L === 6 ? String.fromCharCode(0x2460 + v) : L === 7 ? String.fromCharCode(0x326E + v) : ITEM_RE[L][2](L % 2 ? (GA[v] || '?') : String(v + 1));
+  function itemOf(line){
+    for (let L = 0; L < ITEM_RE.length; L++) {
+      const m = line.match(ITEM_RE[L][0]); if (!m) continue;
+      const v = ITEM_RE[L][1](m[1]); if (!(v > 0)) continue;
+      return { L, v, mark: ITEM_RE[L][2](m[1]) };
+    }
+    return null;
+  }
+  function govChecks(sheets, add){
+    const body = sheets.filter(S => S.name === '본문' || S.name === 'PDF');
+    // 1. 항목기호 순서
+    for (const S of body) {
+      const lines = [];
+      // '붙임  1. 계획서 1부.'부터는 번호를 새로 셈(본문 번호와 따로)
+      [...S.rows.keys()].sort((a, b) => a - b).forEach(r => S.rows.get(r).forEach(cell => cell.text.split('\n').forEach(l => {
+        l = l.trim(); const att = l.match(/^붙\s*임\s*/);
+        if (att) { lines.push({ reset: true }); l = l.slice(att[0].length); }
+        if (/\s\|\s/.test(l)) { lines.push({ reset: true }); return; } // PDF 표 줄(칸 이름이 앞에 붙어 번호를 못 읽음)은 번호를 새로 셈
+        const it = itemOf(l);
+        // ①·㉮는 문장 속 나열(① 공통연수 ② …)이나 '1.' 바로 아래에 흔히 써서 순서 검사에서 뺌
+        if (it && it.L < 6) lines.push({ it, cell, l });
+      })));
+      if (lines.filter(x => x.it).length < 3) continue; // 항목기호를 거의 안 쓰는 문서는 넘어감
+      let last = [], prev = null;
+      for (const { it, cell, l, reset } of lines) {
+        if (reset) { last = []; prev = null; continue; }
+        const { L, v, mark } = it, show = clipS(l, 30);
+        if (prev && L > prev.L + 1)
+          add(S, cell.r, cell.c, LV.FIX, '공문서', `항목기호가 단계를 건너뜁니다: '${show}' — '${ITEM_NAME[prev.L]}' 다음 단계는 '${ITEM_NAME[prev.L + 1]}'예요(순서: 1. → 가. → 1) → 가) → (1) → (가) → ① → ㉮).`);
+        else if (last[L] != null && (!prev || L <= prev.L)) {
+          if (v === last[L]) add(S, cell.r, cell.c, LV.FIX, '공문서', `항목 번호가 겹칩니다: '${show}' — 앞 항목도 '${mark}'예요.`);
+          else if (v !== 1 && v !== last[L] + 1) add(S, cell.r, cell.c, LV.FIX, '공문서', `항목 번호가 이어지지 않습니다: '${show}' — 앞 항목 다음은 '${nextMark(L, last[L])}'예요.`);
+        }
+        last[L] = v; last.length = L + 1; prev = it;
+      }
+    }
+    // 2. 날짜·시각 형식(연도가 있는 날짜만, 시각은 'N시 M분'·'오전/오후 N시'만)
+    const fmtDate = (y, m, d) => `${y}. ${+m}. ${+d}.`;
+    for (const S of sheets) for (const [, row] of S.rows) for (const [, cell] of row) {
+      const t = cell.text;
+      for (const m of t.matchAll(/(?<!\d)(20\d{2})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일/g))
+        add(S, cell.r, cell.c, LV.CHECK, '공문서', `날짜 형식: '${m[0]}' → '${fmtDate(m[1], m[2], m[3])}' (공문서는 숫자와 마침표로 씀)`, { fix: [m[0], fmtDate(m[1], m[2], m[3])] });
+      for (const m of t.matchAll(/(?<![\d.])(20\d{2})([.\-\/])(\d{1,2})\2(\d{1,2})\.?(?![\d.])/g))
+        add(S, cell.r, cell.c, LV.CHECK, '공문서', `날짜 형식: '${m[0]}' → '${fmtDate(m[1], m[3], m[4])}' (연·월·일 사이를 한 칸씩 띄고 끝에 마침표)`, { fix: [m[0], fmtDate(m[1], m[3], m[4])] });
+      for (const m of t.matchAll(/(?<![\d.])(20\d{2})\.\s(\d{1,2})\.\s(\d{1,2})(?![\d.])/g))
+        add(S, cell.r, cell.c, LV.CHECK, '공문서', `날짜 형식: '${m[0]}' → '${m[0]}.' (일 뒤에도 마침표)`, { fix: [m[0], m[0] + '.'] });
+      for (const m of t.matchAll(/(오전|오후)\s*(\d{1,2})\s*시(?:\s*(\d{1,2})\s*분)?/g)) {
+        let h = +m[2]; if (m[1] === '오후' && h < 12) h += 12; if (m[1] === '오전' && h === 12) h = 0;
+        const to = `${String(h).padStart(2, '0')}:${String(m[3] ? +m[3] : 0).padStart(2, '0')}`;
+        add(S, cell.r, cell.c, LV.CHECK, '공문서', `시각 형식: '${m[0]}' → '${to}' (공문서는 24시각제, 시·분은 쌍점으로)`, { fix: [m[0], to] });
+      }
+      for (const m of t.matchAll(/(?<![\d:])(?<!(?:오전|오후)\s*)(\d{1,2})\s*시\s*(\d{1,2})\s*분/g)) {
+        const h = +m[1], mm = String(+m[2]).padStart(2, '0');
+        // '4시 30분'은 오후일 가능성이 커서 고칠 말을 정하지 않고 둘 다 보여 줌
+        if (h >= 8) add(S, cell.r, cell.c, LV.CHECK, '공문서', `시각 형식: '${m[0]}' → '${String(h).padStart(2, '0')}:${mm}' (시·분은 쌍점으로)`, { fix: [m[0], `${String(h).padStart(2, '0')}:${mm}`] });
+        else add(S, cell.r, cell.c, LV.CHECK, '공문서', `시각 형식: '${m[0]}' → '0${h}:${mm}' 또는 '${h + 12}:${mm}' (공문서는 24시각제로 씀)`);
+      }
+    }
+    // 3. 「끝.」 표시: 수신·제목이 있는 기안문에서만
+    const cellsAll = sheets.flatMap(S => [...S.rows.values()].flatMap(row => [...row.values()].map(cell => ({ S, cell }))));
+    const lineOf = re => cellsAll.find(({ cell }) => cell.text.split('\n').some(l => re.test(l.trim())));
+    const head = lineOf(/^수\s*신(자)?(\s|:|：|$)/), title = lineOf(/^제\s*목(\s|:|：|$)/);
+    if (head && title) {
+      const hasEnd = cellsAll.some(({ cell }) => /끝\s*\.(?=\s|$|["”』」)])/.test(cell.text));
+      const bare = cellsAll.find(({ cell }) => cell.text.split('\n').some(l => /(^|\s)끝$/.test(l.trim())));
+      if (bare) add(bare.S, bare.cell.r, bare.cell.c, LV.FIX, '공문서', `「끝」 뒤에 마침표가 없습니다: '끝' → '끝.'`, { fix: ['끝', '끝.'] });
+      else if (!hasEnd) add(title.S, title.cell.r, title.cell.c, LV.FIX, '공문서', `본문 끝에 「끝.」 표시가 없습니다. 본문(붙임이 있으면 붙임 목록) 마지막에서 한 글자 띄우고 「끝.」을 써 주세요.`);
+    }
+  }
+  const clipS = (s, n) => { s = String(s).replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+  // 한글 금액 ↔ 숫자: '일십일만삼천오백육십' = 113560, 113560 → '일십일만삼천오백육십'
+  function hanNum(s){
+    s = s.replace(/\s+/g, ''); if (!s) return null;
+    let total = 0, sec = 0, cur = 0;
+    for (const ch of s) {
+      const d = '일이삼사오육칠팔구'.indexOf(ch);
+      if (d >= 0) { cur = d + 1; continue; }
+      const sm = { 십: 10, 백: 100, 천: 1000 }[ch];
+      if (sm) { sec += (cur || 1) * sm; cur = 0; continue; }
+      const bg = { 만: 1e4, 억: 1e8, 조: 1e12 }[ch];
+      if (bg) { total += ((sec + cur) || 1) * bg; sec = 0; cur = 0; continue; }
+      return null;
+    }
+    return total + sec + cur;
+  }
+  function hanWords(n){
+    if (!(n > 0) || n >= 1e16) return '';
+    const D = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'], S4 = ['', '십', '백', '천'], B = ['', '만', '억', '조'];
+    let out = '', i = 0;
+    while (n > 0) {
+      const part = n % 10000; n = Math.floor(n / 10000);
+      if (part) { let p = ''; [...String(part).padStart(4, '0')].forEach((ch, k) => { if (ch !== '0') p += D[+ch] + S4[3 - k]; }); out = p + B[i] + out; }
+      i++;
     }
     return out;
   }
@@ -1076,6 +1202,12 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           caseSaid.add(f);
           add(S, cell.r, cell.c, LV.TYPO, '형식', `같은 말을 다르게 썼습니다: '${f}'(${g.get(f)}번) ↔ '${top}'(${topN}번) — 하나로 맞춰 주세요.`, { fix: [f, top], guess: true });
         }
+        // 금액 숫자와 한글: '금113,560원(금일십일만삼천오백육십원)'
+        for (const m of t.matchAll(/금\s?([\d,]+)\s?원\s?\(\s?(?:금\s?)?([일이삼사오육칠팔구십백천만억조\s]+?)\s?원\s?(?:정\s?)?\)/g)) {
+          const a = num(m[1]), b = hanNum(m[2]);
+          if (b == null || !isFinite(a) || a === b) continue;
+          add(S, cell.r, cell.c, LV.FIX, '숫자', `금액이 서로 다릅니다: '${m[0]}' — 숫자는 ${fmtN(a)}원인데 한글은 ${fmtN(b)}원이에요(숫자대로면 '금${hanWords(a)}원').`);
+        }
         // '11:00시'처럼 시각과 '시'를 겹쳐 씀
         for (const m of t.matchAll(/(?<!\d)(\d{1,2}:\d{2})\s*시(?![간작장청설험민정각계도선의설])/g))
           add(S, cell.r, cell.c, LV.TYPO, '형식', `시각 표기가 겹칩니다: '${m[0]}' → '${m[1]}' ('11:00' 또는 '11시' 중 하나로)`, { fix: [m[0], m[1]] });
@@ -1192,6 +1324,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         }
       }
     }
+
+    // ===== 공문서 규칙 검사(고른 사람만) =====
+    if (opts.mode === 'gov') govChecks(sheets, add);
 
     // 정렬: 시트 → 행 → 열
     const sOrder = new Map(sheets.map((s, i) => [s.name, i]));
@@ -1384,7 +1519,7 @@ const noTextHelp = () => kind === 'hwp' && data.locked ? '암호가 걸렸거나
 function run(){
   const useEng = eng && $('engOn').checked;
   if (useEng) { engBudget = ENG_MAX; engFreq = new Map(); data.forEach(sh => sh.cells.forEach(c => { for (const m of stripUrl(c.text).matchAll(EN_WORD)) engFreq.set(m[0], (engFreq.get(m[0]) || 0) + 1); })); }
-  const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null, speller: useEng ? speller : null, isWord: useEng && eng ? w => eng.check(w) : null });
+  const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null, speller: useEng ? speller : null, isWord: useEng && eng ? w => eng.check(w) : null, mode: modeNow() });
   // AI가 찾은 것 합치기(같은 칸·같은 고침이 이미 있으면 뺌), 파일 순서대로 다시 정렬
   for (const a of [...aiIssues, ...nkIssues]) {
     if (r.issues.some(i => i.sheet === a.sheet && i.r === a.r && i.c === a.c && i.fix && a.fix && i.fix[0] === a.fix[0] && i.fix[1] === a.fix[1])) continue;
@@ -2709,7 +2844,12 @@ async function runNk(auto){
     setStatus('nkStatus', e instanceof TypeError ? '중계 서버에 연결하지 못했어요. 주소와 인터넷 연결을 확인해 주세요.' : (e.message || '국어사전 확인에 실패했어요.'), 'warn');
   } finally { $('nkRun').disabled = !data; }
 }
-$('nkRun').onclick = () => runNk(false);// 시작할지 묻는 창. auto = 파일을 넣자마자 뜬 것(이때만 「다시 묻지 않기」를 보여 줌)
+$('nkRun').onclick = () => runNk(false);// 검사 방식: 일반 / 공문서 규칙(항목기호 순서, 연도 있는 날짜·시각 형식, 「끝.」 표시). 고른 방식은 이 브라우저에 기억
+const MODE_NOTE = { general: '모든 문서에 쓰는 기본 검사예요.', gov: '기안문·공문용: 기본 검사에 항목기호 순서(1. → 가. → 1) …), 날짜「2026. 11. 9.」·시각「14:00」 형식, 「끝.」 표시를 더 봐요.' };
+const modeNow = () => (document.querySelector('input[name=mode]:checked') || {}).value || 'general';
+{ const saved = store.get('mode'); const el = document.querySelector(`input[name=mode][value="${saved}"]`); if (el) el.checked = true; }
+$('modeNote').textContent = MODE_NOTE[modeNow()];
+document.querySelectorAll('input[name=mode]').forEach(el => el.onchange = () => { store.set('mode', modeNow()); $('modeNote').textContent = MODE_NOTE[modeNow()]; if (data) run(); });// 시작할지 묻는 창. auto = 파일을 넣자마자 뜬 것(이때만 「다시 묻지 않기」를 보여 줌)
 $('nkAskOn').checked = store.get('nkAsk') !== 'off';
 $('nkAskOn').onchange = () => store.set('nkAsk', $('nkAskOn').checked ? 'on' : 'off');
 function askNk(auto){
