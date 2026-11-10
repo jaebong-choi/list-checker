@@ -6,7 +6,7 @@
 const ALLOW = ['https://jaebong-choi.github.io', 'http://localhost:8765']; // 이 주소에서 온 요청만 받음
 const MAX_WORDS = 10;              // 한 번에 받는 낱말 수(무료 요금제의 요청당 외부 호출 50번 한도 안)
 const CACHE_DAYS = 30;             // 같은 낱말은 30일 동안 다시 묻지 않음
-const CACHE_VER = 'v3';           // 결과 형식이 바뀌면 올려서 예전 기억을 버림
+const CACHE_VER = 'v4';           // 결과 형식이 바뀌면 올려서 예전 기억을 버림(v4: 빈 응답을 '없음'으로 잘못 기억한 것 버림)
 const WORD = /^[가-힣]{1,20}$/;    // 한글 낱말만(이름·숫자·영어는 받지 않음)
 
 const STD = (key, w) => `https://stdict.korean.go.kr/api/search.do?key=${key}&q=${encodeURIComponent(w)}&req_type=json&advanced=y&method=exact&num=10`;
@@ -32,12 +32,20 @@ function wrongOf(t){
   return to.every(Boolean) ? to[0].replace(/\^/g, ' ').replace(/-/g, '').trim() : null; // 사전 표기: ^ = 띄어 쓸 수 있음, - = 낱말 경계
 }
 // 사전 한 곳에 묻기 → true(있음) | false(없음) | 'wrong:맞는말' | 'err'(키 오류·서버 오류)
+// 표준국어대사전은 결과가 없을 때도, 잠깐 몰려서 못 답할 때도 빈 응답을 줌 → 빈 응답이면 조금 기다렸다 한 번 더 물어봄
+// (무료 요금제는 요청 하나에 외부 호출 50번까지라 낱말 10개 × 2번으로 맞춤)
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function lookup(url){
-  let res;
-  try { res = await fetch(url, { headers: { 'accept': 'application/json' } }); } catch (e) { return 'err'; }
-  if (!res.ok) return 'err';
-  const t = (await res.text()).trim();
-  if (!t) return false;                                   // 표준국어대사전은 결과가 없으면 빈 응답
+  let t = '';
+  for (const wait of [0, 900]) {
+    if (wait) await sleep(wait);
+    let res;
+    try { res = await fetch(url, { headers: { 'accept': 'application/json' } }); } catch (e) { return 'err'; }
+    if (!res.ok) return 'err';
+    t = (await res.text()).trim();
+    if (t) break;
+  }
+  if (!t) return false;                                   // 두 번 다 비어 있으면 결과 없음으로 봄
   let found;
   if (t.startsWith('<')) { if (/<error/i.test(t)) return 'err'; found = /<total>\s*[1-9]/.test(t); }
   else { try { const j = JSON.parse(t); if (j.error) return 'err'; found = Number((j.channel || {}).total || 0) > 0; } catch (e) { return 'err'; } }
@@ -70,7 +78,7 @@ export default {
     if (url.pathname === '/health') {
       const std = env.STDICT_KEY ? await lookup(STD(env.STDICT_KEY, '나무')) : 'nokey';
       const open = env.OPENDICT_KEY ? await lookup(OPEN(env.OPENDICT_KEY, '나무')) : 'nokey';
-      return json({ ok: std === true || open === true, std, open, max: MAX_WORDS }, 200, origin);
+      return json({ ok: std === true || open === true, std, open, max: MAX_WORDS, v: CACHE_VER }, 200, origin);
     }
 
     if (url.pathname === '/check' && req.method === 'POST') {
