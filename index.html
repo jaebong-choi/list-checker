@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK4.0</title>
+<title>오타 및 계산 수정기 MK4.1</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -78,13 +78,19 @@ aside{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:s
 .step h2 b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--brand);color:var(--brand-ink);font-size:13px;font-weight:800;flex:none}
 .drop{border:2px dashed var(--line);border-radius:16px;padding:24px 14px;text-align:center;cursor:pointer;color:var(--muted);font-size:14px;background:var(--panel);transition:border-color .15s,background .15s}
 .drop:hover,.drop.over{border-color:var(--brand);background:var(--brand-soft);color:var(--ink)}
-.mode{display:flex;gap:6px;background:var(--panel);border-radius:12px;padding:4px;margin:0 0 6px}
-.mode label{flex:1;cursor:pointer}
-.mode input{position:absolute;opacity:0;pointer-events:none}
-.mode span{display:block;text-align:center;padding:8px 6px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted)}
-.mode input:checked+span{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.mode input:focus-visible+span{outline:2px solid var(--focus);outline-offset:1px}
-.mode-note{margin:0 0 10px}
+.gov-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border-radius:12px;background:var(--panel);font-size:14px;line-height:1.5}
+.gov-bar.on{background:var(--brand-soft)}
+.gov-bar b{font-weight:700}
+.gov-bar .grow{flex:1;min-width:200px}
+.gov-bar .btn{padding:6px 12px;font-size:13px}
+.ask-opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;margin:0 0 8px;border-radius:12px;background:var(--panel);cursor:pointer}
+.ask-opt[hidden]{display:none}
+.ask-opt input{margin-top:4px}
+.ask-opt b{display:block;font-size:15px}
+.ask-opt small{display:block;font-size:13px;color:var(--muted);line-height:1.55;margin-top:2px}
+.ask-skips{margin:4px 0 14px}
+.ask-skips label{display:block;font-size:13px;color:var(--muted);margin:4px 0;cursor:pointer}
+.ask-skips label[hidden]{display:none}
 .drop strong{display:block;color:var(--ink);font-weight:700;font-size:15px;margin-bottom:4px}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .btn{border:0;background:var(--panel);border-radius:10px;padding:9px 14px;cursor:pointer;font-size:14px;font-weight:600;transition:background .15s,filter .15s}
@@ -262,7 +268,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK4.0</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK4.1</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -278,11 +284,6 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   <aside>
     <section class="step">
       <h2><b>1</b>파일 넣기</h2>
-      <div class="mode" role="radiogroup" aria-label="검사 방식">
-        <label><input type="radio" name="mode" value="general" checked><span>일반 검사</span></label>
-        <label><input type="radio" name="mode" value="gov"><span>공문서 규칙 검사</span></label>
-      </div>
-      <p class="note mode-note" id="modeNote"></p>
       <div class="drop" id="drop" tabindex="0" role="button" aria-label="파일 선택">
         <strong>파일을 여기에 끌어 놓기</strong>
         또는 눌러서 선택<br>엑셀 · 워드 · PPT · PDF · 한글(HWP·HWPX) · 사진(JPG·PNG)
@@ -321,7 +322,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       </details>
       <hr style="border:0;border-top:1px solid var(--line);margin:16px 0 12px">
       <h3 style="font-size:15px;margin:0 0 6px">국어사전 확인 (국립국어원, 무료)</h3>
-      <p class="note">문서 속 낱말의 원형(수첩을 → 수첩, 만들었다 → 만들다)을 표준국어대사전·우리말샘에서 찾아, <b>사전에 없는 말</b>을 「확인 요망」으로 보여 줘요. 문장은 보내지 않고 한글 낱말만 보내요(이름·숫자·영어 제외).</p>
+      <p class="note">문서 속 낱말의 원형(수첩을 → 수첩, 만들었다 → 만들다)을 표준국어대사전·우리말샘에서 찾아, <b>사전에 없는 말</b>을 「확인 요망」으로 보여 줘요. 문장은 보내지 않고 한글 낱말만 보내요(이름·숫자·영어 제외).<br>외래어(글로벌·멘토·솔루션)·이름·줄임말은 사전에 없을 때가 많아 「국어사전(외래어·이름)」으로 따로 묶고 기본은 「빼기」로 둬요.</p>
       <label class="f" for="nkUrl">중계 서버 주소</label>
       <input class="t" id="nkUrl" placeholder="https://nikl-relay.….workers.dev" autocomplete="off" spellcheck="false">
       <div class="row"><button class="btn primary" id="nkRun" disabled>사전에 없는 말 찾기</button></div>
@@ -386,6 +387,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     <button class="btn" id="docBtn">문서 보기 →</button>
     <button class="btn reset" id="resetBtn2" title="첫 화면으로 돌아가 새 파일을 올려요">↺ 처음으로</button>
   </div>
+  <div class="gov-bar" id="govBar" hidden></div>
   <div class="results" id="results">
     <div class="empty">
       <h3>왼쪽에 파일을 넣어 주세요</h3>
@@ -393,8 +395,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
         <li>같은 칸 비교: 다른 줄엔 다 있는데 빠진 항목, 빈 값, 중복 항목</li>
-        <li>공문서 규칙(「공문서 규칙 검사」를 골랐을 때): 항목기호 순서(1. → 가. → 1) → 가) → (1) → (가)), 연도 있는 날짜「2026. 11. 9.」·시각「14:00」 형식, 기안문의 「끝.」 표시</li>
-        <li>숫자·계산: 금액 숫자↔한글(금100,000원(금십만원)), 요일(9.30.(금) → 그해 9월 30일은 수요일),표의 합계·소계·총계 줄과 칸(엑셀 수식 범위 포함), 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
+        <li>공문서 규칙: 기안문(수신·제목·끝.)으로 보이면 함께 검사할지 물어봐요. 항목기호 순서(1. → 가. → 1) → 가) → (1) → (가)), 연도 있는 날짜「2026. 11. 9.」·시각「14:00」 형식, 「끝.」 표시(「행정업무의 운영 및 혁신에 관한 규정」 기준)</li>
+        <li>숫자·계산: 금액 숫자↔한글(금100,000원(금십만원)), 요일(9.30.(금) → 그해 9월 30일은 수요일), 표의 합계·소계·총계 줄과 칸(엑셀 수식 범위 포함), 환율·단위(원 = 원), 평균·결석·합계, 날짜·기간</li>
         <li>오탈자·형식: 오타 사전, 한 글자만 다른 말, 율/률(가입율 → 가입률), 영어 약자 뒤바뀜(RIES → RISE), 날짜 표기 통일(9.16(수) → 9.16.(수)), 11:00시, 괄호 짝, 앞뒤 공백</li>
         <li>띄어쓰기: Kiwi 검사를 켜면 띄어쓰기 제안</li>
         <li>영어 철자: 영어 사전에 없는 단어에 고칠 말 제안 (예: Universtiy → University)</li>
@@ -1426,6 +1428,7 @@ function resetAll(){
   pdfLines = []; pdfSizes = []; pdfBuilt = null; rasterPages = []; rasterBuilt = null;
   document.body.classList.remove('has-data', 'doc');
   $('tools').hidden = true; $('q').value = ''; $('catSel').innerHTML = ''; $('resetBtn').hidden = true;
+  govOn = false; $('govBar').hidden = true;
   $('results').innerHTML = EMPTY_HTML; $('pvBody').innerHTML = ''; $('pvTabs').innerHTML = ''; $('pvName').textContent = '';
   ['nFix', 'nCheck', 'nTypo', 'nAuto', 'nMark', 'nOff'].forEach(id => $(id).textContent = '0');
   ['allOn', 'allOff', 'undoBtn', 'xlsxBtn', 'aiRun', 'nkRun'].forEach(id => $(id).disabled = true); aiIssues = []; nkIssues = []; $('markOnly').disabled = false;
@@ -1495,7 +1498,7 @@ async function load(file){
     fileBuf = buf; fileName = file.name; kind = k; data = d;
     choice.clear(); closed.clear(); undoSnap = null; pvSheet = null; aiIssues = []; nkIssues = []; setStatus('aiStatus', ''); setStatus('nkStatus', '');
     if ($('engOn').checked && !eng) await loadEng(); $('undoBtn').disabled = true; $('saveStatus').textContent = '';
-    run(); offerNk();
+    govOn = false; run(); offerChecks();
   } catch (e) {
     console.error(e);
     setStatus('loadStatus', '파일을 열지 못했어요. 암호가 걸려 있거나 손상된 파일인지 확인해 주세요.', 'warn');
@@ -1566,6 +1569,7 @@ function run(){
   $('xlsxBtn').disabled = $('markOnly').disabled = RO.has(kind);
   if (RO.has(kind)) setStatus('saveStatus', 'PDF·한글·사진 파일은 고칠 수 없어서 내보내기 없이 화면에서만 표시해요.');
   $('tools').hidden = false; $('resetBtn').hidden = false; document.body.classList.add('has-data');
+  govBar();
   const cur = $('catSel').value, cats = [...new Set(r.issues.map(i => i.cat))];
   $('catSel').innerHTML = '<option value="">모든 종류</option>' + cats.map(c => `<option${c === cur ? ' selected' : ''}>${esc(c)}</option>`).join('');
   render();
@@ -2772,6 +2776,15 @@ function nkLemma(t){
   if (t.tag === 'MAG' && w.length >= 2) return w;          // 부사(일일이 등)
   return null;
 }
+// 외래어에 흔하고 우리말 명사에는 드문 글자(스마트·센터·솔루션·마케팅·콘텐츠·디자인…)
+const NK_LOAN = /[크트프스즈츠브드르쉬쉐셔쇼슈셜컬큐튜퓨뷰쥬챗앱팝캡킹팅핑딩닝링션컨콘텐넷렛릿멘벤펜젠디퍼버터러너커]/;
+// 자모 단위 거리(역활↔역할 1, 몇일↔며칠 1, 회차↔모꼬지 큼)
+function jamoDist(a, b){
+  const J = s => [...s].flatMap(ch => { const c = ch.charCodeAt(0) - 0xAC00; return c < 0 || c > 11171 ? [ch] : [Math.floor(c / 588), 100 + Math.floor((c % 588) / 28), ...(c % 28 ? [200 + c % 28] : [])]; });
+  const x = J(a), y = J(b); let p = [...Array(y.length + 1).keys()];
+  for (let i = 1; i <= x.length; i++) { const q = [i]; for (let j = 1; j <= y.length; j++) q[j] = Math.min(p[j] + 1, q[j - 1] + 1, p[j - 1] + (x[i - 1] === y[j - 1] ? 0 : 1)); p = q; }
+  return p[y.length];
+}
 const eojeolAt = (line, pos) => { let a = pos, b = pos; while (a > 0 && !/\s/.test(line[a - 1])) a--; while (b < line.length && !/\s/.test(line[b])) b++; return line.slice(a, b).replace(/^[^가-힣A-Za-z0-9]+|[^가-힣A-Za-z0-9]+$/g, ''); };
 async function nkPost(base, words){
   const res = await fetch(base + '/check', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ words }) });
@@ -2779,11 +2792,11 @@ async function nkPost(base, words){
   if (!res.ok) throw new Error(j.error || `중계 서버 오류(${res.status})`);
   return j.results || {};
 }
-async function runNk(auto){
+async function runNk(o = {}){
   if (!data) { setStatus('nkStatus', '먼저 파일을 넣어 주세요.', 'warn'); return; }
   const base = $('nkUrl').value.trim().replace(/\/+$/, '');
   if (!/^https:\/\/|^http:\/\/localhost/.test(base)) { setStatus('nkStatus', '중계 서버 주소(https://…)를 넣어 주세요.', 'warn'); $('nkUrl').focus(); return; }
-  if (!(await askNk(!!auto))) return;
+  if (!o.asked && !(await askChecks({ gov: false, nk: true, auto: false }))) return;
   $('nkRun').disabled = true;
   try {
     if (!kiwi) { setStatus('nkStatus', '낱말 원형을 뽑는 도구(Kiwi) 불러오는 중… 처음엔 1~2분 걸려요'); await loadKiwi(); if (!kiwi) throw new Error('낱말 원형을 뽑는 도구를 불러오지 못했어요.'); }
@@ -2823,11 +2836,21 @@ async function runNk(auto){
     const missing = [...occ.keys()].filter(w => cache[w] === 'none');
     const wrongs = [...occ.keys()].filter(w => String(cache[w]).startsWith('wrong:'));
     const textOf = new Map(); data.forEach(sh => sh.cells.forEach(c => textOf.set(`${sh.name}|${c.r}|${c.c}`, c.text)));
-    nkIssues = missing.flatMap(w => occ.get(w).map(o => ({ id: `nk|${o.sheet}|${o.r}|${o.c}|${w}`, sheet: o.sheet, r: o.r, c: o.c, addr: o.addr, level: 'check', cat: '국어사전',
-      msg: `국어사전에 없는 말: '${o.eo || w}' (원형 '${w}') — 표준국어대사전·우리말샘에서 찾지 못했어요. 오타인지 확인해 주세요.`, title: '' })));
+    // 외래어·이름·줄임말은 사전에 없을 때가 많아 따로 묶음: 외래어에 흔한 글자(스·트·크·션·팅…)가 있거나 파일 3곳 넘게 나온 말
+    // '[대플]'·'[졸특]'처럼 대괄호 꼬리표 안의 말은 프로그램 이름·줄임말
+    const allTxt = data.flatMap(sh => sh.cells.map(c => c.text)).join('\n');
+    const soft = w => NK_LOAN.test(w) || occ.get(w).length >= 3 || allTxt.split(w.replace(/다$/, '')).length - 1 >= 3 || allTxt.includes('[' + w);
+    const softN = missing.filter(soft).length;
+    nkIssues = missing.flatMap(w => occ.get(w).map(o => soft(w)
+      ? { id: `nk|${o.sheet}|${o.r}|${o.c}|${w}`, sheet: o.sheet, r: o.r, c: o.c, addr: o.addr, level: 'check', cat: '국어사전(외래어·이름)', optIn: true, title: '',
+          msg: `사전에 없는 말: '${o.eo || w}' — 외래어·이름·줄임말로 보여요. 외래어·상품명·새말은 표준국어대사전에 없을 때가 많으니 표기만 확인해 주세요.` }
+      : { id: `nk|${o.sheet}|${o.r}|${o.c}|${w}`, sheet: o.sheet, r: o.r, c: o.c, addr: o.addr, level: 'check', cat: '국어사전', title: '',
+          msg: `국어사전에 없는 말: '${o.eo || w}' (원형 '${w}') — 표준국어대사전에서 찾지 못했어요. 오타인지 확인해 주세요.` }));
     // 사전에 "'역할'의 잘못"처럼 실린 말은 맞는 말로 고치는 제안(동사·형용사는 '다'를 뺀 어간끼리 바꿈)
     for (const w of wrongs) {
       const to = cache[w].slice(6), verb = w.endsWith('다') && to.endsWith('다') && !nouns.has(w);
+      // 고칠 말이 원래 말과 자모 2개 넘게 다르면 철자 오류가 아니라 같은 글자의 다른 낱말(회차 → 모꼬지)이라 뺌
+      if (jamoDist(w, to) > 2) continue;
       const from = verb ? w.slice(0, -1) : w, into = verb ? to.slice(0, -1) : to;
       for (const o of occ.get(w)) {
         const can = (textOf.get(`${o.sheet}|${o.r}|${o.c}`) || '').includes(from);
@@ -2836,42 +2859,84 @@ async function runNk(auto){
       }
     }
     run();
-    const added = result.issues.filter(i => i.cat === '국어사전').length;
-    setStatus('nkStatus', `낱말 ${occ.size}개를 확인했어요. ` + (added ? `틀린 말 ${wrongs.length}개, 사전에 없는 말 ${missing.length}개(모두 ${added}곳)를 「국어사전」 종류로 표시했어요.` : '모두 사전에 있는 말이에요.') + (errs ? ` (${errs}개는 사전 서버 오류로 확인하지 못했어요)` : ''), errs && !added ? 'warn' : 'ok');
-    if (added) { $('catSel').value = '국어사전'; render(); }
+    const added = result.issues.filter(i => i.cat === '국어사전').length, addedSoft = result.issues.filter(i => i.cat === '국어사전(외래어·이름)').length;
+    const wrongN = new Set(nkIssues.filter(i => i.level === 'typo').map(i => i.id.split('|').pop())).size;
+    setStatus('nkStatus', `낱말 ${occ.size}개를 확인했어요. ` + (added || addedSoft
+      ? `틀린 말 ${wrongN}개, 오타일 수 있는 말 ${missing.length - softN}개를 「국어사전」으로 표시했어요.` + (softN ? ` 외래어·이름·줄임말로 보이는 ${softN}개는 「국어사전(외래어·이름)」으로 따로 묶고 기본은 「빼기」로 뒀어요.` : '')
+      : '모두 사전에 있는 말이에요.') + (errs ? ` (${errs}개는 사전 서버 오류로 확인하지 못했어요)` : ''), errs && !added ? 'warn' : 'ok');
+    if (added || addedSoft) { $('catSel').value = added ? '국어사전' : '국어사전(외래어·이름)'; render(); }
   } catch (e) {
     console.error(e);
     setStatus('nkStatus', e instanceof TypeError ? '중계 서버에 연결하지 못했어요. 주소와 인터넷 연결을 확인해 주세요.' : (e.message || '국어사전 확인에 실패했어요.'), 'warn');
   } finally { $('nkRun').disabled = !data; }
 }
-$('nkRun').onclick = () => runNk(false);// 검사 방식: 일반 / 공문서 규칙(항목기호 순서, 연도 있는 날짜·시각 형식, 「끝.」 표시). 고른 방식은 이 브라우저에 기억
-const MODE_NOTE = { general: '모든 문서에 쓰는 기본 검사예요.', gov: '기안문·공문용: 기본 검사에 항목기호 순서(1. → 가. → 1) …), 날짜「2026. 11. 9.」·시각「14:00」 형식, 「끝.」 표시를 더 봐요.' };
-const modeNow = () => (document.querySelector('input[name=mode]:checked') || {}).value || 'general';
-{ const saved = store.get('mode'); const el = document.querySelector(`input[name=mode][value="${saved}"]`); if (el) el.checked = true; }
-$('modeNote').textContent = MODE_NOTE[modeNow()];
-document.querySelectorAll('input[name=mode]').forEach(el => el.onchange = () => { store.set('mode', modeNow()); $('modeNote').textContent = MODE_NOTE[modeNow()]; if (data) run(); });// 시작할지 묻는 창. auto = 파일을 넣자마자 뜬 것(이때만 「다시 묻지 않기」를 보여 줌)
+$('nkRun').onclick = () => runNk();// ---------- 공문서 규칙: 기안문으로 보이면 함께 검사할지 물어봄 ----------
+// 파일마다 따로 켜고 끔. 「기안문이면 묻지 않고 바로」를 고르면 다음부터 자동으로 켬
+let govOn = false;
+const modeNow = () => govOn ? 'gov' : 'general';
+// 한글·워드·PDF 본문에 '수신'과 '제목' 줄이 있거나, 줄 끝에 '끝.'이 있으면 기안문·공문으로 봄
+function looksGian(){
+  if (!data || !/^(docx|hwpx|hwp|pdf)$/.test(kind)) return false;
+  const lines = data.flatMap(sh => sh.cells.flatMap(c => c.text.split('\n').map(l => l.trim())));
+  const head = lines.some(l => /^수\s*신(자)?(\s|:|：|$)/.test(l)), title = lines.some(l => /^제\s*목(\s|:|：|$)/.test(l));
+  return (head && title) || lines.some(l => /(^|\s)끝\s*\.$/.test(l));
+}
+function govBar(){
+  const bar = $('govBar');
+  if (!data || !/^(docx|hwpx|hwp|pdf)$/.test(kind)) { bar.hidden = true; return; }
+  bar.hidden = false; bar.classList.toggle('on', govOn);
+  const n = govOn && result ? result.issues.filter(i => i.cat === '공문서').length : 0;
+  bar.innerHTML = govOn
+    ? `<span class="grow"><b>공문서 규칙도 함께 봤어요${n ? ` — ${n}곳` : ' — 맞지 않는 곳 없음'}</b><br>항목기호 순서(1. → 가. → 1) …), 날짜 「2026. 11. 9.」·시각 「14:00」 형식, 「끝.」 표시를 「공문서」 종류로 보여 줘요.</span><button class="btn" id="govOff">공문서 규칙 끄기</button>`
+    : '<span class="grow">기안문·공문이라면 공문서 작성 규칙(항목기호 순서, 날짜·시각 형식, 「끝.」)도 볼 수 있어요.</span><button class="btn" id="govOnBtn">공문서 규칙으로도 검사</button>';
+  const b = $('govOff') || $('govOnBtn');
+  b.onclick = () => { govOn = !govOn; run(); };
+}
 $('nkAskOn').checked = store.get('nkAsk') !== 'off';
 $('nkAskOn').onchange = () => store.set('nkAsk', $('nkAskOn').checked ? 'on' : 'off');
-function askNk(auto){
+// 고르는 창 하나: gov = 공문서 규칙 항목을 보일지, nk = 국어사전 항목을 보일지, auto = 파일을 넣자마자 뜬 것
+// 돌려주는 값: { gov, nk } (고른 것) 또는 null(기본 검사만)
+function askChecks({ gov, nk, auto }){
   const d = $('nkAsk');
-  $('nkAskSkip').checked = false; d.querySelector('.ask-skip').hidden = !auto;
+  $('optGov').hidden = !gov; $('optNk').hidden = !nk;
+  $('skipGovL').hidden = !(gov && auto); $('skipNkL').hidden = !(nk && auto);
+  $('askGov').checked = true; $('askNk').checked = true; $('skipGov').checked = false; $('nkAskSkip').checked = false;
+  const both = gov && nk;
+  $('nkAskT').textContent = both ? '이 파일을 어떻게 검사할까요?' : gov ? '공문서 규칙으로도 검사할까요?' : '국어사전으로도 확인할까요?';
+  $('askLead').textContent = both ? '기본 검사(오탈자·숫자·형식)는 끝났어요. 더 볼 것을 골라 주세요.' : '기본 검사(오탈자·숫자·형식)는 끝났어요.';
+  // 하나만 물을 때는 체크 상자 없이 예/아니오로
+  [$('askGov'), $('askNk')].forEach(x => x.hidden = !both);
+  $('askNo').textContent = both ? '기본 검사만' : '안 할래요';
+  $('askYes').textContent = both ? '검사하기' : gov ? '공문서 규칙으로 검사' : '시작하기';
   return new Promise(res => {
     let done = false;
     const finish = yes => {
       if (done) return; done = true;
-      if (auto && $('nkAskSkip').checked) { store.set('nkAsk', 'off'); $('nkAskOn').checked = false; }
+      if (auto && nk && $('nkAskSkip').checked) { store.set('nkAsk', 'off'); $('nkAskOn').checked = false; }
+      if (auto && gov && $('skipGov').checked) store.set('govAsk', 'auto');
       if (d.open) d.close();
-      res(yes);
+      res(yes ? { gov: gov && (!both || $('askGov').checked), nk: nk && (!both || $('askNk').checked) } : null);
     };
     d.querySelectorAll('button').forEach(b => b.onclick = e => { e.preventDefault(); finish(b.value === 'yes'); });
-    d.oncancel = e => { e.preventDefault(); finish(false); }; // Esc = 안 할래요
+    d.oncancel = e => { e.preventDefault(); finish(false); }; // Esc = 기본 검사만
     d.onclose = () => finish(false);
     if (!d.open) d.showModal();
   });
 }
-function offerNk(){
-  if (store.get('nkAsk') === 'off' || $('nkRun').disabled || !data || !data.some(sh => sh.cells.some(c => /[가-힣]{2}/.test(c.text)))) return;
-  setTimeout(() => runNk(true), 400); // 결과 화면이 먼저 그려진 뒤에 물어봄
+// 파일을 넣고 기본 검사가 끝나면: 기안문이면 공문서 규칙을, 설정에 따라 국어사전을 함께 물어봄
+function offerChecks(){
+  if (!data) return;
+  const gian = looksGian(), govAuto = store.get('govAsk') === 'auto';
+  const nk = store.get('nkAsk') !== 'off' && !$('nkRun').disabled && data.some(sh => sh.cells.some(c => /[가-힣]{2}/.test(c.text)));
+  if (gian && govAuto) { govOn = true; run(); }
+  const gov = gian && !govAuto;
+  if (!gov && !nk) return;
+  setTimeout(async () => { // 결과 화면이 먼저 그려진 뒤에 물어봄
+    const pick = await askChecks({ gov, nk, auto: true });
+    if (!pick) return;
+    if (pick.gov) { govOn = true; run(); }
+    if (pick.nk) runNk({ asked: true });
+  }, 400);
 }
 
 // ---------- 띄어쓰기 (Kiwi, 브라우저 안에서만 실행) ----------
@@ -2934,16 +2999,19 @@ $('kiwiOn').onchange = async () => {
 </script>
 <dialog id="nkAsk" class="ask" aria-labelledby="nkAskT">
   <form method="dialog">
-    <h3 id="nkAskT">국어사전으로도 확인할까요?</h3>
-    <p>문서 속 낱말을 <b>국립국어원 표준국어대사전</b>에서 찾아 사전에 없는 말·틀린 말을 더 찾아 줘요.</p>
-    <ul>
-      <li>문장 전체가 아니라 <b>낱말 원형만</b> 보내요(이름·숫자·영어 제외).</li>
-      <li>처음 한 번은 준비하느라 <b>1~2분</b> 걸려요. 그동안 결과를 먼저 보고 있어도 돼요.</li>
-    </ul>
-    <label class="ask-skip"><input type="checkbox" id="nkAskSkip"> 파일을 넣을 때 다시 묻지 않기 <span>(왼쪽 「사전에 없는 말 찾기」 버튼으로는 언제든 할 수 있어요)</span></label>
+    <h3 id="nkAskT">이 파일을 어떻게 검사할까요?</h3>
+    <p id="askLead">기본 검사(오탈자·숫자·형식)는 이미 끝났어요. 더 볼 것을 골라 주세요.</p>
+    <label class="ask-opt" id="optGov"><input type="checkbox" id="askGov" checked>
+      <span><b>공문서 규칙도 검사</b><small>기안문(수신·제목·끝.)으로 보여요. 항목기호 순서(1. → 가. → 1) → 가) → (1) → (가)), 날짜 「2026. 11. 9.」·시각 「14:00」 형식, 「끝.」 표시를 봐요.</small></span></label>
+    <label class="ask-opt" id="optNk"><input type="checkbox" id="askNk" checked>
+      <span><b>국어사전으로도 확인</b><small>낱말 원형만 국립국어원 사전으로 보내요(이름·숫자·영어 제외). 처음 한 번은 1~2분 걸려요. 외래어·상품명·새말은 사전에 없을 때가 많아 따로 묶어 보여 줘요.</small></span></label>
+    <div class="ask-skips">
+      <label id="skipGovL"><input type="checkbox" id="skipGov"> 기안문이면 묻지 않고 바로 공문서 규칙으로도 검사</label>
+      <label id="skipNkL"><input type="checkbox" id="nkAskSkip"> 파일을 넣을 때 국어사전은 다시 묻지 않기(왼쪽 버튼으로는 언제든 할 수 있어요)</label>
+    </div>
     <div class="ask-row">
-      <button class="btn" value="no">안 할래요</button>
-      <button class="btn primary" value="yes" autofocus>시작하기</button>
+      <button class="btn" value="no" id="askNo">기본 검사만</button>
+      <button class="btn primary" value="yes" id="askYes" autofocus>검사하기</button>
     </div>
   </form>
 </dialog>
