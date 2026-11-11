@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK4.1</title>
+<title>오타 및 계산 수정기 MK4.2</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -150,6 +150,7 @@ details.rec:not([open])>summary.rec-h{border-bottom:0}
 .iss:first-of-type{border-top:0}
 .pick.fix{border-color:var(--brand);color:var(--brand-strong);background:var(--brand-soft);font-weight:700}
 .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.grp-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:baseline;padding:10px 18px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line)}
 .link{border:0;background:none;padding:0;color:var(--accent);font-size:12px;cursor:pointer;text-decoration:underline}
 .cant{display:block;font-size:12px;color:var(--warn);margin-top:2px}
 .iss.off .msg,.iss.off .lv{opacity:.45}
@@ -268,7 +269,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK4.1</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK4.2</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -527,7 +528,10 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     + '생사 찬가 첨가 참사 손발 선박 선방 면적 숙제 국지 자원 재원 제원 교유 반문 연구 영수 염수 온수 연소 연서 연후 파경 등속 시간 기안 기강 기단 기산 기근 개간 이간 장수 장로 장서 장고 정소 '
     + '임원 인권 계산 예상 예선 인내 안대 단내 간내 암내 동지 송지 경지 곤지 궁지 공제 공자 공비 요철 협주 성인 상인 결제 경재 감당 담장 영락 항생 고수 교구 직권 학연 정공 전동 전경 전송 '
     + '수첩 상의 선적 승적 성정 종업 입항 방학 정학 성명 통영 숙고 상공 개관 청장 통장 충장 차장 추장 처방 무관 수원 전산 정상 정신 예약 비교 가업 업주 구내 구미 애용 비지 '
-    + '상단 하단 정한 안나 경유 송유 동유').split(' '));
+    + '상단 하단 정한 안나 경유 송유 동유 '
+    // MK4.2: 위 자주 쓰는 말의 옆 글쇠 후보를 모두 뽑아 그중 사전에 있는 흔한 말만 골라 넣음(일기 ↔ 일시 등)
+    + '일기 일세 일리 일사 재상 내상 화의 행시 행서 참다 참아 참기 산발 장문 발문 년수 연루 금토 연착 준공 전곡 수압 간의 각의 당의 바자 비즈 '
+    + '실기 실사 실세 실리 추징 초진 처진 분비 국소 이관 가관 초장 어장 정선 적산 증산 계략 대용 눈의 고육 홍조 상감 촌장 비구 학리 임학 철석').split(' '));
   const KB_ROWS = ['ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔ', 'ㅁㄴㅇㄹㅎㅗㅓㅏㅣ', 'ㅋㅌㅊㅍㅠㅜㅡ'], KB_POS = {};
   KB_ROWS.forEach((row, r) => [...row].forEach((ch, c) => KB_POS[ch] = [r, c]));
   const keyAdj = (a, b) => { const p = KB_POS[a], q = KB_POS[b]; if (!p || !q) return false; if (p[0] === q[0]) return Math.abs(p[1] - q[1]) === 1; const [hi, lo] = p[0] < q[0] ? [p, q] : [q, p]; return lo[0] - hi[0] === 1 && (lo[1] === hi[1] || lo[1] === hi[1] - 1); };
@@ -684,6 +688,19 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   }
   const EMPTY_MARK =/^([-–—―−~·.\/×xX○])\1{0,2}$/u; // 내용 없음 표시: -, --, –, /, ·, ×, x 등
   const REL = new Set('아버지 어머니 부 모 형 누나 언니 오빠 남동생 여동생 동생 배우자 남편 아내 할아버지 할머니 FATHER MOTHER'.split(' '));
+  // ---------- 한글 이름 ----------
+  // 이름은 한 글자만 다른 다른 사람(이유진·이의진)이 많아서 '한 글자만 다른 말'·율/률 검사에서 뺌
+  const SURNAME1 = '김이박최정강조윤장임한오서신권황안송류유전홍고문양손배백허남심노하곽성차주우구민진나지엄채원천방공현함변염여추도소석선설마길연위표명기반왕금옥육인맹제모탁국어은편용예봉경';
+  const SURNAME2 = /^(황보|남궁|제갈|선우|독고|사공|서문|동방)/;
+  const NOT_NAME_END = /[과부처팀실회학교청국소관장식비금증표료권문법품점역층업제론책터]$/; // 국제처·관광과·장학금처럼 이름이 아닌 말의 끝 글자
+  const krName = t => /^[가-힣]{2,4}$/.test(t) && !NOT_NAME_END.test(t) && (SURNAME2.test(t) ? t.length === 4 : SURNAME1.includes(t[0]) && t.length <= 3);
+  // 율/률 검사는 이름처럼 보여도 이 말 뒤의 율/률은 그대로 봄(이직률·정답률·유지율처럼 첫 글자가 성씨와 같은 말)
+  const RATE_STEMS = new Set(('이직 이수 이용 이행 이자 이익 정답 정확 정원 진학 진도 진척 성공 성장 경쟁 공실 도달 명중 반송 연체 유출 유지 유효 인상 인지 전송 전환 조달 하락 고용 구독 국산 '
+    + '득점 석차 선택 오답 오차 장애 주행 지지 지원 차입 채용 최고 출산 할인 회수 효과 감소 증가 참여 참석 응답 달성 집행 가입 등록 충원 재학 탈락 확보 점유 수익 실업 입학 졸업 사망 합격 출석 취업 '
+    + '배출 비율 분포 부채 부담 사용 소득 손실 수율 신장 안전 연비 우승 원가 위험 육성 이탈 인구 임대 전입 정착 제적 조사 주가 중도 증감 지급 처리 체납 출현 통과 투표 투자 평균 학습 함량 해지 환원 활용 회전').split(' '));
+
+  // 낱말 끝 조사 하나를 뗌(이의진은 → 이의진)
+  const dropJosa = w => w.length >= 4 &&'은는이가을를의에께와과도랑'.includes(w[w.length - 1]) && krName(w.slice(0, -1)) ? w.slice(0, -1) : w;
   // ---------- 오타 사전 ----------
   const DEFAULT_TYPOS = [
     ['특히사항', '특이사항'], ['사압자', '사업자'], ['대하교', '대학교'], ['아포스티', '아포스티유'],
@@ -727,6 +744,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       const r0txt = [...rows.get(r0).values()].filter(x => x.text.trim());
       if (numCols.length >= 2 && numCols.filter(c => !isNum(rows.get(r0).get(c))).length >= numCols.length * 0.6 && r0txt.every(x => !/\d{2,}/.test(x.text))) {
         if (header == null) header = r0;
+        // 이 줄의 칸 이름도 머리글로 씀(첫 줄에 이름이 없는 칸만: '예산' 아래 '교비·혁신')
+        for (const [c, cell] of rows.get(r0)) if (!titles.has(c) && cell.text.trim() && !isNum(cell))
+          titles.set(c, clip(cell.text.split('\n').map(s => s.trim()).filter(Boolean).join(' ').replace(/\(.*?\)/g, '').trim(), 18));
         qual = rest;
       } else break;
     }
@@ -742,7 +762,13 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       for (const c of cols) { const s = records.filter(r => { const x = rows.get(r).get(c); return x && test(x.text.trim()); }).length; if (s > bs) { bs = s; best = c; } }
       return bs >= Math.max(2, records.length * 0.6) ? best : null;
     };
-    const nameCol = findCol(/성명|이름|name/i, t => { const n = namesIn(t); return n.length === 1 && n[0].name === t.replace(/\s+/g, ' '); });
+    // 로마자 이름 열, 없으면 한글 이름(김경희·황보은률)이 대부분인 열
+    let nameCol = findCol(/성명|이름|name/i, t => { const n = namesIn(t); return n.length === 1 && n[0].name === t.replace(/\s+/g, ' '); });
+    if (!nameCol) {
+      const c = findCol(/(?!)/, krName);
+      const v = c ? records.map(r => rows.get(r).get(c)).filter(Boolean).map(x => x.text.trim()) : [];
+      if (c && new Set(v).size >= v.length * 0.7) nameCol = c; // '정상·신규'처럼 같은 말이 되풀이되는 상태 열은 뺌
+    }
     let noCol = findCol(/연번|번호|^no\.?$/i, t => /^\d{1,4}$/.test(t));
     if (noCol) { // 연번은 줄마다 달라야 함(파견기간 '16'처럼 같은 숫자가 반복되는 열 제외)
       const v = records.map(r => rows.get(r).get(noCol)).filter(Boolean).map(x => x.text.trim());
@@ -752,7 +778,12 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     const thisY = new Date().getFullYear();
     const birthCol = findCol(/생년월일|birth/i, t => { const d = datesIn(t); return d.length === 1 && t.length <= 14 && d[0].y <= thisY - 10 && d[0].y >= thisY - 80; });
     const ageCol = findCol(/나이|age/i, null);
-    return { name: sh.name, rows, rowNums, header, records, titles, cols: [...cols].sort((a, b) => a - b), nameCol, noCol, birthCol, ageCol };
+    // 한 줄이 무엇인지: 학번·학과 같은 칸이 있으면 학생, 성명만 있으면 사람, 모르면 줄(예산 내역 등)
+    const tt = [...titles.values()].join(' ');
+    const who = /학번|학년|학과|학생|student|전공|생년월일|여권|국적/i.test(tt) ? '학생' : nameCol ? '사람' : '줄';
+    // 같은 사람이면 같아야 하는 칸(학번·연락처 등)
+    const idCols = [...titles].filter(([, t]) => /학번|연락처|전화|휴대|핸드폰|여권|외국인\s*등록|이메일|e-?mail/i.test(t)).map(([c]) => c);
+    return { name: sh.name, rows, rowNums, header, records, titles, cols: [...cols].sort((a, b) => a - b), nameCol, noCol, birthCol, ageCol, who, idCols };
   }
 
   // ---------- 본 검사 ----------
@@ -761,6 +792,20 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     const typoList = (opts.typos || DEFAULT_TYPOS).filter(t => t[0] && t[1] && t[0] !== t[1]);
     const issues = [];
     const sheets = workbook.map(buildSheet);
+    // 성명 열의 칸, 이름이 많은 파일인지(칸 하나에 이름만 든 곳이 5곳 이상이면 방문자 명단처럼 봄)
+    const nameCells = new Set();
+    for (const S of sheets) if (S.nameCol) for (const r of S.records) { const x = S.rows.get(r).get(S.nameCol); if (x) nameCells.add(x); }
+    const nameRich = nameCells.size >= 5 || workbook.reduce((a, sh) => a + sh.cells.filter(c => krName(c.text.trim()) && !COMMON.has(c.text.trim())).length, 0) >= 5;
+    // 낱말 w(조사 붙은 것 포함)가 이 칸에서 사람 이름으로 보이는지
+    const NAME_AFTER = /^\s?(학생|님|씨|교수|선생|선배|후배|군|양|외)/;
+    const nameLike = (w, cell, at) => {
+      if (nameCells.has(cell)) return true;
+      const b = dropJosa(w);
+      if (!krName(b) || COMMON.has(b)) return false;
+      if (SURNAME2.test(b)) return true; // 황보은률
+      const after = at >= 0 ? cell.text.slice(at + w.length) : '';
+      return nameRich || cell.text.trim() === w || NAME_AFTER.test(after);
+    };
     // 파일 전체 글(오타 의심을 거를 때 씀)
     const allText = workbook.map(sh => sh.cells.map(c => c.text).join('\n')).join('\n');
     const cntAll = k => k ? allText.split(k).length - 1 : 0;
@@ -875,6 +920,21 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           }
         }
       }
+      // 한글 이름은 한 글자 다른 다른 사람이 많아 오타 의심에서 뺐으니, 학번·연락처가 같은 줄끼리만 이름을 비교
+      if (S.nameCol) for (const ic of S.idCols) {
+        const byId = new Map();
+        for (const r of S.records) {
+          const row = S.rows.get(r), v = row.get(ic), n = row.get(S.nameCol); if (!v || !n) continue;
+          const k = v.text.replace(/[\s\-.()]/g, '').toLowerCase(); if (k.length < 6) continue;
+          if (!byId.has(k)) byId.set(k, []);
+          byId.get(k).push({ r, n: n.text.trim(), v: v.text.trim() });
+        }
+        for (const [, arr] of byId) for (let i = 0; i < arr.length; i++) for (let j = i + 1; j < arr.length; j++) {
+          const a = arr[i], b = arr[j];
+          if (a.n === b.n || a.n.length !== b.n.length || [...a.n].filter((ch, k) => ch !== b.n[k]).length !== 1) continue;
+          add(S, b.r, S.nameCol, LV.CHECK, '행 대조', `같은 ${S.titles.get(ic)}(${a.v})인데 이름이 한 글자 다릅니다: '${a.n}'(${a.r}행) ↔ '${b.n}'(${b.r}행). 같은 사람이면 이름을 맞춰 주세요.`);
+        }
+      }
 
       // ===== 2. 열 비교 =====
       const blankBy = new Map(); // 줄 → 비어 있는 열들(다른 줄은 85% 넘게 채운 열만)
@@ -912,7 +972,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           for (const x of nonEmpty) {
             const set = perRec.get(x.r); const v = set.get(L);
             if (!v && o.n / nonEmpty.length >= 0.6 && nonEmpty.length >= 4 && !REL.has(L))
-              add(S, x.r, c, LV.CHECK, '열 비교', `다른 학생 대부분에 있는 '${o.label}' 항목이 없습니다.`);
+              add(S, x.r, c, LV.CHECK, '열 비교', `다른 ${S.who} 대부분에 있는 '${o.label}' 항목이 없습니다.`);
             if (v && v.empty && (o.filled - 0) / o.n >= 0.5)
               add(S, x.r, c, LV.FIX, '열 비교', `'${o.label}' 값이 비어 있습니다.`);
           }
@@ -934,7 +994,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
             const items = o.lines.map(normItem);
             for (const k of need) {
               const has = items.some(it => it === k || it.includes(k) || (k.includes(it) && it.length >= 3) || (it.length >= 4 && lev(it, k) <= 1));
-              if (!has) add(S, o.x.r, c, LV.CHECK, '열 비교', `다른 학생 대부분에 있는 '${k}'이(가) 목록에 없습니다.`);
+              if (!has) add(S, o.x.r, c, LV.CHECK, '열 비교', `다른 ${S.who} 대부분에 있는 '${k}'이(가) 목록에 없습니다.`);
             }
             // 중복 줄
             const seenL = new Map();
@@ -954,7 +1014,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       // 빈칸 알림: 한 줄에 1~2칸이면 칸마다, 3칸 이상이면 아직 안 채운 줄일 가능성이 커서 줄에 한 번만
       for (const [r, cs] of blankBy) {
         const nm = c => S.titles.get(c) ? `'${S.titles.get(c)}'` : colLetter(c) + '열';
-        if (cs.length <= 2) cs.forEach(c => add(S, r, c, LV.CHECK, '열 비교', `${S.titles.get(c) ? `'${S.titles.get(c)}' 칸이` : '칸이'} 비어 있습니다(다른 학생은 대부분 작성됨).`));
+        if (cs.length <= 2) cs.forEach(c => add(S, r, c, LV.CHECK, '열 비교', `${S.titles.get(c) ? `'${S.titles.get(c)}' 칸이` : '칸이'} 비어 있습니다(다른 ${S.who}은 대부분 작성됨).`));
         else add(S, r, cs[0], LV.CHECK, '열 비교', `이 줄에 빈칸이 ${cs.length}개 있습니다: ${cs.slice(0, 5).map(nm).join(', ')}${cs.length > 5 ? ' 등' : ''}. 아직 안 채운 줄인지 확인해 주세요.`);
       }
 
@@ -1057,6 +1117,14 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       const NUM_CELL = /^[₩$€¥£]?\s*([-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?)\s*(?:원|천원|만원|명|개|회|건|권|대|장|점|시간|일|%|달러|엔|위안|usd|krw)?$/i;
       const numOf = cell => { if (!cell) return null; const m = cell.text.trim().match(NUM_CELL); return m ? { v: num(m[1]), s: m[1], cell } : null; };
       const NO_SUM = /번호|연번|순번|^no\.?$|연도|년도|학번|학년|기수|코드|전화|연락처|우편|생년|나이|평균|비율|[율률]$|%|단가|환율|순위|등급/i;
+      // 칸의 단위: 'count'(사람·건·횟수) | 'money'(금액) | ''(모름). 머리글이나 숫자 뒤 단위로 판단
+      const COUNT_HEAD = /인원|인수|명수|[자생]\s*수\s*$|[자생]\s*수\s*\(|^\s*명\s*$|\(\s*명\s*\)|건수|^\s*건\s*$|\(\s*건\s*\)|횟수|회수|\(\s*회\s*\)|수량|개수|\(\s*개\s*\)/;
+      const MONEY_HEAD = /금액|예산|비용|[가-힣]비$|교비|원\s*\)|\(\s*(천|만|백만)?원|단가|액$|료$|금$/;
+      const unitKind = (cell, head) => {
+        const u = ((cell && cell.text.trim().match(/(천원|만원|원|달러|usd|krw|명|건|회|개|권|대|장)$/i)) || [])[1];
+        if (u) return /원|달러|usd|krw/i.test(u) ? 'money' : 'count';
+        return COUNT_HEAD.test(head || '') ? 'count' : MONEY_HEAD.test(head || '') ? 'money' : '';
+      };
       const decs = s => (String(s).split('.')[1] || '').length;
       const yearish = ps => ps.filter(p => /^(19|20)\d{2}$/.test(p.s)).length >= ps.length / 2;
       const fmtLike = (v, s) => { let o = v.toFixed(Math.min(decs(s), 6)); if (s.includes(',')) { const [a, b] = o.split('.'); o = a.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (b ? '.' + b : ''); } return o; };
@@ -1085,6 +1153,10 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
         const d = Math.max(decs(T.s), ...parts.map(p => decs(p.s)));
         const tol = d && d <= 6 ? parts.length * 0.5 * Math.pow(10, -d) : 1e-6; // 소수는 반올림 차이만큼 봐줌
         if (Math.abs(sum - T.v) <= tol) return;
+        // 맨 끝 칸 하나(인원 528명 같은 작은 숫자)를 빼면 정확히 맞으면 그 칸은 더하는 칸이 아님.
+        // 비슷한 크기의 칸이나 100원 단위 금액(5,000)을 빠뜨린 진짜 오류는 그대로 알림
+        const far = parts[parts.length - 1];
+        if (parts.length >= 3 && Math.abs(sum - far.v - T.v) <= tol && Math.abs(far.v) < Math.abs(T.v) * 0.01 && far.kind !== 'money' && (far.kind === 'count' || far.v % 100 !== 0)) return;
         const first = parts[parts.length - 1].cell.addr, last = parts[0].cell.addr;
         const into = fmtLike(sum, T.s);
         add(S, T.cell.r, T.cell.c, LV.FIX, '숫자', `합계가 맞지 않습니다 — ${T.cell.addr} 적힌 값 ${fmtN(T.v)} ↔ ${where === 'row' ? '위' : '왼쪽'} ${parts.length}칸(${first}~${last}) 합 ${fmtN(sum)}`
@@ -1115,16 +1187,70 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           if (r <= r0) continue;
           const cell = S.rows.get(r).get(c0); if (!cell || !cell.text.trim()) continue;
           const T = numOf(cell); if (!T) break; // 표가 끝남
-          const parts = [];
+          let parts = [];
+          const tk = unitKind(cell, (row0.get(c0) || { text: '' }).text);
           for (const c of [...S.rows.get(r).keys()].filter(c => c < c0).sort((a, b) => b - a)) {
             const hk = rankAt.get(r0 + '|' + c);
             if (hk) { if (hk >= rank) break; continue; }
-            const ht = (row0.get(c) || { text: '' }).text.trim();
+            const ht = (row0.get(c) || { text: '' }).text.trim() || S.titles.get(c) || '';
             const n = numOf(S.rows.get(r).get(c)); if (!n) break;
             if (NO_SUM.test(ht)) continue;
+            n.kind = unitKind(n.cell, ht);
             parts.push(n);
           }
+          // 단위가 다른 칸은 더하지 않음: '방문 인원 | 교비 | 혁신 | 계'에서 인원(명)은 금액 합계에 안 들어감
+          if (tk) parts = parts.filter(p => !p.kind || p.kind === tk);
+          else if (parts.some(p => p.kind === 'count') && parts.some(p => p.kind !== 'count')) parts = parts.filter(p => p.kind !== 'count');
           sumCheck(T, parts, 'col');
+        }
+      }
+
+      // ===== 3-3. 한 줄 안 계산 =====
+      // 머리글이 '본인부담·잔액·차액·합계' 같은 칸이 줄마다 같은 줄 다른 칸의 합이나 차(참가비 − 장학금)로 맞는데 몇 줄만 어긋나면 알림
+      // 계산식은 줄 대부분(80% 이상, 4줄 이상)이 맞는 것만 씀. 그 식들 중 어느 것으로도 설명이 안 되는 줄만 「확인 요망」
+      const CALC_HEAD = /합계|^\s*계\s*$|소계|총액|총계|본인\s*부담|자부담|잔액|차액|차감|실\s*지급|지급액|실수령|납부액|정산액|부담액/;
+      if (S.header != null && S.records.length >= 4) {
+        const recs = S.records;
+        const valAt = (r, c) => { const x = S.rows.get(r).get(c); if (!x || !x.text.trim() || EMPTY_MARK.test(x.text.trim())) return 0; const n = numOf(x); return n ? n.v : null; };
+        const nmC = c => S.titles.get(c) || colLetter(c) + '열';
+        const calcCols = S.cols.filter(c => {
+          const t = S.titles.get(c) || '';
+          if (NO_SUM.test(t) || COUNT_HEAD.test(t)) return false;
+          const ns = recs.filter(r => numOf(S.rows.get(r).get(c))).length;
+          return ns >= 4 && ns >= recs.length * 0.7;
+        });
+        for (const tc of calcCols) {
+          if (!CALC_HEAD.test(S.titles.get(tc) || '') || rankAt.has(S.header + '|' + tc)) continue; // 머리글이 '계' 한 글자인 열은 위 합계 열 검사가 봄
+          const ops = calcCols.filter(c => c !== tc).slice(0, 8), forms = [];
+          for (const a of ops) for (const b of ops) {
+            if (a === b) continue;
+            if (a < b) forms.push({ s: `${nmC(a)} + ${nmC(b)}`, cs: [a, b], f: v => v[0] + v[1] });
+            forms.push({ s: `${nmC(a)} − ${nmC(b)}`, cs: [a, b], f: v => v[0] - v[1] });
+            for (const c of ops) {
+              if (c === a || c === b || c < b) continue;
+              if (a < b) forms.push({ s: `${nmC(a)} + ${nmC(b)} + ${nmC(c)}`, cs: [a, b, c], f: v => v[0] + v[1] + v[2] });
+              forms.push({ s: `${nmC(a)} − ${nmC(b)} − ${nmC(c)}`, cs: [a, b, c], f: v => v[0] - v[1] - v[2] });
+            }
+          }
+          const rowsT = recs.map(r => ({ r, t: numOf(S.rows.get(r).get(tc)) })).filter(o => o.t);
+          if (rowsT.length < 4) continue;
+          const ok = (fm, o) => { const v = fm.cs.map(c => valAt(o.r, c)); return !v.includes(null) && Math.abs(fm.f(v) - o.t.v) <= 0.5; };
+          const good = forms.filter(fm => {
+            const n = rowsT.filter(o => ok(fm, o)).length;
+            // 칸이 모두 0이 아닌 줄이 있어야 진짜 계산식(한 칸이 늘 0이면 '참가비 + 장학금'도 맞아 보임)
+            return n >= 4 && n >= rowsT.length * 0.8 && rowsT.some(o => ok(fm, o) && fm.cs.every(c => valAt(o.r, c)));
+          }).map(fm => ({ fm, n: rowsT.filter(o => ok(fm, o)).length })).sort((a, b) => b.n - a.n);
+          if (!good.length) continue;
+          const best = good[0].fm;
+          for (const o of rowsT) {
+            if (good.some(g => ok(g.fm, o))) continue;
+            const v = best.cs.map(c => valAt(o.r, c)); if (v.includes(null)) continue;
+            if (issues.some(x => x.sheet === S.name && x.r === o.r && x.c === tc)) continue;
+            const want = best.f(v);
+            const shown = best.cs.map((c, k) => (k ? (best.s.includes('−') ? ' − ' : ' + ') : '') + fmtN(v[k])).join('');
+            add(S, o.r, tc, LV.CHECK, '숫자', `같은 줄 계산이 다른 줄과 다릅니다 — 다른 줄은 '${nmC(tc)} = ${best.s}'인데 이 줄은 ${shown} = ${fmtN(want)} ↔ 적힌 값 ${fmtN(o.t.v)}. 계산이 틀렸는지 확인해 주세요.`,
+              o.t.cell.f ? {} : { fix: [o.t.s, fmtLike(want, o.t.s)], calc: true });
+          }
         }
       }
 
@@ -1180,6 +1306,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
           const want = (j[2] === 0 || j[2] === 4) ? '율' : '률';
           if (m[3] === want) continue;
           const word = (m[1] + m[2] + m[3] + (t.slice(m.index + m[0].length).match(/^[가-힣]*/) || [''])[0]);
+          // 이름(김은률·황보은률)은 뺌. 단 이직률·유지율처럼 앞말이 비율을 나타내는 말이면 그대로 봄
+          if (nameCells.has(cell) || (nameLike(word, cell, m.index) && !RATE_STEMS.has(dropJosa(word).slice(0, -1)))) continue;
           add(S, cell.r, cell.c, LV.TYPO, '오탈자', `'${m[2]}${m[3]}' → '${m[2]}${want}' ('${word}': ${want === '률' ? 'ㄴ 아닌 받침 뒤에는 률' : '받침 없는 글자나 ㄴ 받침 뒤에는 율'})`, { fix: [m[2] + m[3], m[2] + want] });
         }
         // '027학년도'처럼 연도 숫자가 3자리(앞 '2'가 빠짐)
@@ -1271,7 +1399,9 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
             const josa = dp >= 0 && (dp === w.length - 1 || (PARTICLE.includes(w[dp]) && PARTICLE.includes(fixed[dp])));
             // 3글자 이하 짧은 말은 서로 다른 맞는 말끼리 겹치기 쉬워(질문을/지문을) 비교할 말이 3번 이상 나올 때만
             // 단, 맞는 말이 같은 칸이나 바로 근처(3줄 안)에 있고 첫 글자가 아닌 가운데 글자만 다르면 1번만 나와도 의심(설망회 ↔ 바로 아래 설명회)
-            const ok = cand && !josa && !VERBISH(w) && !VERBISH(fixed) && !looksReal(w, dp) && ![...dictWrong].some(dw => w.includes(dw) || fixed.includes(dw));
+            // 사람 이름끼리 한 글자 다른 건(이유진·이의진) 다른 사람일 때가 많아 뺌. 고칠 말이 자주 쓰는 말(설명회)이면 그대로 봄
+            const person = cand && nameLike(w, cell, cell.text.indexOf(w)) && !COMMON.has(dropJosa(fixed));
+            const ok = cand && !josa && !person && !VERBISH(w) && !VERBISH(fixed) && !looksReal(w, dp) && ![...dictWrong].some(dw => w.includes(dw) || fixed.includes(dw));
             const nW = words.get(w) || 0, nF = words.get(fixed) || 0;
             // 첫 글자가 바뀐 것(미공개↔비공개, 부스운영↔부서운영)은 맞는 말끼리인 경우가 많아 뺌(자주 쓰는 말이면 아래 검사가 맡음)
             if (ok && dp > 0 && nF >= (w.length <= 3 ? 3 : 2) && nF > nW) {
@@ -1289,6 +1419,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       // 자주 쓰는 말(설명회·보고서·교환학생…)과 가운데·첫 글자의 자모 하나만 다른 말 — 파일에 맞는 말이 없어도 의심
       // 끝 글자만 다른 건 뺌(담당자 ↔ 담당지역처럼 다른 맞는 말이 많음)
       for (const cell of allCells) {
+        if (nameCells.has(cell)) continue; // 성명 칸
         const runs = cell.text.match(/[가-힣]{3,}/g) || [];
         for (const w of runs) {
           if (COMMON.has(w)) continue;
@@ -1312,9 +1443,12 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       const sheetText = allCells.map(c => c.text).join('\n');
       const cnt = (s, k) => s.split(k).length - 1;
       for (const cell of allCells) {
+        if (nameCells.has(cell)) continue; // 성명 칸
         for (const run of cell.text.match(/[가-힣]+/g) || []) {
           const w2 = run.length === 2 ? run : (run.length === 3 && '은는이가을를에의와과도로만'.includes(run[2]) ? run.slice(0, 2) : null); // 비도서를 '비도+서'로 나누지 않게
           if (!w2 || COMMON2.has(w2) || REAL2.has(w2) || COMMON.has(run) || [...dictWrong].some(dw => run.includes(dw))) continue;
+          if (opts.inDict && opts.inDict(w2)) continue; // 「국어사전 확인」에서 사전에 있다고 나온 말
+          if (krName(run) && NAME_AFTER.test(cell.text.slice(cell.text.indexOf(run) + run.length))) continue; // '은률 학생'처럼 이름
           if (cntAll(w2) > 1) continue; // 틀린 말은 파일 전체에서 한 번만 나와야 함(여러 번이면 일부러 쓴 말)
           for (const K of [0, 1].flatMap(p => keySlips(w2[p]).map(s => p ? w2[0] + s : s + w2[1]))) {
             // 맞는 말은 자주 쓰는 두 글자 말만(같은 곳에 있는 아무 말과 비교하면 정부↔정보, 재난↔재단처럼 맞는 말끼리 걸림)
@@ -1334,7 +1468,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     const sOrder = new Map(sheets.map((s, i) => [s.name, i]));
     issues.sort((a, b) => (sOrder.get(a.sheet) - sOrder.get(b.sheet)) || (a.r - b.r) || (a.c - b.c));
     const meta = sheets.map(S => ({
-      name: S.name, records: S.records.length, header: S.header,
+      name: S.name, records: S.records.length, header: S.header, who: S.who,
       nameCol: S.nameCol && colLetter(S.nameCol), birthCol: S.birthCol && colLetter(S.birthCol), noCol: S.noCol && colLetter(S.noCol)
     }));
     return { issues, meta };
@@ -1368,6 +1502,7 @@ const LVNAME = { fix:'수정 필요', check:'확인 요망', typo:'오탈자·�
 let fileBuf = null, fileName = '', kind = 'xlsx', data = null, result = null, hidden = new Set();
 const choice = new Map();   // 항목 id → 'fix'(자동 수정) | 'mark'(표시만) | 'off'(빼기). 다시 검사해도 유지
 const closed = new Set();   // 접어 둔 학생 카드
+let trimOpen = false;       // 「앞뒤 공백」 묶음 카드는 접어서 시작
 let undoSnap = null;
 
 // ---------- 오타 사전 ----------
@@ -1522,7 +1657,10 @@ const noTextHelp = () => kind === 'hwp' && data.locked ? '암호가 걸렸거나
 function run(){
   const useEng = eng && $('engOn').checked;
   if (useEng) { engBudget = ENG_MAX; engFreq = new Map(); data.forEach(sh => sh.cells.forEach(c => { for (const m of stripUrl(c.text).matchAll(EN_WORD)) engFreq.set(m[0], (engFreq.get(m[0]) || 0) + 1); })); }
-  const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null, speller: useEng ? speller : null, isWord: useEng && eng ? w => eng.check(w) : null, mode: modeNow() });
+  // 「국어사전 확인」에서 사전에 있다고 나온 말(이 브라우저에 기억해 둔 것)은 옆 글쇠 오타로 보지 않음
+  let nkc = {}; try { nkc = JSON.parse(store.get('nkCache2') || '{}'); } catch (e) {}
+  const inDict = w => nkc[w] === 'std' || nkc[w] === 'open';
+  const r = ListCheck.analyze(data, { typos: readDict(), spacer: kiwi && $('kiwiOn').checked ? spacer : null, speller: useEng ? speller : null, isWord: useEng && eng ? w => eng.check(w) : null, inDict, mode: modeNow() });
   // AI가 찾은 것 합치기(같은 칸·같은 고침이 이미 있으면 뺌), 파일 순서대로 다시 정렬
   for (const a of [...aiIssues, ...nkIssues]) {
     if (r.issues.some(i => i.sheet === a.sheet && i.r === a.r && i.c === a.c && i.fix && a.fix && i.fix[0] === a.fix[0] && i.fix[1] === a.fix[1])) continue;
@@ -1560,7 +1698,7 @@ function run(){
   });
   result = r;
   const recs = r.meta.reduce((a, m) => a + m.records, 0);
-  const main = r.meta.filter(m => m.records).map(m => `「${m.name}」 ${m.records}명`).join(', ');
+  const main = r.meta.filter(m => m.records).map(m => `「${m.name}」 ${m.records}${m.who === "줄" ? "줄" : "명"}`).join(', ');
   r.noText = !data.some(sh => sh.cells.length);
   if (r.noText) setStatus('loadStatus', `${fileName} — 읽을 수 있는 글자가 없어요(가운데 안내를 봐 주세요).`, 'warn');
   else if (kind === 'pdf' || kind === 'img') setStatus('loadStatus', `${fileName} — ${data.ocr ? '사진 글자 읽기(OCR)로 ' : ''}${pdfSizes.length}${kind === 'img' ? '장' : '쪽'}, 글자 ${pdfLines.length}줄을 읽었어요`, data.ocr ? 'warn' : 'ok');
@@ -1624,7 +1762,7 @@ function render(){
   $('nCheck').textContent = iss.filter(i => i.level === 'check').length;
   $('nTypo').textContent = iss.filter(i => i.level === 'typo').length;
   const meta = result.meta.filter(m => m.records).map(m =>
-    `<b>${esc(m.name)}</b>${kind === 'xlsx' ? ' 시트' : ''}에서 학생 <b>${m.records}명</b>을 찾았어요` +
+    `<b>${esc(m.name)}</b>${kind === 'xlsx' ? ' 시트' : ''}에서 ${m.who === "줄" ? `표 <b>${m.records}줄</b>을` : `${m.who} <b>${m.records}명</b>을`} 찾았어요` +
     (m.nameCol ? ` · 성명 ${m.nameCol}열` : '') + (m.birthCol ? ` · 생년월일 ${m.birthCol}열` : '') + (m.noCol ? ` · 연번 ${m.noCol}열` : '')).join('<br>');
   let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : kind === 'pptx' ? '위치는 슬라이드 번호와 글상자 순서(표는 몇 행 몇 열)예요.' : kind === 'pdf' || kind === 'img' ? '위치는 쪽(장) 번호와 그 안의 몇 번째 줄인지예요.' : /^hwp/.test(kind) ? '위치는 한글 문서의 몇 번째 문단(표는 몇 행 몇 열)이에요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
   const vis = visible();
@@ -1634,11 +1772,15 @@ function render(){
   if (result.noText) html += `<div class="empty"><h3>글자를 읽을 수 없는 파일이에요</h3><p style="margin:0">${esc(noTextHelp())}</p>${canOcr() ? `<div class="ocr-box"><button class="btn primary" id="ocrBtn">그림 속 글자 읽기 (OCR)</button><span class="note">무료·이 PC 안에서 읽어요. 쪽마다 몇 초씩 걸리고, 한글은 잘못 읽는 글자가 많을 수 있어요.</span></div>` : ''}</div>`;
   else if (!iss.length) html += `<div class="empty"><h3>찾은 문제가 없어요</h3>그래도 문맥상 이상한 부분은 한 번 훑어봐 주세요.</div>`;
   else if (!vis.length) html += `<div class="empty"><h3>조건에 맞는 항목이 없어요</h3>검색어·종류를 바꾸거나 왼쪽 숫자 칸을 눌러 숨긴 구분을 다시 보이게 해 주세요.</div>`;
+  // 앞뒤 공백 알림이 5곳 이상이면 줄마다 흩어 두지 않고 맨 끝 카드 하나로 묶음(눈에 안 보이는 공백이라 한꺼번에 정리하면 됨)
+  const isTrim = i => i.trim && i.cat === '형식', nTrim = vis.filter(isTrim).length, TRIM = '__trim';
   const groups = new Map();
-  vis.forEach(i => { if (!groups.has(i.recLabel)) groups.set(i.recLabel, []); groups.get(i.recLabel).push(i); });
+  vis.forEach(i => { const g = nTrim >= 5 && isTrim(i) ? TRIM : i.recLabel; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(i); });
+  if (groups.has(TRIM)) { const t = groups.get(TRIM); groups.delete(TRIM); groups.set(TRIM, t); }
   for (const [label, arr] of groups) {
-    const on = arr.filter(i => choice.get(i.id) !== 'off').length;
-    html += `<details class="rec"${closed.has(label) ? '' : ' open'} data-label="${esc(label)}"><summary class="rec-h"><h3>${esc(label)}</h3><span>${on}/${arr.length}개 포함</span></summary>`;
+    const on = arr.filter(i => choice.get(i.id) !== 'off').length, tg = label === TRIM;
+    html += `<details class="rec"${(tg ? trimOpen : !closed.has(label)) ? ' open' : ''} data-label="${esc(label)}"><summary class="rec-h"><h3>${tg ? `앞뒤 공백 ${arr.length}곳` : esc(label)}</h3><span>${on}/${arr.length}개 포함</span></summary>`;
+    if (tg) html += `<div class="grp-bar">칸 앞뒤의 보이지 않는 공백이에요. 글자는 그대로 두고 공백만 지워요. 이 묶음 모두: <button class="link" data-grp="fix">자동 수정</button><button class="link" data-grp="mark">표시만</button><button class="link" data-grp="off">빼기</button></div>`;
     for (const i of arr) {
       const src = sourceOf(i), ch = choice.get(i.id), ik = ignoreKey(i);
       const acts = '<button class="link" data-act="show">문서에서 보기</button>' + ((i.guess || i.cat === '띄어쓰기' || i.cat === '영어 철자' || (i.cat === 'AI' && i.fix)) ? '<button class="link" data-act="dict">사전에 추가</button>' : '') +
@@ -1667,6 +1809,8 @@ $('results').addEventListener('change', e => {
   countPicked(); renderPreview();
 });
 $('results').addEventListener('click', e => {
+  const g = e.target.closest('[data-grp]');
+  if (g) { undoSnap = new Map(choice); visible().filter(i => i.trim && i.cat === '형식').forEach(i => choice.set(i.id, g.dataset.grp === 'fix' && !i.can ? 'mark' : g.dataset.grp)); $('undoBtn').disabled = false; render(); return; }
   const b = e.target.closest('.link'); if (!b) return;
   const i = result.issues.find(x => x.id === b.closest('.iss').dataset.id); if (!i) return;
   if (b.dataset.act === 'show') return showInDoc(i);
@@ -1676,6 +1820,7 @@ $('results').addEventListener('click', e => {
 });
 $('results').addEventListener('toggle', e => {
   const d = e.target; if (!d.classList || !d.classList.contains('rec')) return;
+  if (d.dataset.label === '__trim') { trimOpen = d.open; return; }
   if (d.open) closed.delete(d.dataset.label); else closed.add(d.dataset.label);
 }, true);
 

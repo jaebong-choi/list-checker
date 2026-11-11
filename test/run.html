@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MK4.2 검증</title>
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 16px; background: #fff; color: #222; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 20px; }
+  td, th { border: 1px solid #ccc; padding: 4px 8px; text-align: left; vertical-align: top; }
+  .ok { color: #137333; font-weight: 600; } .bad { color: #c5221f; font-weight: 600; }
+  iframe { width: 100%; height: 420px; border: 1px solid #ccc; }
+  pre { white-space: pre-wrap; font-size: 12px; background: #f6f6f6; padding: 8px; }
+</style>
+</head>
+<body>
+<h1>오탐 줄이기 검증 (test/ 가짜 파일)</h1>
+<p>서버에서 열어야 해요: 레포 폴더에서 <code>python -m http.server 8765</code> → <code>http://localhost:8765/test/run.html</code></p>
+<div id="out">검사 중…</div>
+<iframe id="app"></iframe>
+<script>
+// ?app=다른파일.html 로 예전 판과 비교할 수 있음(레포 맨 위 폴더 기준)
+document.getElementById('app').src = '../' + (new URLSearchParams(location.search).get('app') || 'index.html');
+// 파일마다: 나와야 하는 알림(want)과 나오면 안 되는 알림(not)
+const CASES = [
+  { file: '01_합계_인원열.xlsx',
+    want: [/합계가 맞지 않습니다.*1,300,000.*1,200,000/, /합계가 맞지 않습니다.*700,000.*705,000/, /합계가 맞지 않습니다.*44.*45/],
+    not: [/18,500,528/, /4,200,042/, /^예산 E[234] /, /^방문 /] },
+  { file: '02_방문자명단.xlsx',
+    want: [/같은 학번.*신가은|같은 학번.*신가온/, /다른 학생은 대부분 작성됨/, /설망회.*설명회/, /'업율' → '업률'/, /'직율' → '직률'/],
+    not: [/이의진|이유진/, /김공희|김경희/, /은률.*은율/, /오타 의심.*(최민|정하|강지|윤채|장도|임수|한예|오세|서지)/] },
+  { file: '03_예산내역.xlsx',
+    want: [/다른 줄은 대부분 작성됨/, /교통비|110,000/],
+    not: [/다른 학생/] },
+  { file: '04_스터디보고서.docx',
+    want: [/요일이 맞지 않습니다.*11\.16/, /존재하지 않는 날짜.*2026\. 00\. 00/, /날짜 표기가 다릅니다.*10\.28/, /체제비.*체재비/, /teacherl/, /untill/],
+    not: [/'일기' → '일시'/] },
+];
+const app = document.getElementById('app');
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function runCase(c){
+  const w = app.contentWindow, d = app.contentDocument;
+  // 파일은 앱(iframe) 쪽 fetch·File로 만들어야 앱이 ArrayBuffer로 알아봄
+  const blob = await (await w.fetch('test/' + encodeURI(c.file))).blob();
+  const f = new w.File([blob], c.file);
+  const dt = new w.DataTransfer(); dt.items.add(f);
+  const inp = d.getElementById('file'); inp.files = dt.files;
+  const t0 = performance.now();
+  inp.dispatchEvent(new Event('change', { bubbles: true }));
+  for (let k = 0; k < 200; k++) { await wait(100); const s = d.getElementById('loadStatus').textContent; if (s.startsWith(c.file + ' —')) break; }
+  d.querySelectorAll('dialog[open]').forEach(x => x.close('no'));
+  await wait(200);
+  const items = [...d.querySelectorAll('#results .iss')].map(x => x.querySelector('.loc').textContent + ' | ' + x.querySelector('.txt').textContent);
+  const meta = (d.querySelector('#results .meta') || {}).textContent || '';
+  const miss = c.want.filter(re => !items.some(t => re.test(t)));
+  const extra = c.not.flatMap(re => items.filter(t => re.test(t)));
+  return { c, items, meta, miss, extra, ms: Math.round(performance.now() - t0) };
+}
+app.onload = async () => {
+  await wait(500);
+  let html = '', all = [];
+  for (const c of CASES) {
+    const r = await runCase(c); all.push(r);
+    const pass = !r.miss.length && !r.extra.length;
+    html += `<h2>${c.file} <span class="${pass ? 'ok' : 'bad'}">${pass ? '통과' : '실패'}</span> <small>(${r.items.length}개 알림, ${r.ms}ms)</small></h2>`;
+    if (r.miss.length) html += `<p class="bad">안 잡힌 것: ${r.miss.map(String).join(', ')}</p>`;
+    if (r.extra.length) html += `<p class="bad">잘못 잡은 것:</p><pre>${r.extra.join('\n')}</pre>`;
+    html += `<details><summary>알림 전체</summary><pre>${r.meta}\n\n${r.items.join('\n')}</pre></details>`;
+  }
+  document.getElementById('out').innerHTML = html;
+  window.__done = all.map(r => ({ file: r.c.file, pass: !r.miss.length && !r.extra.length, miss: r.miss.map(String), extra: r.extra, n: r.items.length, items: r.items }));
+};
+</script>
+</body>
+</html>
