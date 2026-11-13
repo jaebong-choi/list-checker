@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK4.2</title>
+<title>오타 및 계산 수정기 MK4.3</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -78,7 +78,21 @@ aside{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:s
 .step h2 b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--brand);color:var(--brand-ink);font-size:13px;font-weight:800;flex:none}
 .drop{border:2px dashed var(--line);border-radius:16px;padding:24px 14px;text-align:center;cursor:pointer;color:var(--muted);font-size:14px;background:var(--panel);transition:border-color .15s,background .15s}
 .drop:hover,.drop.over{border-color:var(--brand);background:var(--brand-soft);color:var(--ink)}
+.drop:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+/* 첫 화면: 오른쪽 넓은 곳의 큰 파일 넣기 칸(안내 상자만한 크기). 왼쪽 작은 칸은 파일을 넣은 뒤 다른 파일로 바꿀 때 씀 */
+.drop-big{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:clamp(240px,40vh,400px);margin:0 0 16px;padding:32px 20px;border-width:3px;border-radius:24px;background:var(--paper);box-shadow:var(--shadow);font-size:15px}
+.drop.drop-big strong{font-size:clamp(20px,2.4vw,26px);font-weight:800;letter-spacing:-0.03em;margin:4px 0 0}
+.drop-ico{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--brand-soft);color:var(--brand-strong);font-size:30px;font-weight:700}
+.drop-kinds{margin-top:6px;font-size:14px}
+.drop-safe{margin-top:2px;font-size:13px;color:var(--muted)}
+body:not(.has-data) aside #drop{display:none}
+body.has-data .drop-big{display:none}
+.drop-hint{margin:0;font-size:14px;color:var(--muted);line-height:1.6}
+body.has-data .drop-hint{display:none}
+/* 좁은 화면 첫 화면: 왼쪽 칸들보다 큰 파일 넣기 칸이 먼저 보이게 */
+@media (max-width:900px){body:not(.has-data) #listPane{order:-1}body:not(.has-data) aside .step:first-child{display:none}.drop-big{min-height:200px;padding:24px 16px}}
 .gov-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border-radius:12px;background:var(--panel);font-size:14px;line-height:1.5}
+.gov-bar[hidden]{display:none}
 .gov-bar.on{background:var(--brand-soft)}
 .gov-bar b{font-weight:700}
 .gov-bar .grow{flex:1;min-width:200px}
@@ -269,7 +283,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK4.2</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK4.3</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -285,6 +299,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   <aside>
     <section class="step">
       <h2><b>1</b>파일 넣기</h2>
+      <p class="drop-hint">오른쪽 큰 칸에 파일을 끌어 놓거나 눌러서 골라 주세요.</p>
       <div class="drop" id="drop" tabindex="0" role="button" aria-label="파일 선택">
         <strong>파일을 여기에 끌어 놓기</strong>
         또는 눌러서 선택<br>엑셀 · 워드 · PPT · PDF · 한글(HWP·HWPX) · 사진(JPG·PNG)
@@ -390,8 +405,15 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="gov-bar" id="govBar" hidden></div>
   <div class="results" id="results">
+    <div class="drop drop-big" tabindex="0" role="button" aria-label="검사할 파일 선택">
+      <span class="drop-ico" aria-hidden="true">⇪</span>
+      <strong>검사할 파일을 여기에 끌어 놓기</strong>
+      <span>또는 눌러서 파일 고르기</span>
+      <span class="drop-kinds">엑셀 · 워드 · PPT · PDF · 한글(HWP·HWPX) · 사진(JPG·PNG)</span>
+      <span class="drop-safe">파일은 이 PC 브라우저 안에서만 읽어요. 어디에도 올라가지 않아요.</span>
+    </div>
     <div class="empty">
-      <h3>왼쪽에 파일을 넣어 주세요</h3>
+      <h3>이런 것을 찾아 줘요</h3>
       <p style="margin:0">서식이 달라도 같은 파일 안에서 서로 비교해서 찾아요.</p>
       <ul>
         <li>같은 줄 대조: 성명·생년월일·보호자 이름 철자</li>
@@ -529,7 +551,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     + '임원 인권 계산 예상 예선 인내 안대 단내 간내 암내 동지 송지 경지 곤지 궁지 공제 공자 공비 요철 협주 성인 상인 결제 경재 감당 담장 영락 항생 고수 교구 직권 학연 정공 전동 전경 전송 '
     + '수첩 상의 선적 승적 성정 종업 입항 방학 정학 성명 통영 숙고 상공 개관 청장 통장 충장 차장 추장 처방 무관 수원 전산 정상 정신 예약 비교 가업 업주 구내 구미 애용 비지 '
     + '상단 하단 정한 안나 경유 송유 동유 '
-    // MK4.2: 위 자주 쓰는 말의 옆 글쇠 후보를 모두 뽑아 그중 사전에 있는 흔한 말만 골라 넣음(일기 ↔ 일시 등)
+    // MK4.3: 위 자주 쓰는 말의 옆 글쇠 후보를 모두 뽑아 그중 사전에 있는 흔한 말만 골라 넣음(일기 ↔ 일시 등)
     + '일기 일세 일리 일사 재상 내상 화의 행시 행서 참다 참아 참기 산발 장문 발문 년수 연루 금토 연착 준공 전곡 수압 간의 각의 당의 바자 비즈 '
     + '실기 실사 실세 실리 추징 초진 처진 분비 국소 이관 가관 초장 어장 정선 적산 증산 계략 대용 눈의 고육 홍조 상감 촌장 비구 학리 임학 철석').split(' '));
   const KB_ROWS = ['ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔ', 'ㅁㄴㅇㄹㅎㅗㅓㅏㅣ', 'ㅋㅌㅊㅍㅠㅜㅡ'], KB_POS = {};
@@ -1545,12 +1567,13 @@ function saveIgnore(){ store.set('ignore', $('ignore').value); $('nIgnore').text
 $('ignoreSave').onclick = saveIgnore;
 
 // ---------- 파일 ----------
-const drop = $('drop');
-drop.onclick = () => $('file').click();
-drop.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('file').click(); } };
-drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
-drop.ondragleave = () => drop.classList.remove('over');
-drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); };
+// 왼쪽 작은 칸과 첫 화면의 큰 칸(「처음으로」 때 다시 그려짐) 모두 같은 동작: 문서에 한 번만 걸어 둠
+const dropOf = e => e.target.closest && e.target.closest('.drop');
+document.addEventListener('click', e => { if (dropOf(e)) $('file').click(); });
+document.addEventListener('keydown', e => { if (dropOf(e) && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); $('file').click(); } });
+document.addEventListener('dragover', e => { const d = dropOf(e); if (d) { e.preventDefault(); d.classList.add('over'); } });
+document.addEventListener('dragleave', e => { const d = dropOf(e); if (d && !d.contains(e.relatedTarget)) d.classList.remove('over'); });
+document.addEventListener('drop', e => { const d = dropOf(e); if (!d) return; e.preventDefault(); d.classList.remove('over'); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); });
 $('file').onchange = e => { if (e.target.files[0]) load(e.target.files[0]); e.target.value = ''; };
 
 // ---------- 처음으로: 파일·결과를 비우고 첫 화면으로(오타 사전·무시 목록·설정은 그대로) ----------
@@ -1568,7 +1591,7 @@ function resetAll(){
   ['nFix', 'nCheck', 'nTypo', 'nAuto', 'nMark', 'nOff'].forEach(id => $(id).textContent = '0');
   ['allOn', 'allOff', 'undoBtn', 'xlsxBtn', 'aiRun', 'nkRun'].forEach(id => $(id).disabled = true); aiIssues = []; nkIssues = []; $('markOnly').disabled = false;
   ['loadStatus', 'saveStatus', 'aiStatus', 'nkStatus'].forEach(id => setStatus(id, ''));
-  window.scrollTo({ top: 0, behavior: 'smooth' }); $('drop').focus({ preventScroll: true });
+  window.scrollTo({ top: 0, behavior: 'smooth' }); const big = document.querySelector('.drop-big'); if (big) big.focus({ preventScroll: true });
 }
 setTimeout(() => { $('resetBtn').onclick = $('resetBtn2').onclick = resetAll; }); // 아래쪽 변수(pptUrls 등)가 정해진 뒤 연결
 
