@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK4.3</title>
+<title>오타 및 계산 수정기 MK4.4</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -84,6 +84,8 @@ aside{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:s
 .drop.drop-big strong{font-size:clamp(20px,2.4vw,26px);font-weight:800;letter-spacing:-0.03em;margin:4px 0 0}
 .drop-ico{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--brand-soft);color:var(--brand-strong);font-size:30px;font-weight:700}
 .drop-kinds{margin-top:6px;font-size:14px}
+.drop-paste{margin-top:8px;padding:6px 12px;border-radius:999px;background:var(--panel);font-size:13px;color:var(--ink)}
+.drop kbd{display:inline-block;min-width:1.6em;padding:1px 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;background:var(--paper);font:600 12px/1.4 inherit;color:var(--ink)}
 .drop-safe{margin-top:2px;font-size:13px;color:var(--muted)}
 body:not(.has-data) aside #drop{display:none}
 body.has-data .drop-big{display:none}
@@ -283,7 +285,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK4.3</span></h1>
+      <h1>오타 및 계산 수정기 <span class="ver">MK4.4</span></h1>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -299,10 +301,10 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   <aside>
     <section class="step">
       <h2><b>1</b>파일 넣기</h2>
-      <p class="drop-hint">오른쪽 큰 칸에 파일을 끌어 놓거나 눌러서 골라 주세요.</p>
+      <p class="drop-hint">오른쪽 큰 칸에 파일을 끌어 놓거나 눌러서 골라 주세요. 복사한 파일·글·표·캡처는 <b>Ctrl + V</b>로 붙여 넣어도 돼요.</p>
       <div class="drop" id="drop" tabindex="0" role="button" aria-label="파일 선택">
         <strong>파일을 여기에 끌어 놓기</strong>
-        또는 눌러서 선택<br>엑셀 · 워드 · PPT · PDF · 한글(HWP·HWPX) · 사진(JPG·PNG)
+        또는 눌러서 선택 · <kbd>Ctrl</kbd>+<kbd>V</kbd> 붙여넣기<br>엑셀 · 워드 · PPT · PDF · 한글(HWP·HWPX) · 사진(JPG·PNG)
       </div>
       <input type="file" id="file" accept=".xlsx,.xlsm,.docx,.pptx,.pdf,.hwpx,.hwp,.png,.jpg,.jpeg,.webp,.bmp" hidden>
       <div class="status" id="loadStatus" aria-live="polite"></div>
@@ -409,6 +411,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
       <span class="drop-ico" aria-hidden="true">⇪</span>
       <strong>검사할 파일을 여기에 끌어 놓기</strong>
       <span>또는 눌러서 파일 고르기</span>
+      <span class="drop-paste">복사한 파일·글·표·화면 캡처는 <kbd>Ctrl</kbd> + <kbd>V</kbd>로 바로 붙여 넣어도 돼요</span>
       <span class="drop-kinds">엑셀 · 워드 · PPT · PDF · 한글(HWP·HWPX) · 사진(JPG·PNG)</span>
       <span class="drop-safe">파일은 이 PC 브라우저 안에서만 읽어요. 어디에도 올라가지 않아요.</span>
     </div>
@@ -551,7 +554,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     + '임원 인권 계산 예상 예선 인내 안대 단내 간내 암내 동지 송지 경지 곤지 궁지 공제 공자 공비 요철 협주 성인 상인 결제 경재 감당 담장 영락 항생 고수 교구 직권 학연 정공 전동 전경 전송 '
     + '수첩 상의 선적 승적 성정 종업 입항 방학 정학 성명 통영 숙고 상공 개관 청장 통장 충장 차장 추장 처방 무관 수원 전산 정상 정신 예약 비교 가업 업주 구내 구미 애용 비지 '
     + '상단 하단 정한 안나 경유 송유 동유 '
-    // MK4.3: 위 자주 쓰는 말의 옆 글쇠 후보를 모두 뽑아 그중 사전에 있는 흔한 말만 골라 넣음(일기 ↔ 일시 등)
+    // MK4.4: 위 자주 쓰는 말의 옆 글쇠 후보를 모두 뽑아 그중 사전에 있는 흔한 말만 골라 넣음(일기 ↔ 일시 등)
     + '일기 일세 일리 일사 재상 내상 화의 행시 행서 참다 참아 참기 산발 장문 발문 년수 연루 금토 연착 준공 전곡 수압 간의 각의 당의 바자 비즈 '
     + '실기 실사 실세 실리 추징 초진 처진 분비 국소 이관 가관 초장 어장 정선 적산 증산 계략 대용 눈의 고육 홍조 상감 촌장 비구 학리 임학 철석').split(' '));
   const KB_ROWS = ['ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔ', 'ㅁㄴㅇㄹㅎㅗㅓㅏㅣ', 'ㅋㅌㅊㅍㅠㅜㅡ'], KB_POS = {};
@@ -1574,6 +1577,73 @@ document.addEventListener('keydown', e => { if (dropOf(e) && (e.key === 'Enter' 
 document.addEventListener('dragover', e => { const d = dropOf(e); if (d) { e.preventDefault(); d.classList.add('over'); } });
 document.addEventListener('dragleave', e => { const d = dropOf(e); if (d && !d.contains(e.relatedTarget)) d.classList.remove('over'); });
 document.addEventListener('drop', e => { const d = dropOf(e); if (!d) return; e.preventDefault(); d.classList.remove('over'); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); });
+
+// ---------- Ctrl+V 붙여넣기: 복사한 파일·캡처 사진·글·표 ----------
+// 글을 쓰는 칸(검색·사전·API 키 등)에 붙여 넣을 때는 건드리지 않음
+document.addEventListener('paste', e => {
+  const t = e.target;
+  if (t && (t.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]') || t.isContentEditable)) return;
+  const cd = e.clipboardData; if (!cd) return;
+  const f = cd.files && cd.files[0];
+  if (f) { e.preventDefault(); load(f.name && f.name !== 'image.png' ? f : new File([f], `붙여넣은 사진.${(f.type.split('/')[1] || 'png').replace('jpeg', 'jpg')}`, { type: f.type })); return; }
+  const html = cd.getData('text/html'), text = cd.getData('text/plain');
+  if (!(text || '').trim() && !(html || '').replace(/<[^>]*>/g, '').trim()) return;
+  e.preventDefault(); loadPasted(html, text);
+});
+// 붙여 넣은 표 하나 → 줄마다 칸 글자(병합 칸은 첫 칸에만)
+function pasteRows(tbl){
+  const out = [];
+  [...tbl.rows].forEach((tr, ri) => {
+    out[ri] = out[ri] || []; let ci = 0;
+    for (const td of tr.cells) {
+      while (out[ri][ci] !== undefined) ci++;
+      const cs = Math.max(1, +td.colSpan || 1), rs = Math.max(1, +td.rowSpan || 1);
+      for (let a = 0; a < rs; a++) for (let b = 0; b < cs; b++) { out[ri + a] = out[ri + a] || []; out[ri + a][ci + b] = a || b ? '' : td.textContent; }
+      ci += cs;
+    }
+  });
+  return out.map(r => [...r].map(x => x || ''));
+}
+// 엑셀(표)·워드·한글에서 복사한 내용 → 본문 문단과 표(한글 파일을 읽은 것과 같은 모양)
+function pasteData(html, text){
+  const body = [], sheets = [], blocks = []; let pi = 0, ti = 0;
+  const clean = s => String(s || '').replace(/ /g, ' ').replace(/[ \t]+\n/g, '\n').trim();
+  const addPara = s => { for (const line of clean(s).split(/\n{2,}/)) { const t = clean(line); if (!t) continue; pi++; body.push({ r: pi, c: 1, addr: `${pi}번째 문단`, text: t, runs: null }); blocks.push({ p: pi }); } };
+  const addTable = rows => {
+    const name = '표' + (++ti), cells = []; let cols = 0;
+    rows.forEach((row, ri) => row.forEach((s, ci) => { cols = Math.max(cols, ci + 1); const t = clean(s); if (t) cells.push({ r: ri + 1, c: ci + 1, addr: `${ri + 1}행 ${ci + 1}열`, text: t, runs: null }); }));
+    if (cells.length) { sheets.push({ name, cells }); blocks.push({ t: name, rows: rows.length, cols }); }
+  };
+  // 표가 있으면 HTML로(칸을 그대로 살림), 없으면 일반 글로. 일반 글이 비어 있으면 HTML에서 읽음
+  if (html && (/<table/i.test(html) || !String(text || '').trim())) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('br').forEach(b => b.replaceWith('\n'));
+    doc.querySelectorAll('style, script, head, title, meta').forEach(n => n.remove());
+    // 안에 문단·표 같은 덩어리가 또 있으면 안으로 들어가고(워드의 구역 div 등), 없으면 한 문단으로
+    const BLOCK = 'P,DIV,TABLE,UL,OL,LI,H1,H2,H3,H4,H5,H6,PRE,BLOCKQUOTE,SECTION,ARTICLE';
+    const walk = el => { for (const n of [...el.children]) {
+      if (n.tagName === 'TABLE') addTable(pasteRows(n));
+      else if (n.querySelector(BLOCK)) walk(n);
+      else addPara(n.textContent);
+    } };
+    walk(doc.body);
+  } else {
+    const lines = String(text || '').replace(/\r/g, '').split('\n'), full = lines.filter(l => l.trim()), tabbed = full.filter(l => l.includes('\t'));
+    // 엑셀에서 복사한 글: 대부분의 줄이 탭으로 칸이 나뉨 → 표로
+    if (tabbed.length >= 2 && tabbed.length >= full.length * 0.6) addTable(lines.filter(l => l.length).map(l => l.split('\t')));
+    else lines.forEach(l => addPara(l));
+  }
+  return Object.assign([{ name: '본문', cells: body }, ...sheets], { blocks });
+}
+async function loadPasted(html, text){
+  const d = pasteData(html, text);
+  if (!d.some(sh => sh.cells.length)) { setStatus('loadStatus', '붙여 넣은 내용에서 글자를 찾지 못했어요.', 'warn'); return; }
+  if (pdfDoc) { pdfDoc.destroy(); pdfDoc = null; }
+  fileBuf = null; fileName = '붙여 넣은 내용'; kind = 'paste'; data = d;
+  choice.clear(); closed.clear(); undoSnap = null; pvSheet = null; aiIssues = []; nkIssues = []; setStatus('aiStatus', ''); setStatus('nkStatus', '');
+  if ($('engOn').checked && !eng) await loadEng(); $('undoBtn').disabled = true; $('saveStatus').textContent = '';
+  govOn = false; run(); offerChecks();
+}
 $('file').onchange = e => { if (e.target.files[0]) load(e.target.files[0]); e.target.value = ''; };
 
 // ---------- 처음으로: 파일·결과를 비우고 첫 화면으로(오타 사전·무시 목록·설정은 그대로) ----------
@@ -1728,7 +1798,8 @@ function run(){
   else setStatus('loadStatus', `${fileName} — ${main || '표 형태를 찾지 못해 칸별 점검만 했어요'}`, recs ? 'ok' : 'warn');
   ['allOn','allOff','xlsxBtn','aiRun','nkRun'].forEach(id => $(id).disabled = false);
   $('xlsxBtn').disabled = $('markOnly').disabled = RO.has(kind);
-  if (RO.has(kind)) setStatus('saveStatus', 'PDF·한글·사진 파일은 고칠 수 없어서 내보내기 없이 화면에서만 표시해요.');
+  if (kind === 'paste') setStatus('saveStatus', '붙여 넣은 내용은 파일이 아니라서 내보내기 없이 화면에서만 표시해요. 찾은 곳은 원래 문서에서 고쳐 주세요.');
+  else if (RO.has(kind)) setStatus('saveStatus', 'PDF·한글·사진 파일은 고칠 수 없어서 내보내기 없이 화면에서만 표시해요.');
   $('tools').hidden = false; $('resetBtn').hidden = false; document.body.classList.add('has-data');
   govBar();
   const cur = $('catSel').value, cats = [...new Set(r.issues.map(i => i.cat))];
@@ -1757,7 +1828,7 @@ $('allOn').onclick = () => bulk(i => i.can ? 'fix' : 'mark');
 $('allOff').onclick = () => bulk(() => 'off');
 $('undoBtn').onclick = () => { if (!undoSnap) return; choice.clear(); undoSnap.forEach((v, k) => choice.set(k, v)); undoSnap = null; $('undoBtn').disabled = true; render(); };
 
-const RO = new Set(['pdf', 'img', 'hwp', 'hwpx']); // 고칠 수 없어서 화면에만 표시
+const RO = new Set(['pdf', 'img', 'hwp', 'hwpx', 'paste']); // 고칠 수 없어서 화면에만 표시(붙여넣기는 원본 파일이 없음)
 const lineOf = i => pdfLines[i.r - 1] || { label: '', n: i.r };
 const locOf = i => (kind === 'pdf' || kind === 'img') ? `${lineOf(i).label} ${lineOf(i).n}번째 줄` : kind === 'xlsx' ? i.addr : i.sheet === '본문' ? `${i.r}번째 문단` : /^슬라이드\d+$/.test(i.sheet) ? `${i.r}번째 글상자` : `${i.r}행 ${i.c}열`;
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -1787,7 +1858,7 @@ function render(){
   const meta = result.meta.filter(m => m.records).map(m =>
     `<b>${esc(m.name)}</b>${kind === 'xlsx' ? ' 시트' : ''}에서 ${m.who === "줄" ? `표 <b>${m.records}줄</b>을` : `${m.who} <b>${m.records}명</b>을`} 찾았어요` +
     (m.nameCol ? ` · 성명 ${m.nameCol}열` : '') + (m.birthCol ? ` · 생년월일 ${m.birthCol}열` : '') + (m.noCol ? ` · 연번 ${m.noCol}열` : '')).join('<br>');
-  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : kind === 'pptx' ? '위치는 슬라이드 번호와 글상자 순서(표는 몇 행 몇 열)예요.' : kind === 'pdf' || kind === 'img' ? '위치는 쪽(장) 번호와 그 안의 몇 번째 줄인지예요.' : /^hwp/.test(kind) ? '위치는 한글 문서의 몇 번째 문단(표는 몇 행 몇 열)이에요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
+  let html = `<div class="meta">${meta || '학생별 표 형태를 찾지 못해서 칸별 점검(숫자·오탈자·형식)만 했어요.'}<br>찾은 항목 <b>${iss.length}개</b>${result.ignored ? ` (무시 목록으로 ${result.ignored}개 숨김)` : ''} — ${kind === 'docx' ? '위치는 워드 표의 몇 행 몇 열(또는 본문 몇 번째 문단)이에요.' : kind === 'pptx' ? '위치는 슬라이드 번호와 글상자 순서(표는 몇 행 몇 열)예요.' : kind === 'pdf' || kind === 'img' ? '위치는 쪽(장) 번호와 그 안의 몇 번째 줄인지예요.' : /^hwp/.test(kind) ? '위치는 한글 문서의 몇 번째 문단(표는 몇 행 몇 열)이에요.' : kind === 'paste' ? '위치는 붙여 넣은 글의 몇 번째 문단(표는 몇 행 몇 열)이에요.' : '표시된 칸 위치(예: J14)는 엑셀 칸 주소예요.'}</div>`;
   const vis = visible();
   $('visCount').textContent = vis.length === iss.length ? `${iss.length}개` : `${iss.length}개 중 ${vis.length}개 보임`;
   if (data.ocr && data.aiRead) html += `<div class="ai-ok">✓ AI가 사진 글자를 다시 읽어서 기계 인식(OCR)이 잘못 읽은 글자를 바로잡았어요. 그래도 원본과 한 번 비교해 주세요.</div>`;
@@ -3044,14 +3115,14 @@ let govOn = false;
 const modeNow = () => govOn ? 'gov' : 'general';
 // 한글·워드·PDF 본문에 '수신'과 '제목' 줄이 있거나, 줄 끝에 '끝.'이 있으면 기안문·공문으로 봄
 function looksGian(){
-  if (!data || !/^(docx|hwpx|hwp|pdf)$/.test(kind)) return false;
+  if (!data || !/^(docx|hwpx|hwp|pdf|paste)$/.test(kind)) return false;
   const lines = data.flatMap(sh => sh.cells.flatMap(c => c.text.split('\n').map(l => l.trim())));
   const head = lines.some(l => /^수\s*신(자)?(\s|:|：|$)/.test(l)), title = lines.some(l => /^제\s*목(\s|:|：|$)/.test(l));
   return (head && title) || lines.some(l => /(^|\s)끝\s*\.$/.test(l));
 }
 function govBar(){
   const bar = $('govBar');
-  if (!data || !/^(docx|hwpx|hwp|pdf)$/.test(kind)) { bar.hidden = true; return; }
+  if (!data || !/^(docx|hwpx|hwp|pdf|paste)$/.test(kind)) { bar.hidden = true; return; }
   bar.hidden = false; bar.classList.toggle('on', govOn);
   const n = govOn && result ? result.issues.filter(i => i.cat === '공문서').length : 0;
   bar.innerHTML = govOn
