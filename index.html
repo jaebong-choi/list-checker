@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오타 및 계산 수정기 MK4.4</title>
+<title>AID 행정문서 자동 검수기 MK4.5</title>
 <style>
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url(lib/fonts/PretendardVariable.woff2) format("woff2-variations"),url(lib/fonts/PretendardVariable.woff2) format("woff2")}
 :root{
@@ -64,6 +64,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 @media (max-width:900px){.hero-in{padding:30px 16px 26px}}
 .eyebrow{margin:0 0 8px;font-size:14px;font-weight:700;color:var(--brand-strong);letter-spacing:0}
 .hero h1{font-size:clamp(28px,4.4vw,44px);line-height:1.15;margin:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-weight:800;letter-spacing:-0.03em}
+.subtitle{margin:10px 0 0;font-size:clamp(16px,1.9vw,20px);font-weight:700;letter-spacing:-0.02em;color:var(--ink)}
 .ver{font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--brand-ink);background:var(--brand);border-radius:999px;padding:4px 11px}
 .lead{color:var(--muted);margin:14px 0 0;font-size:16px;max-width:620px}
 .flow{display:flex;gap:8px;flex-wrap:wrap;margin:0;padding:0;list-style:none}
@@ -285,7 +286,8 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
   </div>
   <div class="hero-in">
     <div>
-      <h1>오타 및 계산 수정기 <span class="ver">MK4.4</span></h1>
+      <h1>AID 행정문서 자동 검수기 <span class="ver">MK4.5</span></h1>
+      <p class="subtitle">엑셀·한글·워드·PDF의 오탈자·계산·날짜 오류를 AI가 찾아요</p>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">엑셀·워드·PPT·PDF·한글 파일이나 사진을 넣으면 같은 줄·같은 칸끼리 비교해서 빠진 내용, 숫자·계산 오류, 오탈자를 찾아 고쳐 줍니다. 파일은 이 PC 브라우저 안에서만 읽어요.</p>
     </div>
@@ -554,7 +556,7 @@ body.has-data .hero-in,body.has-data .wrap,body.has-data .foot{max-width:1840px}
     + '임원 인권 계산 예상 예선 인내 안대 단내 간내 암내 동지 송지 경지 곤지 궁지 공제 공자 공비 요철 협주 성인 상인 결제 경재 감당 담장 영락 항생 고수 교구 직권 학연 정공 전동 전경 전송 '
     + '수첩 상의 선적 승적 성정 종업 입항 방학 정학 성명 통영 숙고 상공 개관 청장 통장 충장 차장 추장 처방 무관 수원 전산 정상 정신 예약 비교 가업 업주 구내 구미 애용 비지 '
     + '상단 하단 정한 안나 경유 송유 동유 '
-    // MK4.4: 위 자주 쓰는 말의 옆 글쇠 후보를 모두 뽑아 그중 사전에 있는 흔한 말만 골라 넣음(일기 ↔ 일시 등)
+    // MK4.5: 위 자주 쓰는 말의 옆 글쇠 후보를 모두 뽑아 그중 사전에 있는 흔한 말만 골라 넣음(일기 ↔ 일시 등)
     + '일기 일세 일리 일사 재상 내상 화의 행시 행서 참다 참아 참기 산발 장문 발문 년수 연루 금토 연착 준공 전곡 수압 간의 각의 당의 바자 비즈 '
     + '실기 실사 실세 실리 추징 초진 처진 분비 국소 이관 가관 초장 어장 정선 적산 증산 계략 대용 눈의 고육 홍조 상감 촌장 비구 학리 임학 철석').split(' '));
   const KB_ROWS = ['ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔ', 'ㅁㄴㅇㄹㅎㅗㅓㅏㅣ', 'ㅋㅌㅊㅍㅠㅜㅡ'], KB_POS = {};
