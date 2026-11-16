@@ -190,7 +190,7 @@ input.t:focus,textarea:focus{outline:0;border-color:var(--brand);background:var(
   </nav>
   <div class="hero-in">
     <div>
-      <h1>AID 행정문서 도우미 <span class="ver">MK4.6</span></h1>
+      <h1>AID 행정문서 도우미 <span class="ver">MK4.7</span></h1>
       <p class="subtitle">검수 사진을 넣고 이름만 적으면 양식에 맞춰 정리해 줘요</p>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
       <p class="lead">사진을 넣고 물품 이름을 적으면 검수 사진 양식(한 쪽 12칸)에 맞춰 Word·한글 파일로 만들어 줍니다. 사진은 이 PC 브라우저 안에서만 다뤄요.</p>
@@ -232,17 +232,17 @@ input.t:focus,textarea:focus{outline:0;border-color:var(--brand);background:var(
     <section class="step">
       <h2><b>3</b>Word·한글로 저장</h2>
       <label class="f" for="t1">제목 첫 줄</label>
-      <input class="t" id="t1" value="외국인 유학생의 날">
+      <input class="t" id="t1" placeholder="예: 외국인 유학생의 날">
       <label class="f" for="t2">제목 둘째 줄</label>
-      <input class="t" id="t2" value="물품 검수 사진">
+      <input class="t" id="t2" placeholder="예: 물품 검수 사진">
       <label class="f" for="fname">파일 이름</label>
-      <input class="t" id="fname" value="물품_검수_사진">
+      <input class="t" id="fname" placeholder="예: 물품_검수_사진">
       <label class="f">양식 로고</label>
       <div class="logos">
         <div class="lslot"><span>왼쪽 로고</span><div class="lprev" id="logoPrev0"></div>
           <div class="lbtns"><button class="btn" id="logoPick0">바꾸기</button><button class="btn" id="logoNone0">없애기</button><button class="btn" id="logoReset0" disabled>원래대로</button></div></div>
         <div class="lslot"><span>오른쪽 로고</span><div class="lprev" id="logoPrev1"></div>
-          <div class="lbtns"><button class="btn" id="logoPick1">바꾸기</button><button class="btn" id="logoNone1">없애기</button><button class="btn" id="logoReset1" disabled>원래대로</button></div></div>
+          <div class="lbtns"><button class="btn" id="logoPick1">로고 올리기</button><button class="btn" id="logoNone1">없애기</button><button class="btn" id="logoReset1" disabled hidden>원래대로</button></div></div>
       </div>
       <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
       <div class="status" id="logoStatus"></div>
@@ -655,7 +655,7 @@ $('tplFile').onchange = async e => {
     const z = await JSZip.loadAsync(buf);
     const x = await z.file('word/document.xml').async('string');
     if ((x.match(/<w:tbl>/g)||[]).length < 2) throw new Error('구조');
-    templateBuf = buf; setStatus('tplStatus', `${f.name} 양식을 씁니다.`, 'ok'); loadDefaultLogos();
+    templateBuf = buf; setStatus('tplStatus', `${f.name} 양식을 씁니다.`, 'ok'); if (!logos[1]) noLogo[1] = false; customTpl = true; loadDefaultLogos();
   }catch(err){ setStatus('tplStatus','이 파일은 쓸 수 없습니다. 머리 표와 사진 표, 두 개의 표가 들어 있는 .docx여야 합니다.','warn'); e.target.value=''; }
 };
 
@@ -665,7 +665,7 @@ $('tplFile').onchange = async e => {
 const LOGO_MAXW = 1100000, LOGO_MAXH = 640000, LOGO_KEY = 'kmcu-photo-sheet.logos.v1';
 const logos = [null, null];        // 바꾼 로고 {blob, url, w, h}
 const defaultLogos = [null, null];
-const noLogo = [false, false];     // 로고 없애기 // 양식에 원래 있던 로고 url
+const noLogo = [false, true];      // 로고 없애기. 오른쪽은 비워 두고 시작한다(쓰는 사람이 자기 로고를 올림)
 function headerRange(d){ const b = d.indexOf('<w:body>'); return [b, d.indexOf('</w:tbl>', b)]; }
 async function loadDefaultLogos(){
   try{
@@ -691,13 +691,14 @@ async function loadDefaultLogos(){
 }
 function paintLogo(el, i){
   el.textContent = '';
-  if (noLogo[i]){ if (el.classList.contains('lprev')) el.textContent = '로고 없음'; return; }
+  if (noLogo[i]){ if (el.classList.contains('lprev')) el.textContent = i ? '로고를 올려 주세요' : '로고 없음'; return; }
   const src = logos[i]?.url || defaultLogos[i];
   if (!src){ el.textContent = '로고'; return; }
   const img = document.createElement('img'); img.src = src; img.alt = (i ? '오른쪽' : '왼쪽') + ' 로고'; el.append(img);
 }
 function paintLogoSlots(){
   for (let i=0; i<2; i++){ paintLogo($('logoPrev'+i), i); $('logoReset'+i).disabled = !logos[i] && !noLogo[i]; $('logoNone'+i).disabled = noLogo[i]; }
+  $('logoPick1').textContent = noLogo[1] ? '로고 올리기' : '바꾸기';
 }
 async function toLogo(blob){
   const url = URL.createObjectURL(blob);
@@ -731,9 +732,10 @@ async function restoreLogos(){
     }
     if (Array.isArray(saved.none)) saved.none.forEach((v, i) => { if (i < 2) noLogo[i] = !!v; });
   }catch(e){ /* 저장된 로고가 없거나 읽을 수 없으면 기본 로고 */ }
+  if (!logos[1] && !customTpl) noLogo[1] = true;   // 오른쪽은 올린 로고가 없으면 늘 빈칸
   paintLogoSlots(); render();
 }
-let logoSlot = 0;
+let logoSlot = 0, customTpl = false;   // customTpl: 자기 양식을 넣었으면 그 양식의 로고를 그대로 둔다
 for (let i=0; i<2; i++){
   $('logoPick'+i).onclick = () => { logoSlot = i; $('logoFile').click(); };
   $('logoNone'+i).onclick = () => {
@@ -742,7 +744,7 @@ for (let i=0; i<2; i++){
   };
   $('logoReset'+i).onclick = () => {
     if (logos[i]) URL.revokeObjectURL(logos[i].url);
-    logos[i] = null; noLogo[i] = false; saveLogos(); paintLogoSlots(); render();
+    logos[i] = null; noLogo[i] = false; if (i === 1 && !customTpl) noLogo[1] = true; saveLogos(); paintLogoSlots(); render();
     setStatus('logoStatus', (i ? '오른쪽' : '왼쪽') + ' 로고를 원래대로 돌렸습니다.', 'ok');
   };
 }
@@ -789,8 +791,8 @@ async function buildDocx(){
   d = d.replace(/ w14:(paraId|textId)="[0-9A-F]+"/g,'');
   // titles
   const t1 = $('t1').value.trim(), t2 = $('t2').value.trim();
-  if (t1) d = d.replace('>외국인 유학생의 날<', '>'+esc(t1)+'<');
-  if (t2) d = d.replace('>물품 검수 사진<', '>'+esc(t2)+'<');
+  if (t1 || !customTpl) d = d.replace('>외국인 유학생의 날<', '>'+esc(t1)+'<');
+  if (t2 || !customTpl) d = d.replace('>물품 검수 사진<', '>'+esc(t2)+'<');
   d = await applyLogos(z, d);
   const b0 = d.indexOf('<w:body>') + 8;
   const t1e = d.indexOf('</w:tbl>') + 8;
@@ -872,8 +874,8 @@ async function buildHwpx(){
   let tbl1 = x.slice(t1, e1);
   const tbl2 = x.slice(t2, e2);
   const t1v = $('t1').value.trim(), t2v = $('t2').value.trim();
-  if (t1v) tbl1 = tbl1.replace('>외국인 유학생의 날<', '>' + esc(t1v) + '<');
-  if (t2v) tbl1 = tbl1.replace('>물품 검수 사진<', '>' + esc(t2v) + '<');
+  tbl1 = tbl1.replace('>외국인 유학생의 날<', '>' + esc(t1v) + '<');
+  tbl1 = tbl1.replace('>물품 검수 사진<', '>' + esc(t2v) + '<');
   const lpics = tbl1.match(/<hp:pic\b[\s\S]*?<\/hp:pic>/g) || [];
   for (let i=0; i<2; i++){
     if (lpics[i] && noLogo[i]){ tbl1 = tbl1.replace(lpics[i], ''); continue; }
