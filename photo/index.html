@@ -193,7 +193,7 @@ input.t:focus,textarea:focus{outline:0;border-color:var(--brand);background:var(
       <h1>AID 행정문서 도우미 <span class="ver">MK4.7</span></h1>
       <p class="subtitle">검수 사진을 넣고 이름만 적으면 양식에 맞춰 정리해 줘요</p>
       <p class="eyebrow" style="margin:8px 0 0">Made by 계명문화대학교 국제처 최재봉</p>
-      <p class="lead">사진을 넣고 물품 이름을 적으면 검수 사진 양식(한 쪽 12칸)에 맞춰 Word·한글 파일로 만들어 줍니다. 사진은 이 PC 브라우저 안에서만 다뤄요.</p>
+      <p class="lead">사진을 넣고 물품 이름을 적으면 한 쪽에 최대 12장씩 배치한 Word·한글 파일을 만들어요. 사진은 이 기기에서 처리해요.</p>
     </div>
     <ol class="flow" aria-label="사용 순서">
       <li><b>1</b>사진 넣기</li>
@@ -220,12 +220,13 @@ input.t:focus,textarea:focus{outline:0;border-color:var(--brand);background:var(
         <button class="btn" id="groupBtn" disabled>같은 이름끼리 모으기</button>
         <button class="btn" id="clearBtn" disabled>모두 지우기</button>
       </div>
-      <p class="note">사진은 파일명 순서로 들어갑니다. Word·한글 파일을 불러오면 그 안의 사진·이름이 먼저 깔리고, 새로 넣는 사진은 뒤에 붙어요. 칸을 끌어서 순서를 바꿀 수 있어요.</p>
+      <p class="note">사진은 파일명 순서로 들어가요. Word·한글 파일에서 불러온 사진·이름 뒤에 새 사진을 추가할 수 있어요. 칸을 끌거나 화살표 버튼으로 순서를 바꿔 주세요.</p>
+      <p class="note">작업 내용은 자동 저장되지 않아요. 새로고침하거나 다른 페이지로 이동하기 전에 Word·한글 파일로 저장해 주세요.</p>
     </section>
 
     <section class="step">
       <h2><b>2</b>물품 이름 채우기</h2>
-      <p class="note" style="margin-top:0">각 사진 아래 칸에 물품 이름을 적어 주세요. Enter를 누르면 다음 칸으로 넘어가고, 앞 사진과 같은 물품이면 「위와 같음」을 누르면 됩니다.</p>
+      <p class="note" style="margin-top:0">각 사진 아래에 물품 이름을 적어 주세요. Enter를 누르면 다음 칸으로 이동해요. 앞 사진과 같은 물품이면 「위와 같음」을 눌러 주세요.</p>
       <div class="count" id="count"></div>
     </section>
 
@@ -248,7 +249,7 @@ input.t:focus,textarea:focus{outline:0;border-color:var(--brand);background:var(
       <div class="status" id="logoStatus"></div>
       <button class="btn primary wide" id="saveBtn" style="margin-top:12px" disabled>Word 파일 저장</button>
       <button class="btn wide" id="saveHwpBtn" style="margin-top:8px" disabled>한글(HWPX) 파일 저장</button>
-      <p class="note">한글 파일은 .hwpx로 저장돼요. 한글 2010 이후 버전에서 열리고, 필요하면 한글에서 .hwp로 다시 저장하면 돼요.</p>
+      <p class="note">한글 파일은 .hwpx로 저장돼요. 저장한 파일을 한글에서 열어 사진 배치와 이름을 확인해 주세요. .hwp가 필요하면 한글의 「다른 이름으로 저장」을 이용해 주세요.</p>
       <div class="status" id="saveStatus"></div>
       <details style="margin-top:10px">
         <summary>다른 양식 쓰기</summary>
